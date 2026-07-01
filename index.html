@@ -61,27 +61,27 @@
             
             <div class="sidebar-menu" id="sidebar-menu">
                 <div class="menu-label">เมนูหลัก</div>
-                <a href="#" class="menu-item active" data-view="dashboard">
+                <a href="#" class="menu-item active" data-view="dashboard" data-roles="admin,ครู,ผู้บริหาร">
                     <i class="fas fa-chart-pie"></i> ภาพรวม (Dashboard)
                 </a>
-                <a href="#" class="menu-item" data-view="projects">
+                <a href="#" class="menu-item" data-view="projects" data-roles="admin,ครู">
                     <i class="fas fa-folder-plus"></i> โครงการ/กิจกรรม
                 </a>
-                <a href="#" class="menu-item" data-view="allocations">
+                <a href="#" class="menu-item" data-view="allocations" data-roles="admin,ผู้บริหาร">
                     <i class="fas fa-hand-holding-usd"></i> จัดสรรงบประมาณ
                 </a>
-                <a href="#" class="menu-item" data-view="tracking">
+                <a href="#" class="menu-item" data-view="tracking" data-roles="admin,ผู้บริหาร">
                     <i class="fas fa-search-dollar"></i> ติดตามการใช้จ่ายงบ
                 </a>
-                <a href="#" class="menu-item" data-view="disbursements">
+                <a href="#" class="menu-item" data-view="disbursements" data-roles="admin,ผู้บริหาร">
                     <i class="fas fa-check-double"></i> อนุมัติเบิกจ่าย
                 </a>
                 
-                <div class="menu-label mt-4">ตั้งค่าระบบ</div>
-                <a href="#" class="menu-item" data-view="settings-departments">
+                <div class="menu-label mt-4" data-roles="admin">ตั้งค่าระบบ</div>
+                <a href="#" class="menu-item" data-view="settings-departments" data-roles="admin">
                     <i class="fas fa-sitemap"></i> กลุ่มงาน/ฝ่าย
                 </a>
-                <a href="#" class="menu-item" data-view="settings-users">
+                <a href="#" class="menu-item" data-view="settings-users" data-roles="admin">
                     <i class="fas fa-users"></i> จัดการสมาชิก
                 </a>
             </div>
