@@ -91,71 +91,68 @@
         #login-screen {
             height: 100vh; width: 100vw;
             display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+            background: #f8fafc; /* Soft, warm light gray */
             position: absolute; top: 0; left: 0; z-index: 2000;
             overflow: hidden;
         }
         #login-screen::before {
             content: ''; position: absolute;
-            width: 500px; height: 500px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
-            top: -100px; right: -100px;
+            width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            top: -150px; right: -150px;
             animation: floatOrb 8s ease-in-out infinite;
         }
         #login-screen::after {
             content: ''; position: absolute;
-            width: 400px; height: 400px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
-            bottom: -80px; left: -80px;
+            width: 500px; height: 500px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
+            bottom: -120px; left: -120px;
             animation: floatOrb 10s ease-in-out infinite reverse;
         }
 
         .login-card {
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 48px 40px; border-radius: 24px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-            width: 100%; max-width: 440px; text-align: center;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            padding: 56px 48px; border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+            width: 100%; max-width: 420px; text-align: center;
             animation: fadeInUp 0.8s ease-out;
             position: relative; z-index: 10;
         }
         .login-logo i {
-            font-size: 2.5rem; color: white; margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-            width: 72px; height: 72px; border-radius: 20px;
-            line-height: 72px; display: inline-block;
-            animation: pulseLogo 3s infinite;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            font-size: 2.2rem; color: #fff; margin-bottom: 24px;
+            background: #2563eb;
+            width: 68px; height: 68px; border-radius: 18px;
+            line-height: 68px; display: inline-block;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
         }
-        .login-title { font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 6px; }
-        .login-subtitle { font-size: 0.85rem; color: var(--slate-400); margin-bottom: 32px; }
+        .login-title { font-size: 1.4rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .login-subtitle { font-size: 0.85rem; color: #64748b; margin-bottom: 36px; line-height: 1.5; }
 
         .login-card .form-control {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #fff; border-radius: 12px; padding: 12px 16px;
-            font-size: 0.9rem; transition: all 0.3s;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #334155; border-radius: 12px; padding: 14px 18px;
+            font-size: 0.95rem; transition: all 0.3s;
         }
-        .login-card .form-control::placeholder { color: var(--slate-500); }
+        .login-card .form-control::placeholder { color: #94a3b8; }
         .login-card .form-control:focus {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--blue-500);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
-        .login-card .form-label { color: var(--slate-300); font-size: 0.8rem; font-weight: 500; }
+        .login-card .form-label { color: #475569; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
 
         .login-btn {
-            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
-            border: none; padding: 13px; border-radius: 12px;
-            font-weight: 600; width: 100%; margin-top: 24px; color: white;
-            font-size: 0.95rem; transition: all 0.3s; letter-spacing: 0.3px;
+            background: #0f172a;
+            border: none; padding: 14px; border-radius: 12px;
+            font-weight: 600; width: 100%; margin-top: 28px; color: white;
+            font-size: 1rem; transition: all 0.3s;
         }
         .login-btn:hover {
-            background: linear-gradient(135deg, #1d4ed8, var(--blue-600));
+            background: #1e293b;
             color: white; transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
         }
 
          
@@ -706,7 +703,7 @@
         <div class="login-card">
             <div class="login-logo"><i class="fas fa-school"></i></div>
             <div class="login-title">ระบบบริหารจัดการงบประมาณ</div>
-            <div class="login-subtitle">โรงเรียนมหาชัยพิทยาคาร สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม</div>
+            <div class="login-subtitle">โรงเรียนมหาชัยพิทยาคาร สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม<br><span style="font-size:0.8rem; color: #94a3b8; font-weight: normal;">พัฒนาโดย ครูก้องนที อุ่นเจริญ</span></div>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="mb-3 text-start">
                     <label class="form-label">ชื่อผู้ใช้งาน</label>
