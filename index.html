@@ -1,219 +1,2560 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบริหารจัดการงบประมาณของสถานศึกษา</title>
+    <title>ระบบบริหารจัดการงบประมาณของสถานศึกษา<\/title>
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- SweetAlert2 for notifications -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Chart.js for dashboard -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-    <!-- Custom CSS -->
+    <style>
+        :root {
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --sidebar-active: #2563eb;
+            --topbar-bg: #ffffff;
+            --bg-main: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --sidebar-width: 264px;
+            --blue-600: #2563eb;
+            --blue-500: #3b82f6;
+            --blue-100: #dbeafe;
+            --emerald-600: #059669;
+            --emerald-500: #10b981;
+            --emerald-100: #d1fae5;
+            --amber-600: #d97706;
+            --amber-500: #f59e0b;
+            --amber-100: #fef3c7;
+            --red-600: #dc2626;
+            --red-500: #ef4444;
+            --red-100: #fee2e2;
+            --orange-500: #f97316;
+            --orange-100: #ffedd5;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+         
+         
+         
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-15px, 15px) scale(0.95); }
+        }
+        @keyframes pulseLogo {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        #login-screen {
+            height: 100vh; width: 100vw;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%);
+            position: absolute; top: 0; left: 0; z-index: 2000;
+            overflow: hidden;
+        }
+        #login-screen::before {
+            content: ''; position: absolute;
+            width: 500px; height: 500px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+            top: -100px; right: -100px;
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+        #login-screen::after {
+            content: ''; position: absolute;
+            width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+            bottom: -80px; left: -80px;
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 48px 40px; border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            width: 100%; max-width: 440px; text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            position: relative; z-index: 10;
+        }
+        .login-logo i {
+            font-size: 2.5rem; color: white; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            width: 72px; height: 72px; border-radius: 20px;
+            line-height: 72px; display: inline-block;
+            animation: pulseLogo 3s infinite;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+        .login-title { font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 6px; }
+        .login-subtitle { font-size: 0.85rem; color: var(--slate-400); margin-bottom: 32px; }
+
+        .login-card .form-control {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff; border-radius: 12px; padding: 12px 16px;
+            font-size: 0.9rem; transition: all 0.3s;
+        }
+        .login-card .form-control::placeholder { color: var(--slate-500); }
+        .login-card .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--blue-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .login-card .form-label { color: var(--slate-300); font-size: 0.8rem; font-weight: 500; }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            border: none; padding: 13px; border-radius: 12px;
+            font-weight: 600; width: 100%; margin-top: 24px; color: white;
+            font-size: 0.95rem; transition: all 0.3s; letter-spacing: 0.3px;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8, var(--blue-600));
+            color: white; transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+        }
+
+         
+         
+         
+        #wrapper { display: none; height: 100vh; flex-direction: column; }
+
+         
+        .topbar {
+            height: 64px; background-color: var(--topbar-bg);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; z-index: 1050;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .topbar-brand { display: flex; align-items: center; }
+        .topbar-brand .school-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem; margin-right: 12px;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.2);
+        }
+        .topbar-brand .title { font-weight: 700; font-size: 1rem; color: var(--slate-800); }
+        .topbar-brand .subtitle { font-size: 0.7rem; color: var(--slate-400); font-weight: 400; }
+
+        .topbar-search {
+            display: flex; align-items: center;
+            background: var(--slate-100); border: 1px solid var(--slate-200);
+            border-radius: 10px; padding: 8px 14px; width: 320px;
+            transition: all 0.3s;
+        }
+        .topbar-search:focus-within {
+            border-color: var(--blue-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: white;
+        }
+        .topbar-search i { color: var(--slate-400); margin-right: 10px; font-size: 0.85rem; }
+        .topbar-search input {
+            border: none; outline: none; background: transparent;
+            font-size: 0.85rem; color: var(--slate-700); width: 100%;
+            font-family: 'Prompt', sans-serif;
+        }
+        .topbar-search input::placeholder { color: var(--slate-400); }
+
+        .topbar-actions { display: flex; align-items: center; gap: 8px; }
+        .notif-btn {
+            position: relative; width: 40px; height: 40px; border-radius: 10px;
+            border: none; background: transparent; color: var(--slate-500);
+            font-size: 1.1rem; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .notif-btn:hover { background: var(--slate-100); color: var(--slate-700); }
+        .notif-btn .dot {
+            position: absolute; top: 8px; right: 8px;
+            width: 8px; height: 8px; background: var(--red-500);
+            border-radius: 50%; border: 2px solid white;
+        }
+        .topbar-divider { width: 1px; height: 32px; background: var(--slate-200); margin: 0 8px; }
+
+        .user-profile { display: flex; align-items: center; cursor: pointer;
+            padding: 6px 10px; border-radius: 10px; transition: 0.2s; }
+        .user-profile:hover { background: var(--slate-50); }
+        .user-profile .name { font-weight: 600; font-size: 0.85rem; color: var(--slate-800); line-height: 1.2; }
+        .user-profile .role { font-size: 0.7rem; color: var(--slate-500); }
+        .avatar-circle {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 700; font-size: 0.85rem; margin-right: 10px;
+            background: var(--blue-100); color: var(--blue-600);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+        .logout-btn {
+            width: 40px; height: 40px; border-radius: 10px;
+            border: none; background: transparent; color: var(--slate-400);
+            font-size: 1.1rem; cursor: pointer; transition: 0.2s; margin-left: 4px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logout-btn:hover { background: var(--red-100); color: var(--red-500); }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+
+         
+         
+         
+        #sidebar {
+            width: var(--sidebar-width); background-color: var(--sidebar-bg);
+            color: var(--slate-400); overflow-y: auto; transition: all 0.3s;
+            display: flex; flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.04);
+        }
+        #sidebar::-webkit-scrollbar { width: 4px; }
+        #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        .sidebar-section-label {
+            font-size: 0.65rem; font-weight: 700; color: var(--slate-500);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            padding: 20px 20px 8px; margin: 0;
+        }
+
+        .sidebar-menu { list-style: none; padding: 4px 12px; margin: 0; flex: 1; }
+        .sidebar-menu li {
+            padding: 10px 14px; margin-bottom: 2px; cursor: pointer;
+            border-radius: 10px; font-size: 0.85rem; display: flex; align-items: center;
+            transition: all 0.2s ease; color: var(--slate-400); font-weight: 400;
+        }
+        .sidebar-menu li:hover {
+            color: #fff; background-color: var(--sidebar-hover);
+        }
+        .sidebar-menu li.active {
+            background-color: var(--sidebar-active); color: white; font-weight: 500;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+        .sidebar-menu li i.menu-icon {
+            margin-right: 12px; width: 20px; text-align: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+
+         
+        .sidebar-submenu {
+            list-style: none; padding: 0; margin: 0; max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease-in-out;
+        }
+        .sidebar-submenu.show { max-height: 500px; margin-bottom: 4px; }
+        .sidebar-submenu li {
+            padding-left: 48px; padding-top: 9px; padding-bottom: 9px;
+            margin-bottom: 1px; font-size: 0.82rem; border-radius: 8px;
+        }
+        .menu-arrow { transition: transform 0.3s ease; margin-left: auto; font-size: 0.7rem; }
+        .menu-arrow.rotate { transform: rotate(180deg); }
+
+        .sidebar-footer {
+            padding: 12px; border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-footer button {
+            width: 100%; padding: 9px 14px; border-radius: 10px;
+            border: none; background: transparent; color: var(--slate-400);
+            font-size: 0.85rem; text-align: left; cursor: pointer;
+            display: flex; align-items: center; transition: 0.2s;
+            font-family: 'Prompt', sans-serif;
+        }
+        .sidebar-footer button:hover { background: var(--sidebar-hover); color: white; }
+        .sidebar-footer .logout-sidebar:hover { background: rgba(239, 68, 68, 0.12); color: #f87171; }
+        .sidebar-footer button i { margin-right: 12px; width: 20px; text-align: center; }
+
+         
+         
+         
+        #content-wrapper { flex: 1; padding: 28px 32px; overflow-y: auto; background: var(--bg-main); }
+
+        .page-header { margin-bottom: 24px; }
+        .page-title {
+            font-size: 1.5rem; font-weight: 700; color: var(--slate-800);
+            margin: 0; display: flex; align-items: center; gap: 8px;
+        }
+        .page-subtitle { font-size: 0.85rem; color: var(--slate-500); margin-top: 4px; }
+
+         
+         
+         
+        .kpi-card {
+            background: white; border-radius: 16px; padding: 24px;
+            border: 1px solid var(--slate-100);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            position: relative; overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .kpi-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            transform: translateY(-2px);
+        }
+        .kpi-card .kpi-blur {
+            position: absolute; top: -40px; right: -40px;
+            width: 120px; height: 120px; border-radius: 50%;
+            opacity: 0.15; filter: blur(30px); pointer-events: none;
+        }
+        .kpi-card .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; position: relative; z-index: 2; }
+        .kpi-card .kpi-label { font-size: 0.82rem; color: var(--slate-500); font-weight: 500; }
+        .kpi-card .kpi-value { font-size: 1.75rem; font-weight: 700; color: var(--slate-800); position: relative; z-index: 2; margin: 0; }
+        .kpi-card .kpi-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .kpi-card .kpi-footer { margin-top: 14px; font-size: 0.78rem; color: var(--slate-500); position: relative; z-index: 2; }
+
+        .kpi-blue .kpi-blur { background: var(--blue-500); }
+        .kpi-blue .kpi-icon { background: var(--blue-100); color: var(--blue-600); }
+
+        .kpi-red .kpi-blur { background: var(--orange-500); }
+        .kpi-red .kpi-icon { background: var(--orange-100); color: var(--orange-500); }
+
+        .kpi-yellow .kpi-blur { background: var(--amber-500); }
+        .kpi-yellow .kpi-icon { background: var(--amber-100); color: var(--amber-600); }
+
+        .kpi-green .kpi-blur { background: var(--emerald-500); }
+        .kpi-green .kpi-icon { background: var(--emerald-100); color: var(--emerald-600); }
+
+         
+         
+         
+        .panel {
+            background: white; border-radius: 16px; padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 24px; border: 1px solid var(--slate-100);
+        }
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .panel-header .panel-title {
+            font-weight: 700; color: var(--slate-800);
+            font-size: 0.95rem; display: flex; align-items: center; gap: 8px;
+            margin: 0;
+        }
+        .panel-header .panel-title i { color: var(--slate-400); }
+
+        .table-modern { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .table-modern thead { background: var(--slate-50); }
+        .table-modern thead th {
+            padding: 14px 16px; font-size: 0.7rem; font-weight: 600;
+            color: var(--slate-500); text-transform: uppercase;
+            letter-spacing: 0.8px; border-bottom: 1px solid var(--slate-200);
+            white-space: nowrap;
+        }
+        .table-modern tbody tr { transition: background 0.15s; }
+        .table-modern tbody tr:hover { background: rgba(248, 250, 252, 0.6); }
+        .table-modern tbody td {
+            padding: 14px 16px; font-size: 0.85rem; color: var(--slate-700);
+            border-bottom: 1px solid var(--slate-100); vertical-align: middle;
+        }
+        .table-modern tbody td.text-start { text-align: left; }
+        .table-modern tfoot td, .table-modern tfoot th {
+            padding: 14px 16px; font-weight: 700; background: var(--slate-50);
+            border-top: 2px solid var(--slate-200);
+        }
+
+         
+        .table-custom th { background-color: var(--slate-50); color: var(--slate-500); text-align: center;
+            font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .table-custom td { vertical-align: middle; text-align: center; font-size: 0.85rem; color: var(--slate-700); }
+        .table-custom td.text-start { text-align: left; }
+
+         
+         
+         
+        .badge-pill {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-approved { background: var(--emerald-100); color: #065f46; }
+        .badge-pending { background: var(--amber-100); color: #92400e; }
+        .badge-rejected { background: var(--red-100); color: #991b1b; }
+        .badge-waiting { background: #e0e7ff; color: #3730a3; }
+
+         
+        .badge-status-pending { background-color: var(--amber-100); color: #92400e; border: none; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+        .badge-status-approved { background-color: var(--emerald-100); color: #065f46; border: none; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+        .badge-status-rejected { background-color: var(--red-100); color: #991b1b; border: none; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+        .badge-status-waiting { background-color: #e0e7ff; color: #3730a3; border: none; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+
+        .badge-udnun { background-color: var(--blue-100); color: #1e40af; border: none; border-radius: 20px; font-weight: 500; }
+        .badge-klang { background-color: var(--amber-100); color: #92400e; border: none; border-radius: 20px; font-weight: 500; }
+        .badge-default { background-color: var(--slate-100); color: var(--slate-600); border: none; border-radius: 20px; font-weight: 500; }
+
+        .status-approved { color: var(--emerald-600); font-weight: 600; }
+        .status-pending { color: var(--amber-600); font-weight: 600; }
+
+         
+         
+         
+        .progress-slim { height: 6px; border-radius: 3px; width: 60px; background-color: var(--slate-200); }
+        .progress-bar-modern { height: 6px; border-radius: 3px; }
+
+         
+         
+         
+        .alloc-header-panel {
+            background: var(--slate-800); color: white; padding: 14px 20px;
+            border-top-left-radius: 16px; border-top-right-radius: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .alloc-table-container { border-radius: 16px; background: white; overflow: hidden;
+            border: 1px solid var(--slate-200); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .alloc-table th { background-color: var(--slate-50); color: var(--slate-500); font-weight: 600;
+            border-bottom: 1px solid var(--slate-200); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+         
+         
+         
+        .central-total-card {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: white; border-radius: 16px; padding: 28px 24px;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
+            position: relative; overflow: hidden;
+        }
+        .central-total-card::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 120px; height: 120px; border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+        .central-sub-card {
+            background: white; border-radius: 16px; padding: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid var(--slate-100);
+        }
+        .border-left-red { border-left: 4px solid var(--red-500) !important; }
+        .border-left-green { border-left: 4px solid var(--emerald-500) !important; }
+
+         
+         
+         
+        .doc-card {
+            background: white; border-radius: 16px; padding: 28px 20px; text-align: center;
+            border: 1px solid var(--slate-100); transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04); position: relative; overflow: hidden;
+        }
+        .doc-card:hover {
+            transform: translateY(-6px); box-shadow: 0 16px 40px rgba(37,99,235,0.12);
+            border-color: var(--blue-100);
+        }
+        .doc-card .doc-icon {
+            width: 64px; height: 64px; border-radius: 16px; display: flex;
+            align-items: center; justify-content: center; margin: 0 auto 15px;
+            font-size: 1.8rem; background: linear-gradient(135deg, var(--blue-500), #6366f1);
+            color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        .doc-card .doc-title { font-weight: 600; font-size: 0.92rem; color: var(--slate-800); margin-bottom: 6px; }
+        .doc-card .doc-desc { font-size: 0.78rem; color: var(--slate-400); margin-bottom: 16px; min-height: 36px; }
+        .doc-card .doc-btn {
+            background: linear-gradient(135deg, var(--blue-500), var(--blue-600)); color: white; border: none;
+            padding: 8px 18px; border-radius: 10px; font-size: 0.82rem; font-weight: 500;
+            transition: 0.3s; text-decoration: none; display: inline-block;
+        }
+        .doc-card .doc-btn:hover { background: linear-gradient(135deg, var(--blue-600), #1d4ed8); color: white; transform: translateY(-1px); }
+        .doc-card .doc-delete-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: var(--red-100); border: none; color: var(--red-500);
+            width: 28px; height: 28px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .doc-card:hover .doc-delete-btn { opacity: 1; }
+
+         
+         
+         
+        .tracking-stat-card {
+            border-radius: 16px; padding: 20px; background: white;
+            border: 1px solid var(--slate-100);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04); text-align: center;
+        }
+        .tracking-stat-card .stat-value { font-size: 1.5rem; font-weight: 700; }
+        .tracking-stat-card .stat-label { font-size: 0.78rem; color: var(--slate-500); }
+
+         
+         
+         
+        .btn-modern-primary {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-500));
+            color: white; border: none; padding: 9px 18px;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Prompt', sans-serif; box-shadow: 0 2px 8px rgba(37,99,235,0.15);
+        }
+        .btn-modern-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8, var(--blue-600));
+            transform: translateY(-1px); box-shadow: 0 4px 15px rgba(37,99,235,0.25);
+            color: white;
+        }
+        .btn-modern-secondary {
+            background: white; color: var(--slate-700); border: 1px solid var(--slate-200);
+            padding: 9px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Prompt', sans-serif;
+        }
+        .btn-modern-secondary:hover { background: var(--slate-50); border-color: var(--slate-300); }
+
+        .btn-modern-success {
+            background: linear-gradient(135deg, var(--emerald-600), var(--emerald-500));
+            color: white; border: none; padding: 9px 18px;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Prompt', sans-serif;
+        }
+        .btn-modern-success:hover { transform: translateY(-1px); color: white; }
+
+         
+         
+         
+        .modal-content {
+            border: none; border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .modal-header-modern {
+            background: white; padding: 20px 24px;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .modal-header-modern .modal-title {
+            font-weight: 700; font-size: 1rem; color: var(--slate-800);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .modal-header-modern .modal-title i { color: var(--blue-500); }
+        .modal-body { padding: 24px; }
+
+         
+        .modal-header.bg-primary {
+            background: white !important; color: var(--slate-800) !important;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .modal-header.bg-primary .modal-title {
+            color: var(--slate-800) !important; font-weight: 700;
+        }
+        .modal-header.bg-primary .modal-title i {
+            color: var(--blue-500) !important;
+        }
+
+         
+         
+         
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);
+            z-index: 9999; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+        .spinner {
+            width: 44px; height: 44px;
+            border: 3px solid var(--slate-200);
+            border-top: 3px solid var(--blue-500); border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loader-text { color: var(--slate-600); font-weight: 500; font-size: 0.9rem; }
+
+         
+         
+         
+        .role-check { cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .role-check.active { color: var(--emerald-500); }
+        .role-check.inactive { color: var(--slate-300); }
+
+         
+         
+         
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; left: -300px; top: 0; height: 100vh; z-index: 1100;
+                box-shadow: 5px 0 20px rgba(0,0,0,0.15); }
+            #sidebar.show { left: 0; }
+            .topbar-search { display: none; }
+            .topbar-divider { display: none; }
+            #content-wrapper { padding: 16px; }
+            .kpi-card .kpi-value { font-size: 1.4rem; }
+        }
+
+         
+         
+         
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view-section { animation: fadeIn 0.3s ease; }
+
+         
+         
+         
+        .notif-wrapper { position: relative; }
+        .notif-dropdown {
+            position: absolute; top: calc(100% + 10px); right: -10px;
+            width: 380px; background: white; border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15); border: 1px solid var(--slate-200);
+            z-index: 2000; display: none;
+            animation: notifSlideDown 0.2s ease;
+        }
+        .notif-dropdown.show { display: block; }
+        @keyframes notifSlideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notif-dropdown::before {
+            content: ''; position: absolute; top: -6px; right: 20px;
+            width: 12px; height: 12px; background: white;
+            border-left: 1px solid var(--slate-200); border-top: 1px solid var(--slate-200);
+            transform: rotate(45deg); z-index: 1;
+        }
+        .notif-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--slate-100);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .notif-header h6 { margin: 0; font-weight: 700; font-size: 0.92rem; color: var(--slate-800); }
+        .notif-badge-count {
+            background: var(--red-500); color: white; font-size: 0.65rem;
+            padding: 2px 7px; border-radius: 10px; font-weight: 700;
+        }
+        .notif-body { max-height: 360px; overflow-y: auto; }
+        .notif-body::-webkit-scrollbar { width: 4px; }
+        .notif-body::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 2px; }
+        .notif-item {
+            padding: 14px 20px; display: flex; align-items: flex-start; gap: 12px;
+            cursor: pointer; transition: background 0.15s;
+            border-bottom: 1px solid var(--slate-50);
+        }
+        .notif-item:hover { background: var(--slate-50); }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item .notif-icon {
+            width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95rem;
+        }
+        .notif-item .notif-text { flex: 1; }
+        .notif-item .notif-text .notif-title {
+            font-size: 0.82rem; font-weight: 600; color: var(--slate-800);
+            margin-bottom: 2px; line-height: 1.3;
+        }
+        .notif-item .notif-text .notif-desc {
+            font-size: 0.75rem; color: var(--slate-500); line-height: 1.3;
+        }
+        .notif-item .notif-time {
+            font-size: 0.68rem; color: var(--slate-400); white-space: nowrap; margin-top: 2px;
+        }
+        .notif-empty {
+            padding: 40px 20px; text-align: center; color: var(--slate-400);
+        }
+        .notif-empty i { font-size: 2rem; margin-bottom: 10px; opacity: 0.3; display: block; }
+        .notif-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1999; display: none;
+        }
+        .notif-overlay.show { display: block; }
+    <\/style>
+<\/head>
+
+
+    <script src="./js/api.js"></script>
     <link rel="stylesheet" href="./css/style.css">
-</head>
 <body>
 
-    <!-- Global Loader -->
-    <div id="global-loader">
-        <div class="spinner"></div>
-        <div id="loader-text">กำลังโหลดข้อมูล...</div>
-    </div>
+    
+    <div id="loader">
+        <div class="spinner mb-3"><\/div>
+        <h5 id="loader-text">กำลังโหลดข้อมูล...<\/h5>
+    <\/div>
 
-    <!-- Login Screen -->
+    
     <div id="login-screen">
         <div class="login-card">
-            <div class="login-logo"><i class="fas fa-school"></i></div>
-            <h2>ระบบบริหารจัดการงบประมาณ</h2>
-            <p class="text-muted" style="margin-bottom: 4px;">โรงเรียนมหาชัยพิทยาคาร<br>สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม</p>
-            <p style="font-size: 0.8rem; color: var(--accent-primary); margin-bottom: 24px; font-weight: 500;">พัฒนาโดย ครูก้องนที อุ่นเจริญ</p>
-            
-            <form id="loginForm">
-                <div class="form-group text-left">
-                    <label class="form-label">ชื่อผู้ใช้งาน</label>
-                    <input type="text" id="username" class="form-control" required placeholder="กรอกชื่อผู้ใช้">
-                </div>
-                <div class="form-group text-left">
-                    <label class="form-label">รหัสผ่าน</label>
-                    <input type="password" id="password" class="form-control" required placeholder="กรอกรหัสผ่าน">
-                </div>
-                <button type="submit" class="btn btn-primary w-full mt-4"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
-            </form>
-        </div>
-    </div>
+            <div class="login-logo"><i class="fas fa-school"><\/i><\/div>
+            <div class="login-title">ระบบบริหารจัดการงบประมาณ<\/div>
+            <div class="login-subtitle">โรงเรียนมหาชัยพิทยาคาร สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม<\/div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-3 text-start">
+                    <label class="form-label">ชื่อผู้ใช้งาน<\/label>
+                    <input type="text" class="form-control" id="username" required placeholder="กรอกชื่อผู้ใช้">
+                <\/div>
+                <div class="mb-3 text-start">
+                    <label class="form-label">รหัสผ่าน<\/label>
+                    <input type="password" class="form-control" id="password" required placeholder="กรอกรหัสผ่าน">
+                <\/div>
+                <button type="submit" class="btn login-btn"><i class="fas fa-sign-in-alt me-2"><\/i> เข้าสู่ระบบ<\/button>
+            <\/form>
+        <\/div>
+    <\/div>
 
-    <!-- Main Application Container -->
-    <div id="app-container" class="hidden">
+    
+    <div id="wrapper">
         
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo"><i class="fas fa-school"></i></div>
-                <div>
-                    <div class="sidebar-title">ระบบบริหารจัดการงบประมาณ</div>
-                    <div class="sidebar-subtitle">โรงเรียนมหาชัยพิทยาคาร</div>
-                </div>
-            </div>
-            
-            <div class="sidebar-menu" id="sidebar-menu">
-                <div class="menu-label">เมนูหลัก</div>
-                <a href="#" class="menu-item active" data-view="dashboard" data-roles="admin,ครู,ผู้บริหาร">
-                    <i class="fas fa-chart-pie"></i> ภาพรวม (Dashboard)
-                </a>
-                <a href="#" class="menu-item" data-view="projects" data-roles="admin,ครู">
-                    <i class="fas fa-folder-plus"></i> โครงการ/กิจกรรม
-                </a>
-                <a href="#" class="menu-item" data-view="allocations" data-roles="admin,ผู้บริหาร">
-                    <i class="fas fa-hand-holding-usd"></i> จัดสรรงบประมาณ
-                </a>
-                <a href="#" class="menu-item" data-view="tracking" data-roles="admin,ผู้บริหาร">
-                    <i class="fas fa-search-dollar"></i> ติดตามการใช้จ่ายงบ
-                </a>
-                <a href="#" class="menu-item" data-view="disbursements" data-roles="admin,ผู้บริหาร">
-                    <i class="fas fa-check-double"></i> อนุมัติเบิกจ่าย
-                </a>
-                
-                <div class="menu-label mt-4" data-roles="admin">ตั้งค่าระบบ</div>
-                <a href="#" class="menu-item" data-view="settings-departments" data-roles="admin">
-                    <i class="fas fa-sitemap"></i> กลุ่มงาน/ฝ่าย
-                </a>
-                <a href="#" class="menu-item" data-view="settings-users" data-roles="admin">
-                    <i class="fas fa-users"></i> จัดการสมาชิก
-                </a>
-            </div>
-            
-            <div class="sidebar-footer">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-bottom: 12px;">
-                    พัฒนาโดย ครูก้องนที อุ่นเจริญ
-                </div>
-                <button id="logout-btn" class="btn btn-secondary w-full justify-center">
-                    <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
-                </button>
-            </div>
-        </aside>
+        <div class="topbar">
+            <div class="d-flex align-items-center">
+                <button class="btn d-md-none me-2" style="color:var(--slate-600);" onclick="toggleSidebar()"><i class="fas fa-bars"><\/i><\/button>
+                <div class="topbar-brand">
+                    <div class="school-icon"><i class="fas fa-school"><\/i><\/div>
+                    <div>
+                        <div class="title">ระบบบริหารจัดการงบประมาณ<\/div>
+                        <div class="subtitle">โรงเรียนมหาชัยพิทยาคาร สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม<\/div>
+                    <\/div>
+                <\/div>
+            <\/div>
+            <div class="topbar-search d-none d-lg-flex">
+                <i class="fas fa-search"><\/i>
+                <input type="text" placeholder="ค้นหาโครงการ, หมวดหมู่งบประมาณ...">
+            <\/div>
+            <div class="topbar-actions">
+                <div class="notif-wrapper">
+                    <button class="notif-btn" id="notifBellBtn" title="การแจ้งเตือน" onclick="toggleNotifDropdown()">
+                        <i class="fas fa-bell"><\/i>
+                        <span class="dot" id="notifDot" style="display:none;"><\/span>
+                    <\/button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <h6><i class="fas fa-bell me-2" style="color:var(--blue-500);"><\/i>การแจ้งเตือน<\/h6>
+                            <span class="notif-badge-count" id="notifCount" style="display:none;">0<\/span>
+                        <\/div>
+                        <div class="notif-body" id="notifBody">
+                            <div class="notif-empty"><i class="fas fa-bell-slash"><\/i>ไม่มีการแจ้งเตือนใหม่<\/div>
+                        <\/div>
+                    <\/div>
+                <\/div>
+                <div class="notif-overlay" id="notifOverlay" onclick="closeNotifDropdown()"><\/div>
+                <div class="topbar-divider"><\/div>
+                <div class="user-profile">
+                    <div class="avatar-circle" id="userInitial">?<\/div>
+                    <div class="d-none d-sm-block">
+                        <div class="name" id="userFullName">กำลังโหลด...<\/div>
+                        <div class="role" id="userRole">ROLE<\/div>
+                    <\/div>
+                <\/div>
+                <button class="logout-btn" onclick="handleLogout()" title="ออกจากระบบ"><i class="fas fa-power-off"><\/i><\/button>
+            <\/div>
+        <\/div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Topbar -->
-            <header class="topbar">
-                <div class="topbar-search">
-                    <i class="fas fa-search text-muted"></i>
-                    <input type="text" placeholder="ค้นหาโครงการ...">
-                </div>
-                
-                <div class="topbar-actions">
-                    <div class="user-profile">
-                        <div class="avatar" id="user-avatar">A</div>
-                        <div>
-                            <div style="font-weight: 500; font-size: 0.9rem;" id="user-name">Admin User</div>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);" id="user-role">ผู้ดูแลระบบ</div>
-                        </div>
-                    </div>
-                </div>
-            </header>
+        <div class="main-container">
+            
+            <nav id="sidebar">
+                <div class="sidebar-section-label">เมนูหลัก<\/div>
+                <ul class="sidebar-menu">
+                    <li class="active" data-menu="dashboard" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie menu-icon"><\/i> ภาพรวม (Dashboard)<\/li>
+                    <li data-menu="doctemplates" onclick="switchView('doctemplates', this)"><i class="fas fa-file-alt menu-icon"><\/i> รูปแบบไฟล์ขออนุญาต<\/li>
 
-            <!-- Dynamic Views Container -->
-            <div class="view-container" id="view-container">
+                    
+                    <li data-menu="settings" onclick="toggleSubmenu('submenu-settings', 'icon-settings')">
+                        <i class="fas fa-cog menu-icon"><\/i> ตั้งค่าข้อมูลพื้นฐาน
+                        <i class="fas fa-chevron-down menu-arrow" id="icon-settings"><\/i>
+                    <\/li>
+                    <ul id="submenu-settings" class="sidebar-submenu">
+                        <li data-menu="settings" onclick="switchView('departments', this)"><i class="fas fa-sitemap" style="width:20px;text-align:center;margin-right:10px;"><\/i> กลุ่มงาน/ฝ่าย<\/li>
+                        <li data-menu="budget-sources" onclick="switchView('budget-sources', this)"><i class="fas fa-wallet" style="width:20px;text-align:center;margin-right:10px;"><\/i> แหล่งงบประมาณ<\/li>
+                        <li data-menu="settings" onclick="switchView('users', this)"><i class="fas fa-users" style="width:20px;text-align:center;margin-right:10px;"><\/i> จัดการสมาชิก<\/li>
+                        <li data-menu="settings" onclick="switchView('menu-permissions', this)"><i class="fas fa-user-shield" style="width:20px;text-align:center;margin-right:10px;"><\/i> จัดการสิทธิ์เมนู<\/li>
+                    <\/ul>
+
+                    <li data-menu="allocation" onclick="switchView('allocation', this)"><i class="fas fa-hand-holding-usd menu-icon"><\/i> จัดสรรงบประมาณ<\/li>
+                    <li data-menu="projects" onclick="switchView('projects', this)"><i class="fas fa-folder-plus menu-icon"><\/i> สร้างโครงการ/กิจกรรม<\/li>
+                    <li data-menu="utilities" onclick="switchView('utilities', this)"><i class="fas fa-bolt menu-icon"><\/i> บันทึกค่าสาธารณูปโภค<\/li>
+                    <li data-menu="central-budget" onclick="switchView('central-budget', this)"><i class="fas fa-chart-line menu-icon"><\/i> วิเคราะห์การใช้งบกลาง<\/li>
+                    <li data-menu="proposals" onclick="switchView('proposals', this)"><i class="fas fa-file-upload menu-icon"><\/i> การเสนอโครงการ<\/li>
+                    <li data-menu="reports" onclick="switchView('reports', this)"><i class="fas fa-clipboard-list menu-icon"><\/i> รายงานโครงการ<\/li>
+                    <li data-menu="report-submissions" onclick="switchView('report-submissions', this)"><i class="fas fa-tasks menu-icon"><\/i> ติดตามการส่งรายงาน<\/li>
+                    <li data-menu="tracking" onclick="switchView('tracking', this)"><i class="fas fa-search-dollar menu-icon"><\/i> ติดตามการใช้จ่ายงบฯ<\/li>
+                    <li data-menu="disbursements" onclick="switchView('disbursements', this)"><i class="fas fa-check-double menu-icon"><\/i> อนุมัติเบิกจ่าย<\/li>
+                <\/ul>
+            <\/nav>
+
+            
+            <div id="content-wrapper">
+
                 
-                <!-- View: Dashboard -->
                 <div id="view-dashboard" class="view-section">
-                    <div class="page-header">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <h1 class="page-title">ภาพรวม (Dashboard)</h1>
-                            <p class="text-muted">สรุปข้อมูลการใช้จ่ายงบประมาณของสถานศึกษา</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-4 mb-4">
-                        <div class="card kpi-card kpi-blue">
-                            <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
-                            <div class="kpi-label">งบประมาณที่ได้รับจัดสรร (รวม)</div>
-                            <div class="kpi-value" id="dash-total-budget">฿0.00</div>
-                        </div>
-                        <div class="card kpi-card kpi-green">
-                            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="kpi-label">เบิกจ่ายแล้ว (รวม)</div>
-                            <div class="kpi-value" id="dash-used-budget">฿0.00</div>
-                        </div>
-                        <div class="card kpi-card kpi-yellow">
-                            <div class="kpi-icon"><i class="fas fa-clock"></i></div>
-                            <div class="kpi-label">รอดำเนินการ (เบิกจ่าย)</div>
-                            <div class="kpi-value" id="dash-pending-budget">฿0.00</div>
-                        </div>
-                        <div class="card kpi-card kpi-red">
-                            <div class="kpi-icon"><i class="fas fa-chart-pie"></i></div>
-                            <div class="kpi-label">คงเหลือ (รวม)</div>
-                            <div class="kpi-value" id="dash-remain-budget">฿0.00</div>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2">
-                        <div class="card">
-                            <h3 class="mb-4">สัดส่วนการใช้งบประมาณแยกตามแหล่ง</h3>
-                            <canvas id="budgetChart" height="250"></canvas>
-                        </div>
-                        <div class="card">
-                            <h3 class="mb-4">โครงการล่าสุด</h3>
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>ชื่อโครงการ</th>
-                                            <th>ผู้รับผิดชอบ</th>
-                                            <th>สถานะ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="dash-recent-projects">
-                                        <!-- populated via js -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <h2 class="page-title">ภาพรวมระบบงบประมาณ<\/h2>
+                            <div class="page-subtitle">สรุปข้อมูลการจัดสรรและการใช้จ่ายงบประมาณ<\/div>
+                        <\/div>
+                    <\/div>
 
-                <!-- View: Projects -->
-                <div id="view-projects" class="view-section hidden">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">โครงการ/กิจกรรม</h1>
-                            <p class="text-muted">จัดการและเสนอโครงการ</p>
-                        </div>
-                        <button class="btn btn-primary" id="btn-add-project"><i class="fas fa-plus"></i> เพิ่มโครงการ</button>
-                    </div>
-                    <div class="card">
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>รหัสโครงการ</th>
-                                        <th>ชื่อโครงการ/กิจกรรม</th>
-                                        <th>งบประมาณที่ขอ</th>
-                                        <th>ผู้รับผิดชอบ</th>
-                                        <th>สถานะ</th>
-                                        <th>จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-projects">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="kpi-card kpi-blue">
+                                <div class="kpi-blur"><\/div>
+                                <div class="kpi-header">
+                                    <div><div class="kpi-label">งบจัดสรรรวม (บาท)<\/div><\/div>
+                                    <div class="kpi-icon"><i class="fas fa-wallet"><\/i><\/div>
+                                <\/div>
+                                <div class="kpi-value" id="cardTotal">0.00<\/div>
+                                <div class="kpi-footer"><i class="fas fa-info-circle me-1"><\/i> งบประมาณทั้งหมดที่ได้รับ<\/div>
+                            <\/div>
+                        <\/div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="kpi-card kpi-red">
+                                <div class="kpi-blur"><\/div>
+                                <div class="kpi-header">
+                                    <div><div class="kpi-label">ใช้จ่ายไปแล้ว (บาท)<\/div><\/div>
+                                    <div class="kpi-icon"><i class="fas fa-credit-card"><\/i><\/div>
+                                <\/div>
+                                <div class="kpi-value" id="cardUsed">0.00<\/div>
+                                <div class="kpi-footer"><i class="fas fa-arrow-down me-1" style="color:var(--red-500);"><\/i> ยอดเบิกจ่ายสะสม<\/div>
+                            <\/div>
+                        <\/div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="kpi-card kpi-yellow">
+                                <div class="kpi-blur"><\/div>
+                                <div class="kpi-header">
+                                    <div><div class="kpi-label">งบกลาง/สำรอง (บาท)<\/div><\/div>
+                                    <div class="kpi-icon"><i class="fas fa-shield-halved"><\/i><\/div>
+                                <\/div>
+                                <div class="kpi-value" id="cardReserve">0.00<\/div>
+                                <div class="kpi-footer"><i class="fas fa-exclamation-triangle me-1" style="color:var(--amber-500);"><\/i> งบสำรองฉุกเฉิน<\/div>
+                            <\/div>
+                        <\/div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="kpi-card kpi-green">
+                                <div class="kpi-blur"><\/div>
+                                <div class="kpi-header">
+                                    <div><div class="kpi-label">คงเหลือทั้งหมด (บาท)<\/div><\/div>
+                                    <div class="kpi-icon"><i class="fas fa-chart-line"><\/i><\/div>
+                                <\/div>
+                                <div class="kpi-value" id="cardRemain">0.00<\/div>
+                                <div class="kpi-footer"><span style="background:var(--emerald-100);color:var(--emerald-600);padding:2px 8px;border-radius:6px;font-size:0.72rem;font-weight:600;">คงเหลือ<\/span><\/div>
+                            <\/div>
+                        <\/div>
+                    <\/div>
 
-                <!-- Additional views can be added here with .hidden -->
+                    <div class="row mb-4">
+                        <div class="col-lg-6 mb-3 mb-lg-0">
+                            <div class="panel h-100">
+                                <div class="panel-header">
+                                    <div class="panel-title"><i class="fas fa-chart-pie"><\/i> สัดส่วนการใช้งบประมาณตามประเภทเงิน<\/div>
+                                <\/div>
+                                <div style="position: relative; height:260px;">
+                                    <div id="emptyChartMsg" class="d-none text-center text-muted" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;">ยังไม่มีข้อมูลแสดงผล<\/div>
+                                    <canvas id="budgetChart"><\/canvas>
+                                <\/div>
+                            <\/div>
+                        <\/div>
+                        <div class="col-lg-6">
+                            <div class="panel h-100">
+                                <div class="panel-header">
+                                    <div class="panel-title"><i class="fas fa-list"><\/i> รายละเอียดตามประเภทเงิน<\/div>
+                                <\/div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-custom">
+                                        <thead><tr><th>ประเภทเงิน<\/th><th style="color:var(--blue-600);">ได้รับ (บาท)<\/th><th style="color:var(--red-500);">ใช้ไปทั้งหมด (บาท)<\/th><th style="color:var(--emerald-600);">คงเหลือ (บาท)<\/th><\/tr><\/thead>
+                                        <tbody id="typeTableBody"><tr><td colspan="4" class="text-muted">กำลังโหลด...<\/td><\/tr><\/tbody>
+                                    <\/table>
+                                <\/div>
+                            <\/div>
+                        <\/div>
+                    <\/div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-list-ul"><\/i> รายละเอียดระดับโครงการและร้อยละการใช้งาน<\/div>
+                            <span style="font-size:0.75rem;color:var(--slate-400);">ข้อมูลโครงการล่าสุด<\/span>
+                        <\/div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-custom table-bordered">
+                                <thead><tr><th width="5%">ลำดับ<\/th><th width="35%" class="text-start">ชื่อโครงการ<\/th><th width="15%">สถานะ<\/th><th width="15%">งบที่ได้รับ<\/th><th width="15%">ใช้ไป<\/th><th width="15%">% การใช้<\/th><\/tr><\/thead>
+                                <tbody id="projectTableBody"><tr><td colspan="6" class="text-muted">กำลังโหลด...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
                 
-            </div>
-        </main>
-    </div>
+                <div id="view-allocation" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-hand-holding-usd" style="color:var(--emerald-500);"><\/i> จัดสรรงบประมาณ<\/h2>
+                            <div class="page-subtitle">บันทึกยอดจัดสรรงบประมาณที่ได้รับในปีปัจจุบัน<\/div>
+                        <\/div>
+                        <button class="btn-modern-success" onclick="openAllocationModal()"><i class="fas fa-plus"><\/i> เพิ่มยอดจัดสรร<\/button>
+                    <\/div>
+                    <div class="alloc-table-container">
+                        <div class="alloc-header-panel">
+                            <h6 class="mb-0 fw-bold" style="font-size:0.9rem;">แหล่งงบประมาณที่ได้รับ<\/h6>
+                        <\/div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 alloc-table">
+                                <thead><tr><th width="15%" class="text-start ps-4">วันที่รายการ<\/th><th width="20%" class="text-start">ประเภทงบประมาณ<\/th><th width="40%" class="text-start">คำอธิบาย<\/th><th width="15%" class="text-end">จำนวนเงิน (บาท)<\/th><th width="10%" class="text-center pe-4">จัดการ<\/th><\/tr><\/thead>
+                                <tbody id="allocationTableBody"><tr><td colspan="4" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                                <tfoot id="allocationTableFoot"><\/tfoot>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
 
-    <!-- Scripts -->
-    <script src="./js/api.js"></script>
-    <script src="./js/app.js"></script>
-</body>
-</html>
+                
+                <div id="view-projects" class="view-section" style="display: none;">
+                    <div class="panel" style="max-width: 800px; margin: 0 auto;">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-folder-plus" style="color:var(--blue-500);"><\/i> สร้างโครงการ/กิจกรรมใหม่<\/div>
+                        <\/div>
+                        <form id="projectForm" onsubmit="submitProjectForm(event)">
+                            <div class="mb-3"><label class="form-label fw-bold">ชื่อโครงการ / กิจกรรม <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="formProjName" required><\/div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold">แหล่งงบประมาณ <span class="text-danger">*<\/span><\/label><select class="form-select" id="formBudgetType" required><option value="">-- เลือกประเภทเงิน --<\/option><\/select><\/div>
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold">สถานะโครงการ<\/label><select class="form-select" id="formStatus"><option value="รอพิจารณา">รอพิจารณา<\/option><option value="อนุมัติแล้ว">อนุมัติแล้ว<\/option><\/select><\/div>
+                            <\/div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold">ขอรับจัดสรร (บาท) <span class="text-danger">*<\/span><\/label><input type="number" class="form-control" id="formBudgetAllocated" required min="0"><\/div>
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold">เบิกจ่ายไปแล้ว (บาท)<\/label><input type="number" class="form-control" id="formUsedAmount" min="0" value="0"><\/div>
+                            <\/div>
+                            <div class="text-end mt-4"><button type="button" class="btn-modern-secondary me-2" onclick="document.getElementById('projectForm').reset()">ล้างข้อมูล<\/button><button type="submit" class="btn-modern-primary"><i class="fas fa-save"><\/i> บันทึกโครงการ<\/button><\/div>
+                        <\/form>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-utilities" class="view-section" style="display: none;">
+                    <div class="panel mb-4">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-plus-circle" style="color:var(--blue-500);"><\/i> บันทึกค่าสาธารณูปโภค<\/div>
+                        <\/div>
+                        <div class="alert" style="background-color: var(--amber-100); color: #92400e; border: none; border-radius: 12px; font-size: 0.85rem;"><i class="fas fa-exclamation-triangle me-2"><\/i><strong>หมายเหตุการหักงบประมาณ:<\/strong><br>ยอดเงินที่บันทึกนี้ จะถูกนำไปหักออกจาก "งบประมาณสำรอง (งบกลาง)" โดยอัตโนมัติ<\/div>
+                        <form id="utilityForm" onsubmit="submitUtilityForm(event)">
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold text-muted">ประเภทค่าใช้จ่าย<\/label><select class="form-select" id="utilType" required>
+                                    <option value="ค่าไฟฟ้า">⚡ ค่าไฟฟ้า<\/option><option value="ค่าน้ำประปา">💧 ค่าน้ำประปา<\/option><option value="ค่าโทรศัพท์/อินเทอร์เน็ต">🌐 ค่าโทรศัพท์/อินเทอร์เน็ต<\/option><option value="ค่าสาธารณูปโภคอื่นๆ">🏢 ค่าสาธารณูปโภคอื่นๆ<\/option>
+                                <\/select><\/div>
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold text-muted">แหล่งงบประมาณที่ใช้หัก <span class="text-danger">*<\/span><\/label><select class="form-select" id="utilBudgetType" required><option value="">-- เลือกแหล่งงบประมาณ --<\/option><\/select><\/div>
+                            <\/div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold text-muted">เดือน<\/label><select class="form-select" id="utilMonth" required>
+                                    <option value="มกราคม">มกราคม<\/option><option value="กุมภาพันธ์">กุมภาพันธ์<\/option><option value="มีนาคม">มีนาคม<\/option><option value="เมษายน" selected>เมษายน<\/option><option value="พฤษภาคม">พฤษภาคม<\/option><option value="มิถุนายน">มิถุนายน<\/option><option value="กรกฎาคม">กรกฎาคม<\/option><option value="สิงหาคม">สิงหาคม<\/option><option value="กันยายน">กันยายน<\/option><option value="ตุลาคม">ตุลาคม<\/option><option value="พฤศจิกายน">พฤศจิกายน<\/option><option value="ธันวาคม">ธันวาคม<\/option>
+                                <\/select><\/div>
+                                <div class="col-md-6 mb-3"><label class="form-label fw-bold text-muted">ปี (พ.ศ.)<\/label><input type="number" class="form-control" id="utilYear" required><\/div>
+                            <\/div>
+                            <div class="mb-4"><label class="form-label fw-bold text-muted">จำนวนเงิน (บาท)<\/label><input type="number" class="form-control" id="utilAmount" step="0.01" min="1" placeholder="0.00" required><\/div>
+                            <button type="submit" class="btn-modern-primary w-100 justify-content-center"><i class="fas fa-save"><\/i> บันทึกข้อมูล<\/button>
+                        <\/form>
+                    <\/div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="far fa-clock"><\/i> ประวัติการเบิกจ่ายสาธารณูปโภค<\/div>
+                        <\/div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead style="background-color: var(--slate-50);"><tr><th class="text-muted fw-bold" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">รอบเดือน/ปี<\/th><th class="text-muted fw-bold" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">รายการ<\/th><th class="text-muted fw-bold" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">แหล่งงบฯ<\/th><th class="text-muted fw-bold" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จำนวนเงิน<\/th><th class="text-muted fw-bold text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th><\/tr><\/thead>
+                                <tbody id="utilityTableBody"><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-central-budget" class="view-section" style="display: none;">
+                    <div class="page-header mb-4">
+                        <h2 class="page-title"><i class="fas fa-chart-line" style="color:var(--blue-500);"><\/i> วิเคราะห์การใช้งบกลาง<\/h2>
+                        <div class="page-subtitle">ข้อมูลสรุปการใช้จ่ายจากงบประมาณกลาง/สำรอง<\/div>
+                    <\/div>
+                    <div class="row mb-4"><div class="col-12"><div class="central-total-card"><div style="font-size: 0.9rem; opacity: 0.85;">งบกลางตั้งต้นทั้งหมด (Total Allocation)<\/div><div style="font-size: 2.2rem; font-weight: 700; position:relative;z-index:2;" id="cbTotal">0.00 ฿<\/div><\/div><\/div><\/div>
+                    <div class="row mb-4 g-3">
+                        <div class="col-md-6"><div class="central-sub-card border-left-red h-100"><div style="font-size: 0.82rem; color: var(--slate-500); font-weight: 600;">ยอดที่หักลบ (ใช้ไปแล้ว)<\/div><div style="font-size: 1.6rem; font-weight: 700; color: var(--red-500);" id="cbUsed">0.00 ฿<\/div><\/div><\/div>
+                        <div class="col-md-6"><div class="central-sub-card border-left-green h-100"><div style="font-size: 0.82rem; color: var(--slate-500); font-weight: 600;">งบกลางคงเหลือสุทธิ<\/div><div style="font-size: 1.6rem; font-weight: 700; color: var(--emerald-500);" id="cbRemain">0.00 ฿<\/div><\/div><\/div>
+                    <\/div>
+                    <div class="panel mb-4 text-center">
+                        <h6 class="fw-bold mb-3">สัดส่วนการหักลบงบกลาง<\/h6>
+                        <div style="position: relative; height: 220px; width: 100%; display: flex; justify-content: center;"><canvas id="centralChart"><\/canvas><\/div>
+                        <div class="mt-3" style="font-size: 0.82rem;"><span class="me-4 fw-bold text-muted"><i class="fas fa-circle me-1" style="color:var(--red-500);font-size:0.5rem;"><\/i> ใช้ไป<\/span><span class="fw-bold text-muted"><i class="fas fa-circle me-1" style="color:var(--emerald-500);font-size:0.5rem;"><\/i> คงเหลือ<\/span><\/div>
+                    <\/div>
+                    <div class="panel mb-4">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-folder-open" style="color:var(--slate-400);"><\/i> 1. หักลบจากโครงการ (ใช้เกินแผน)<\/div>
+                        <\/div>
+                        <div class="table-responsive"><table class="table table-bordered table-custom"><thead><tr><th class="text-start">โครงการ / กิจกรรม<\/th><th>งบตามแผน<\/th><th style="color:var(--red-500);">หักจากงบกลาง<\/th><th>พัสดุ<\/th><th>รวมเบิกจริง<\/th><\/tr><\/thead><tbody id="cbProjectTableBody"><tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลด...<\/td><\/tr><\/tbody><\/table><\/div>
+                    <\/div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-bolt" style="color:var(--amber-500);"><\/i> 2. หักลบจากค่าสาธารณูปโภค<\/div>
+                        <\/div>
+                        <div class="table-responsive"><table class="table table-bordered table-custom"><thead><tr><th class="text-start">รายการสาธารณูปโภค<\/th><th style="color:var(--red-500);">หักจากงบกลาง<\/th><th>รวมเบิกจริง<\/th><\/tr><\/thead><tbody id="cbUtilityTableBody"><tr><td colspan="3" class="text-center text-muted py-4">กำลังโหลด...<\/td><\/tr><\/tbody><\/table><\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-departments" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-sitemap" style="color:var(--blue-500);"><\/i> ข้อมูลกลุ่มงาน/ฝ่าย<\/h2>
+                            <div class="page-subtitle">จัดการข้อมูลกลุ่มงานภายในสถานศึกษา<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" onclick="openDeptModal()"><i class="fas fa-plus"><\/i> เพิ่มกลุ่มงาน<\/button>
+                    <\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);"><tr><th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th><th width="30%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อกลุ่มงาน/ฝ่าย<\/th><th width="50%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">รายละเอียด<\/th><\/tr><\/thead>
+                                <tbody id="departmentTableBody"><tr><td colspan="3" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-doctemplates" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-file-alt" style="color:var(--blue-500);"><\/i> รูปแบบไฟล์ขออนุญาต<\/h2>
+                            <div class="page-subtitle">แบบฟอร์มเอกสารสำหรับดาวน์โหลด<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus"><\/i> เพิ่มแบบฟอร์ม<\/button>
+                    <\/div>
+                    <div class="row g-3" id="docTemplateCards">
+                        <div class="col-12 text-center text-muted py-5">กำลังโหลดข้อมูล...<\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-proposals" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-file-upload" style="color:var(--blue-500);"><\/i> การเสนอโครงการ<\/h2>
+                            <div class="page-subtitle">จัดการข้อเสนอโครงการและการอนุมัติ<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" onclick="openProposalModal()"><i class="fas fa-plus"><\/i> ส่งข้อเสนอใหม่<\/button>
+                    <\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr><th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th><th width="25%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อโครงการ<\/th><th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">กลุ่มงาน/ฝ่าย<\/th><th width="12%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">งบประมาณ<\/th><th width="10%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะ<\/th><th width="13%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ผู้เสนอ<\/th><th width="10%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ผู้อนุมัติ<\/th><th width="10%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th><\/tr>
+                                <\/thead>
+                                <tbody id="proposalTableBody"><tr><td colspan="8" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-reports" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-clipboard-list" style="color:var(--blue-500);"><\/i> รายงานโครงการ<\/h2>
+                            <div class="page-subtitle">ส่งรายงานโครงการ (Word และ PDF)<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" id="btnSettingReportLinks" onclick="openReportSettingsModal()" style="display:none;"><i class="fas fa-cog"><\/i> ตั้งค่าลิ้งก์ส่งโฟลเดอร์<\/button>
+                    <\/div>
+                    <div class="row g-4 justify-content-center mt-3" id="reportLinksContainer">
+                        <div class="col-md-5">
+                            <div class="doc-card text-center py-5">
+                                <div class="doc-icon mx-auto mb-3" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fas fa-file-word"><\/i><\/div>
+                                <h4 class="fw-bold text-dark mb-2">ส่งโครงการ (Word)<\/h4>
+                                <p class="text-muted mb-4">อัปโหลดหรือส่งไฟล์รายงานในรูปแบบ Word<\/p>
+                                <a href="#" target="_blank" id="btnLinkWord" class="doc-btn d-inline-block px-4"><i class="fas fa-external-link-alt me-2"><\/i> ไปยังจุดส่งงาน<\/a>
+                            <\/div>
+                        <\/div>
+                        <div class="col-md-5">
+                            <div class="doc-card text-center py-5">
+                                <div class="doc-icon mx-auto mb-3" style="background: linear-gradient(135deg, #ef4444, #f87171);"><i class="fas fa-file-pdf"><\/i><\/div>
+                                <h4 class="fw-bold text-dark mb-2">ส่งโครงการ (PDF)<\/h4>
+                                <p class="text-muted mb-4">อัปโหลดหรือส่งไฟล์รายงานในรูปแบบ PDF<\/p>
+                                <a href="#" target="_blank" id="btnLinkPdf" class="doc-btn d-inline-block px-4"><i class="fas fa-external-link-alt me-2"><\/i> ไปยังจุดส่งงาน<\/a>
+                            <\/div>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-report-submissions" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-tasks" style="color:var(--blue-500);"><\/i> ติดตามการส่งรายงานโครงการ<\/h2>
+                            <div class="page-subtitle">ดูสถานะการส่งรายงานของแต่ละโครงการ (แอดมินสามารถตั้งค่าสถานะได้)<\/div>
+                        <\/div>
+                    <\/div>
+                    
+                    <div class="row g-3 mb-4" id="rptSubSummaryCards"><\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr>
+                                        <th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th>
+                                        <th width="28%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อโครงการ<\/th>
+                                        <th width="12%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">งบประมาณ<\/th>
+                                        <th width="10%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ความคืบหน้า<\/th>
+                                        <th width="15%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะการส่ง<\/th>
+                                        <th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">หมายเหตุ<\/th>
+                                        <th width="15%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th>
+                                    <\/tr>
+                                <\/thead>
+                                <tbody id="reportSubTableBody">
+                                    <tr><td colspan="7" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr>
+                                <\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-tracking" class="view-section" style="display: none;">
+                    <div class="page-header mb-4">
+                        <h2 class="page-title"><i class="fas fa-search-dollar" style="color:var(--blue-500);"><\/i> ติดตามการใช้จ่ายงบประมาณ<\/h2>
+                        <div class="page-subtitle">ภาพรวมรายรับ-รายจ่ายทั้งหมด<\/div>
+                    <\/div>
+                    <div class="row g-3 mb-4" id="trackingSummaryCards"><\/div>
+                    <div class="panel mb-4">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-chart-area" style="color:var(--blue-500);"><\/i> ภาพรวมรายรับ-รายจ่าย<\/div>
+                        <\/div>
+                        <div style="position: relative; height: 280px;"><canvas id="trackingChart"><\/canvas><\/div>
+                    <\/div>
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fas fa-list"><\/i> รายการทั้งหมด (รับ-จ่าย)<\/div>
+                        <\/div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered table-custom">
+                                <thead><tr><th width="12%">วันที่<\/th><th width="15%">ประเภท<\/th><th width="15%">หมวดงบ<\/th><th width="28%">รายละเอียด<\/th><th width="15%" style="color:var(--emerald-600);">รับเข้า<\/th><th width="15%" style="color:var(--red-500);">จ่ายออก<\/th><\/tr><\/thead>
+                                <tbody id="trackingTableBody"><tr><td colspan="6" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-disbursements" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-check-double" style="color:var(--blue-500);"><\/i> อนุมัติเบิกจ่าย<\/h2>
+                            <div class="page-subtitle">จัดการคำขอเบิกจ่ายงบประมาณ<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" onclick="openDisbursementModal()"><i class="fas fa-plus"><\/i> ส่งคำขอเบิกจ่าย<\/button>
+                    <\/div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4"><div class="tracking-stat-card" style="border-left: 4px solid var(--amber-500);"><div class="stat-value" style="color:var(--amber-500);" id="disbPending">0<\/div><div class="stat-label">รออนุมัติ<\/div><\/div><\/div>
+                        <div class="col-md-4"><div class="tracking-stat-card" style="border-left: 4px solid var(--emerald-500);"><div class="stat-value" style="color:var(--emerald-500);" id="disbApproved">0<\/div><div class="stat-label">อนุมัติแล้ว<\/div><\/div><\/div>
+                        <div class="col-md-4"><div class="tracking-stat-card" style="border-left: 4px solid var(--red-500);"><div class="stat-value" style="color:var(--red-500);" id="disbRejected">0<\/div><div class="stat-label">ไม่อนุมัติ<\/div><\/div><\/div>
+                    <\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr><th width="5%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th><th width="20%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">โครงการ<\/th><th width="10%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">วันที่ขอ<\/th><th width="12%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จำนวน (บาท)<\/th><th width="18%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">วัตถุประสงค์<\/th><th width="10%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ผู้ขอ<\/th><th width="10%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะ<\/th><th width="15%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th><\/tr>
+                                <\/thead>
+                                <tbody id="disbursementTableBody"><tr><td colspan="8" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-menu-permissions" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-user-shield" style="color:var(--blue-500);"><\/i> จัดการสิทธิ์เมนูตาม Role<\/h2>
+                            <div class="page-subtitle">กำหนดสิทธิ์การเข้าถึงเมนูสำหรับแต่ละ Role<\/div>
+                        <\/div>
+                        <button class="btn-modern-success" onclick="savePermissions()"><i class="fas fa-save"><\/i> บันทึกสิทธิ์<\/button>
+                    <\/div>
+                    <div class="panel">
+                        <div class="alert" style="font-size: 0.82rem; background: var(--blue-100); color: #1e40af; border: none; border-radius: 12px;"><i class="fas fa-info-circle me-2"><\/i> คลิกที่ไอคอน <i class="fas fa-toggle-on text-success"><\/i>/<i class="fas fa-toggle-off text-muted"><\/i> เพื่อเปิด/ปิดสิทธิ์ จากนั้นกด "บันทึกสิทธิ์"<\/div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr><th width="5%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th><th width="35%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">เมนู<\/th><th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ADMIN<\/th><th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">EXECUTIVE<\/th><th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">TEACHER<\/th><\/tr>
+                                <\/thead>
+                                <tbody id="permissionTableBody"><tr><td colspan="5" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr><\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-users" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-users" style="color:var(--blue-500);"><\/i> จัดการผู้ใช้งาน<\/h2>
+                            <div class="page-subtitle">จัดการรายชื่อผู้ใช้ รหัสผ่าน และสิทธิ์การเข้าถึง<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" onclick="openUserModal()"><i class="fas fa-user-plus"><\/i> เพิ่มผู้ใช้งาน<\/button>
+                    <\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr>
+                                        <th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th>
+                                        <th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อผู้ใช้ (Username)<\/th>
+                                        <th width="25%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อ-นามสกุล<\/th>
+                                        <th width="20%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">กลุ่มงาน/ฝ่าย<\/th>
+                                        <th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ระดับสิทธิ์<\/th>
+                                        <th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th>
+                                    <\/tr>
+                                <\/thead>
+                                <tbody id="usersTableBody">
+                                    <tr><td colspan="6" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr>
+                                <\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+                
+                <div id="view-budget-sources" class="view-section" style="display: none;">
+                    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                        <div>
+                            <h2 class="page-title"><i class="fas fa-wallet" style="color:var(--blue-500);"><\/i> จัดการแหล่งงบประมาณ<\/h2>
+                            <div class="page-subtitle">จัดการรายชื่อประเภทเงิน/แหล่งงบประมาณที่ได้รับ<\/div>
+                        <\/div>
+                        <button class="btn-modern-primary" onclick="openBudgetSourceModal()"><i class="fas fa-plus"><\/i> เพิ่มแหล่งงบประมาณ<\/button>
+                    <\/div>
+                    <div class="panel">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr>
+                                        <th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ<\/th>
+                                        <th width="45%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อแหล่งงบประมาณ<\/th>
+                                        <th width="15%" class="text-end" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ได้รับรวม<\/th>
+                                        <th width="15%" class="text-end" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ใช้ไปรวม<\/th>
+                                        <th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ<\/th>
+                                    <\/tr>
+                                <\/thead>
+                                <tbody id="budgetSourceTableBody">
+                                    <tr><td colspan="5" class="text-muted text-center py-4">กำลังโหลดข้อมูล...<\/td><\/tr>
+                                <\/tbody>
+                            <\/table>
+                        <\/div>
+                    <\/div>
+                <\/div>
+
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="allocationModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-hand-holding-usd me-2"><\/i> เพิ่มยอดจัดสรรงบประมาณ<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="allocationForm" onsubmit="submitAllocationForm(event)">
+                        <input type="hidden" id="allocId">
+                        <div class="mb-3"><label class="form-label fw-bold">1. วันที่รับจัดสรร <span class="text-danger">*<\/span><\/label><input type="text" class="form-control bg-white" id="allocDate" required><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">2. ประเภทงบ <span class="text-danger">*<\/span><\/label><select class="form-select" id="allocBudgetType" required><option value="">-- เลือกประเภทเงิน --<\/option><\/select><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">3. คำอธิบาย <span class="text-danger">*<\/span><\/label><textarea class="form-control" id="allocDesc" required><\/textarea><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">4. จำนวนเงิน <span class="text-danger">*<\/span><\/label><input type="number" class="form-control fw-bold" style="color:var(--blue-600);" id="allocAmount" required><\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" onclick="closeAllocationModal()">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึกยอด<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="departmentModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-sitemap me-2"><\/i> เพิ่มข้อมูลกลุ่มงาน/ฝ่าย<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="departmentForm" onsubmit="submitDepartmentForm(event)">
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อกลุ่มงาน/ฝ่าย <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="deptName" required placeholder="เช่น ฝ่ายบริหารงานวิชาการ"><\/div>
+                        <div class="mb-4"><label class="form-label fw-bold">รายละเอียด/หน้าที่ (ถ้ามี)<\/label><textarea class="form-control" id="deptDesc" rows="3" placeholder="อธิบายหน้าที่ความรับผิดชอบ..."><\/textarea><\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึก<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="userModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-user-cog me-2"><\/i> จัดการผู้ใช้งาน<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="userForm" onsubmit="submitUserForm(event)">
+                        <input type="hidden" id="isEditUser" value="">
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อผู้ใช้ (Username) <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="userNameInput" required placeholder="ตัวอักษรภาษาอังกฤษ/ตัวเลข"><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">รหัสผ่าน (Password)<\/label><input type="text" class="form-control" id="userPassword" placeholder="ตั้งรหัสผ่าน..."><div class="form-text" id="userPasswordHelper" style="font-size: 0.75rem; color: var(--amber-600);"><\/div><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อ-นามสกุล <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="userFullNameInput" required><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">กลุ่มงาน/ฝ่าย <span class="text-danger">*<\/span><\/label><select class="form-select" id="userDept" required><option value="">-- เลือก --<\/option><\/select><\/div>
+                        <div class="mb-4"><label class="form-label fw-bold">ระดับสิทธิ์ <span class="text-danger">*<\/span><\/label><select class="form-select" id="userRole" required><option value="TEACHER">TEACHER (ครู/ทั่วไป)<\/option><option value="EXECUTIVE">EXECUTIVE (ผู้บริหาร)<\/option><option value="ADMIN">ADMIN (ผู้ดูแลระบบ)<\/option><\/select><\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" onclick="closeUserModal()">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึก<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="docTemplateModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-file-alt me-2"><\/i> เพิ่มแบบฟอร์มใหม่<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="docTemplateForm" onsubmit="submitDocTplForm(event)">
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อแบบฟอร์ม <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="docTplName" required placeholder="เช่น แบบขออนุมัติเบิกจ่าย"><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">คำอธิบาย<\/label><textarea class="form-control" id="docTplDesc" rows="2" placeholder="อธิบายรายละเอียดแบบฟอร์ม..."><\/textarea><\/div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">เลือกไอคอน <span class="text-danger">*<\/span><\/label>
+                            <div class="d-flex flex-wrap gap-2" id="iconPicker">
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-pdf" title="PDF"><i class="fas fa-file-pdf text-danger"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-word" title="Word"><i class="fas fa-file-word text-primary"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-excel" title="Excel"><i class="fas fa-file-excel text-success"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-image" title="Image"><i class="fas fa-file-image text-info"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-invoice" title="Invoice"><i class="fas fa-file-invoice text-warning"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-contract" title="Contract"><i class="fas fa-file-contract text-dark"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-signature" title="Signature"><i class="fas fa-file-signature text-secondary"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-clipboard-check" title="Checklist"><i class="fas fa-clipboard-check text-success"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-money-check-alt" title="Money Check"><i class="fas fa-money-check-alt text-primary"><\/i><\/span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-receipt" title="Receipt"><i class="fas fa-receipt text-secondary"><\/i><\/span>
+                            <\/div>
+                            <input type="hidden" id="docTplIcon" value="fas fa-file-pdf">
+                        <\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">URL ไฟล์ Google Drive <span class="text-danger">*<\/span><\/label><input type="url" class="form-control" id="docTplUrl" required placeholder="https://drive.google.com/..."><\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึก<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="proposalModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-file-upload me-2"><\/i> ส่งข้อเสนอโครงการใหม่<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="proposalForm" onsubmit="submitProposalForm(event)">
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อโครงการ <span class="text-danger">*<\/span><\/label><input type="text" class="form-control" id="propName" required><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">วัตถุประสงค์ <span class="text-danger">*<\/span><\/label><textarea class="form-control" id="propObjectives" rows="3" required><\/textarea><\/div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">งบประมาณที่ขอ (บาท) <span class="text-danger">*<\/span><\/label><input type="number" class="form-control" id="propBudget" required min="0"><\/div>
+                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">กลุ่มงาน/ฝ่าย <span class="text-danger">*<\/span><\/label><select class="form-select" id="propDepartment" required><option value="">-- เลือก --<\/option><\/select><\/div>
+                        <\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-paper-plane"><\/i> ส่งข้อเสนอ<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="reportSettingsModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-cog me-2"><\/i> ตั้งค่าลิ้งก์ส่งโครงการ / Folder ID<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="reportSettingsForm" onsubmit="submitReportSettingsForm(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิ้งก์ส่งโครงการ (Word) <span class="text-danger">*<\/span><\/label>
+                            <input type="url" class="form-control" id="settingWordLink" required placeholder="https://drive.google.com/drive/folders/...">
+                            <div class="form-text">ลิ้งก์ Google Form หรือ Google Drive Folder สำหรับส่งไฟล์ Word<\/div>
+                        <\/div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิ้งก์ส่งโครงการ (PDF) <span class="text-danger">*<\/span><\/label>
+                            <input type="url" class="form-control" id="settingPdfLink" required placeholder="https://drive.google.com/drive/folders/...">
+                            <div class="form-text">ลิ้งก์ Google Form หรือ Google Drive Folder สำหรับส่งไฟล์ PDF<\/div>
+                        <\/div>
+                        <hr>
+                        <div class="text-end">
+                            <button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button>
+                            <button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึก<\/button>
+                        <\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="disbursementModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-check-double me-2"><\/i> ส่งคำขอเบิกจ่าย<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="disbursementForm" onsubmit="submitDisbursementForm(event)">
+                        <div class="mb-3"><label class="form-label fw-bold">เลือกโครงการ <span class="text-danger">*<\/span><\/label><select class="form-select" id="disbProject" required><option value="">-- เลือก --<\/option><\/select><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">วันที่ขอเบิก <span class="text-danger">*<\/span><\/label><input type="text" class="form-control bg-white" id="disbDate" required><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">จำนวนเงิน (บาท) <span class="text-danger">*<\/span><\/label><input type="number" class="form-control" id="disbAmount" required min="1"><\/div>
+                        <div class="mb-3"><label class="form-label fw-bold">วัตถุประสงค์ <span class="text-danger">*<\/span><\/label><textarea class="form-control" id="disbPurpose" rows="2" required><\/textarea><\/div>
+                        <hr>
+                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button><button type="submit" class="btn-modern-success"><i class="fas fa-paper-plane"><\/i> ส่งคำขอ<\/button><\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    
+    <div class="modal fade" id="budgetSourceModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-wallet me-2"><\/i> จัดการแหล่งงบประมาณ<\/h5><\/div>
+                <div class="modal-body">
+                    <form id="budgetSourceForm" onsubmit="submitBudgetSourceForm(event)">
+                        <input type="hidden" id="sourceId" value="">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">ชื่อแหล่งงบประมาณ <span class="text-danger">*<\/span><\/label>
+                            <input type="text" class="form-control" id="sourceName" required placeholder="เช่น เงินอุดหนุนรายหัว">
+                        <\/div>
+                        <hr>
+                        <div class="text-end">
+                            <button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก<\/button>
+                            <button type="submit" class="btn-modern-success"><i class="fas fa-save"><\/i> บันทึก<\/button>
+                        <\/div>
+                    <\/form>
+                <\/div>
+            <\/div>
+        <\/div>
+    <\/div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"><\/script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"><\/script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"><\/script>
+
+    <script>
+        let currentUser = null;
+        let chartInstance = null;
+        let centralChartInstance = null;
+        let trackingChartInstance = null;
+        let allocDatePicker = null;
+        let menuPermissions = [];
+        const isGAS = typeof google !== 'undefined' && google.script;
+        const allocModal = new bootstrap.Modal(document.getElementById('allocationModal'));
+        const deptModal = new bootstrap.Modal(document.getElementById('departmentModal'));
+        const docTplModal = new bootstrap.Modal(document.getElementById('docTemplateModal'));
+        const proposalModal = new bootstrap.Modal(document.getElementById('proposalModal'));
+        const reportSettingsModal = new bootstrap.Modal(document.getElementById('reportSettingsModal'));
+        const disbursementModal = new bootstrap.Modal(document.getElementById('disbursementModal'));
+        const budgetSourceModal = new bootstrap.Modal(document.getElementById('budgetSourceModal'));
+
+        document.addEventListener("DOMContentLoaded", function () {
+            allocDatePicker = flatpickr("#allocDate", {
+                locale: "th", altInput: true, altFormat: "d M Y", dateFormat: "Y-m-d", defaultDate: new Date(),
+                formatDate: (date, format, locale) => {
+                    let defaultFormatted = flatpickr.formatDate(date, format);
+                    if (format.includes("Y")) defaultFormatted = defaultFormatted.replace(date.getFullYear(), date.getFullYear() + 543);
+                    return defaultFormatted;
+                }
+            });
+            flatpickr("#rptDate", {
+                locale: "th", altInput: true, altFormat: "d M Y", dateFormat: "Y-m-d", defaultDate: new Date(),
+                formatDate: (date, format, locale) => {
+                    let defaultFormatted = flatpickr.formatDate(date, format);
+                    if (format.includes("Y")) defaultFormatted = defaultFormatted.replace(date.getFullYear(), date.getFullYear() + 543);
+                    return defaultFormatted;
+                }
+            });
+            flatpickr("#disbDate", {
+                locale: "th", altInput: true, altFormat: "d M Y", dateFormat: "Y-m-d", defaultDate: new Date(),
+                formatDate: (date, format, locale) => {
+                    let defaultFormatted = flatpickr.formatDate(date, format);
+                    if (format.includes("Y")) defaultFormatted = defaultFormatted.replace(date.getFullYear(), date.getFullYear() + 543);
+                    return defaultFormatted;
+                }
+            });
+            document.getElementById('utilYear').value = new Date().getFullYear() + 543;
+
+            
+            document.querySelectorAll('.icon-pick-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    document.querySelectorAll('.icon-pick-item').forEach(el => el.classList.remove('btn-primary'));
+                    document.querySelectorAll('.icon-pick-item').forEach(el => el.classList.add('btn-outline-secondary'));
+                    this.classList.remove('btn-outline-secondary');
+                    this.classList.add('btn-primary');
+                    document.getElementById('docTplIcon').value = this.getAttribute('data-icon');
+                });
+            });
+        });
+
+        
+        
+        
+        function handleLogin(event) {
+            event.preventDefault();
+            if (!isGAS) return Swal.fire('Error', 'ต้องรันผ่าน Google Apps Script', 'error');
+            showLoader("กำลังเข้าสู่ระบบ...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    currentUser = res.user;
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('wrapper').style.display = 'flex';
+                    document.getElementById('userFullName').innerText = currentUser.name;
+                    document.getElementById('userRole').innerText = currentUser.role;
+                    document.getElementById('userInitial').innerText = currentUser.name ? currentUser.name.charAt(0) : '?';
+                    
+                    loadMenuPermissions(() => { 
+                        switchView('dashboard'); 
+                        loadNotifications(); 
+                        loadBudgetTypeOptions(); 
+                    });
+                } else { Swal.fire('ล้มเหลว', res.message, 'error'); }
+            }).loginUser(document.getElementById('username').value, document.getElementById('password').value);
+        }
+
+        function handleLogout() {
+            Swal.fire({ title: 'ออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonText: 'ใช่', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#2563eb' })
+                .then(res => {
+                    if (res.isConfirmed) {
+                        
+                        currentUser = null;
+                        menuPermissions = [];
+                        document.getElementById('wrapper').style.display = 'none';
+                        document.getElementById('login-screen').style.display = 'flex';
+                        document.getElementById('loginForm').reset();
+                        document.getElementById('userFullName').innerText = '';
+                        document.getElementById('userRole').innerText = '';
+                        document.getElementById('userInitial').innerText = '?';
+                        
+                        document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+                        document.getElementById('view-dashboard').style.display = 'block';
+                        
+                        document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+                        const dashItem = document.querySelector('li[data-menu="dashboard"]');
+                        if (dashItem) dashItem.classList.add('active');
+                        
+                        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+                        if (centralChartInstance) { centralChartInstance.destroy(); centralChartInstance = null; }
+                        if (trackingChartInstance) { trackingChartInstance.destroy(); trackingChartInstance = null; }
+                    }
+                });
+        }
+
+        
+        
+        
+        function loadMenuPermissions(callback) {
+            if (!isGAS) { if (callback) callback(); return; }
+            google.script.run.withSuccessHandler(res => {
+                if (res.success) {
+                    menuPermissions = res.data;
+                    applyMenuPermissions();
+                }
+                if (callback) callback();
+            }).getMenuPermissions();
+        }
+
+        function applyMenuPermissions() {
+            if (!currentUser || menuPermissions.length === 0) return;
+            const role = currentUser.role;
+            const menuItems = document.querySelectorAll('.sidebar-menu > li[data-menu], .sidebar-submenu li[data-menu]');
+            menuItems.forEach(item => {
+                const menuKey = item.getAttribute('data-menu');
+                const perm = menuPermissions.find(p => p.menuKey === menuKey);
+                if (perm) {
+                    const allowed = perm[role];
+                    if (!allowed) {
+                        item.style.display = 'none';
+                    } else {
+                        item.style.display = '';
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.sidebar-submenu').forEach(sub => {
+                const visibleChildren = sub.querySelectorAll('li:not([style*="display: none"])');
+                const parentToggle = sub.previousElementSibling;
+                if (visibleChildren.length === 0 && parentToggle) {
+                    parentToggle.style.display = 'none';
+                    sub.style.display = 'none';
+                }
+            });
+        }
+
+        
+        function toggleSubmenu(submenuId, iconId) {
+            const submenu = document.getElementById(submenuId);
+            const icon = document.getElementById(iconId);
+            submenu.classList.toggle('show');
+            icon.classList.toggle('rotate');
+        }
+
+        
+        
+        
+        function switchView(viewName, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            if (element && !element.parentElement.classList.contains('sidebar-submenu')) {
+                document.querySelectorAll('.sidebar-menu > li').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.sidebar-submenu li').forEach(el => el.classList.remove('active'));
+            } else if (element && element.parentElement.classList.contains('sidebar-submenu')) {
+                document.querySelectorAll('.sidebar-submenu li').forEach(el => el.classList.remove('active'));
+            } else {
+                document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+            }
+
+            document.getElementById('view-' + viewName).style.display = 'block';
+            if (element) { element.classList.add('active'); }
+            else { const targetMenu = document.querySelector(`li[onclick*="'${viewName}'"]`); if (targetMenu) targetMenu.classList.add('active'); }
+
+            if (viewName === 'dashboard') loadDashboardData();
+            if (viewName === 'allocation') loadAllocationData();
+            if (viewName === 'utilities') loadUtilitiesData();
+            if (viewName === 'central-budget') loadCentralBudgetData();
+            if (viewName === 'departments') loadDepartmentsData();
+            if (viewName === 'doctemplates') loadDocTemplates();
+            if (viewName === 'proposals') loadProposals();
+            if (viewName === 'reports') loadReportLinks();
+            if (viewName === 'tracking') loadTrackingData();
+            if (viewName === 'disbursements') loadDisbursements();
+            if (viewName === 'menu-permissions') loadPermissionsView();
+            if (viewName === 'users') loadUsers();
+            if (viewName === 'report-submissions') loadReportSubmissions();
+            if (viewName === 'budget-sources') loadBudgetSources();
+        }
+
+        function formatCurrency(num) { return Number(num).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+        
+        
+        
+        function loadDashboardData() {
+            if (!isGAS) return; showLoader("กำลังโหลดภาพรวม...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    document.getElementById('cardTotal').innerText = formatCurrency(res.data.summary.total);
+                    document.getElementById('cardUsed').innerText = formatCurrency(res.data.summary.used);
+                    document.getElementById('cardReserve').innerText = formatCurrency(res.data.summary.reserve);
+                    document.getElementById('cardRemain').innerText = formatCurrency(res.data.summary.remain);
+                    const typeBody = document.getElementById('typeTableBody'); typeBody.innerHTML = '';
+                    if (!res.data.typeDetails || res.data.typeDetails.length === 0) { typeBody.innerHTML = '<tr><td colspan="4" class="text-muted text-center py-3">ยังไม่มีข้อมูล<\/td><\/tr>'; }
+                    else { res.data.typeDetails.forEach(t => { typeBody.innerHTML += `<tr><td class="text-start">${t.name}<\/td><td style="color:var(--blue-600);font-weight:600;">${formatCurrency(t.received)}<\/td><td style="color:var(--red-500);font-weight:500;">${formatCurrency(t.used)}<\/td><td style="color:var(--emerald-600);font-weight:700;">${formatCurrency(t.remain)}<\/td><\/tr>`; }); }
+                    const projBody = document.getElementById('projectTableBody'); projBody.innerHTML = '';
+                    if (!res.data.projects || res.data.projects.length === 0) { projBody.innerHTML = '<tr><td colspan="6" class="text-muted text-center py-3">ยังไม่มีข้อมูลโครงการ<\/td><\/tr>'; }
+                    else { let index = 1; res.data.projects.forEach(p => { let stClass = p.status === 'อนุมัติแล้ว' ? 'badge-approved' : 'badge-pending'; projBody.innerHTML += `<tr><td>${index++}<\/td><td class="text-start" style="font-weight:500;">${p.name}<\/td><td><span class="badge-pill ${stClass}">${p.status}<\/span><\/td><td>${formatCurrency(p.budget)}<\/td><td style="color:${p.used > 0 ? 'var(--red-500)' : 'inherit'};font-weight:${p.used > 0 ? '600' : '400'};">${formatCurrency(p.used)}<\/td><td><div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-slim"><div class="progress-bar" style="width: ${p.pct}%; background:var(--blue-500);"><\/div><\/div><span style="font-size:0.78rem; width:44px; text-align:right; font-weight:500;">${Number(p.pct).toFixed(1)}%<\/span><\/div><\/td><\/tr>`; }); }
+                    setTimeout(() => renderChart(res.data.typeDetails), 100);
+                }
+            }).getDashboardData();
+        }
+
+        function renderChart(typeDetails) {
+            const ctx = document.getElementById('budgetChart');
+            const emptyMsg = document.getElementById('emptyChartMsg');
+            if (chartInstance) chartInstance.destroy();
+            if (!typeDetails || typeDetails.length === 0) { ctx.style.display = 'none'; emptyMsg.classList.remove('d-none'); return; }
+            else { ctx.style.display = 'block'; emptyMsg.classList.add('d-none'); }
+            let labels = [], received = [], used = [];
+            typeDetails.forEach(t => { labels.push(t.name); received.push(t.received); used.push(t.used); });
+            chartInstance = new Chart(ctx.getContext('2d'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'ได้รับ', data: received, backgroundColor: '#93c5fd', borderRadius: 6, barPercentage: 0.6 }, { label: 'ใช้ไป', data: used, backgroundColor: '#f472b6', borderRadius: 6, barPercentage: 0.6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { family: 'Prompt', size: 12 }, usePointStyle: true, pointStyle: 'circle' } } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Prompt', size: 11 } } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Prompt', size: 11 } } } } } });
+        }
+
+        // ==========================================
+        
+        
+        let currentAllocations = [];
+
+        function loadAllocationData() {
+            if (!isGAS) return; showLoader("กำลังดึงประวัติจัดสรร...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('allocationTableBody');
+                if (!res.success) { tbody.innerHTML = `<tr><td colspan="5" class="text-danger text-center py-4">ข้อผิดพลาด: ${res.error}<\/td><\/tr>`; return; }
+                tbody.innerHTML = '';
+                if (res.data && res.data.length > 0) {
+                    currentAllocations = res.data;
+                    let total = 0; res.data.forEach(row => { 
+                        total += row.amount; 
+                        let badge = row.budgetType.includes("อุดหนุน") ? "badge-udnun" : (row.budgetType.includes("กลาง") ? "badge-klang" : "badge-default"); 
+                        let actionBtns = '';
+                        if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                            actionBtns = `<button class="btn btn-sm btn-outline-primary mx-1" style="border-radius:6px; padding:2px 8px;" onclick="editAllocation('${row.id}')" title="แก้ไข"><i class="fas fa-edit"><\/i><\/button><button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:6px; padding:2px 8px;" onclick="deleteAllocData('${row.id}')" title="ลบ"><i class="fas fa-trash"><\/i><\/button>`;
+                        } else {
+                            actionBtns = `<span class="text-muted">-<\/span>`;
+                        }
+                        tbody.innerHTML += `<tr><td class="text-muted ps-4" style="font-size:0.85rem;">${row.date}<\/td><td><span class="badge ${badge} px-2 py-1">${row.budgetType}<\/span><\/td><td style="font-size:0.85rem;">${row.description}<\/td><td class="text-end fw-bold" style="color:var(--emerald-600);">${formatCurrency(row.amount)}<\/td><td class="text-center pe-4">${actionBtns}<\/td><\/tr>`; 
+                    });
+                    document.getElementById('allocationTableFoot').innerHTML = `<tr style="background:var(--slate-50);"><td colspan="3" class="text-end fw-bold py-3">รวมงบประมาณที่นำไปใช้ได้ (สุทธิ):<\/td><td class="text-end fw-bold py-3" style="color:var(--blue-600);font-size:1.1rem;">${formatCurrency(total)}<\/td><td class="pe-4"><\/td><\/tr>`;
+                } else { 
+                    currentAllocations = [];
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีประวัติ<\/td><\/tr>'; 
+                }
+            }).getAllocations();
+        }
+
+        function openAllocationModal() { 
+            document.getElementById('allocationForm').reset(); 
+            document.getElementById('allocId').value = '';
+            
+            if (allocDatePicker) allocDatePicker.setDate(new Date());
+            allocModal.show(); 
+        }
+        function closeAllocationModal() { allocModal.hide(); }
+        function submitAllocationForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึกยอด...");
+            const data = { id: document.getElementById('allocId').value, date: document.getElementById('allocDate').value, budgetType: document.getElementById('allocBudgetType').value, description: document.getElementById('allocDesc').value, amount: document.getElementById('allocAmount').value, recordedBy: currentUser.name };
+            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeAllocationModal(); loadAllocationData(); } }).saveAllocation(data);
+        }
+
+        function editAllocation(id) {
+            const alloc = currentAllocations.find(a => a.id === id);
+            if (!alloc) return;
+            document.getElementById('allocId').value = alloc.id;
+            document.getElementById('allocBudgetType').value = alloc.budgetType;
+            document.getElementById('allocDesc').value = alloc.description;
+            document.getElementById('allocAmount').value = alloc.amount;
+            if (allocDatePicker) {
+                
+                
+                
+                document.getElementById('allocDate').value = alloc.date;
+                allocDatePicker.setDate(alloc.date, true, "d M Y");
+            }
+            allocModal.show();
+        }
+
+        function deleteAllocData(id) {
+            Swal.fire({ title: 'ยืนยันการลบ?', text: "การลบจะหักยอดเงินออกจากงบประมาณด้วย ดำเนินการต่อหรือไม่?", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
+                .then((result) => { 
+                    if (result.isConfirmed) { 
+                        showLoader("กำลังลบ..."); 
+                        google.script.run.withSuccessHandler(res => { 
+                            hideLoader(); 
+                            if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadAllocationData(); } 
+                            else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+                        }).deleteAllocation(id); 
+                    } 
+                });
+        }
+
+        
+        
+        
+        function submitProjectForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("บันทึกโครงการ...");
+            const data = { 
+                name: document.getElementById('formProjName').value, 
+                budgetType: document.getElementById('formBudgetType').value, 
+                status: document.getElementById('formStatus').value, 
+                budget: document.getElementById('formBudgetAllocated').value, 
+                used: document.getElementById('formUsedAmount').value || 0,
+                proposedBy: currentUser.name
+            };
+            google.script.run.withSuccessHandler(res => { 
+                hideLoader(); 
+                if (res.success) { 
+                    Swal.fire('สำเร็จ', res.message, 'success'); 
+                    document.getElementById('projectForm').reset(); 
+                } 
+            }).saveProject(data);
+        }
+
+        
+        
+        
+        function loadUtilitiesData() {
+            if (!isGAS) return; showLoader("กำลังโหลดประวัติสาธารณูปโภค...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('utilityTableBody'); tbody.innerHTML = '';
+                if (res.success && res.data.length > 0) {
+                    res.data.forEach(row => {
+                        let iconHTML = ''; if (row.type === 'ค่าไฟฟ้า') iconHTML = '<i class="fas fa-bolt me-2" style="color:var(--amber-500);"><\/i>'; else if (row.type === 'ค่าน้ำประปา') iconHTML = '<i class="fas fa-tint text-info me-2"><\/i>'; else if (row.type === 'ค่าโทรศัพท์/อินเทอร์เน็ต') iconHTML = '<i class="fas fa-globe me-2" style="color:var(--blue-500);"><\/i>'; else iconHTML = '<i class="fas fa-building text-secondary me-2"><\/i>';
+                        let badgeClass = row.budgetType.includes('กลาง') ? 'badge-klang' : 'badge-udnun';
+                        tbody.innerHTML += `<tr><td style="color:var(--slate-700);">${row.month} ${row.year}<\/td><td class="fw-bold" style="font-size:0.85rem;">${iconHTML} ${row.type}<\/td><td><span class="badge ${badgeClass}" style="font-size:0.7rem;">${row.budgetType}<\/span><\/td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(row.amount)} ฿<\/td><td class="text-center"><button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:8px;" onclick="deleteUtility('${row.id}')"><i class="fas fa-trash"><\/i><\/button><\/td><\/tr>`;
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีประวัติ<\/td><\/tr>'; }
+            }).getUtilities();
+        }
+
+        function submitUtilityForm(event) {
+            event.preventDefault(); if (!isGAS) return;
+            const formData = { 
+                type: document.getElementById('utilType').value, 
+                month: document.getElementById('utilMonth').value, 
+                year: document.getElementById('utilYear').value, 
+                amount: document.getElementById('utilAmount').value, 
+                budgetType: document.getElementById('utilBudgetType').value,
+                recordedBy: currentUser.name 
+            };
+            showLoader("บันทึกข้อมูล...");
+            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ!', res.message, 'success'); document.getElementById('utilAmount').value = ''; loadUtilitiesData(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveUtility(formData);
+        }
+
+        function deleteUtility(id) {
+            Swal.fire({ title: 'ยืนยันการลบ?', text: "จะคืนเงินกลับเข้าแหล่งงบประมาณเดิมอัตโนมัติ", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
+                .then((result) => { if (result.isConfirmed) { showLoader("กำลังลบ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadUtilitiesData(); } }).deleteUtility(id); } });
+        }
+
+        // ==========================================
+        
+        
+        function loadCentralBudgetData() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อมูลวิเคราะห์งบกลาง...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    const data = res.data;
+                    document.getElementById('cbTotal').innerText = formatCurrency(data.summary.total) + ' ฿';
+                    document.getElementById('cbUsed').innerText = formatCurrency(data.summary.used) + ' ฿';
+                    document.getElementById('cbRemain').innerText = formatCurrency(data.summary.remain) + ' ฿';
+                    renderCentralChart(data.summary.used, data.summary.remain);
+                    const pBody = document.getElementById('cbProjectTableBody'); pBody.innerHTML = '';
+                    if (data.projects.length === 0) { pBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มีการหักลบงบจากโครงการ (ใช้เกินแผน)<\/td><\/tr>'; }
+                    else { data.projects.forEach(p => { pBody.innerHTML += `<tr><td class="text-start" style="font-weight:500;">${p.name}<\/td><td>${formatCurrency(p.allocated)}<\/td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(p.overAmount)}<\/td><td class="text-muted">-<\/td><td class="fw-bold">${formatCurrency(p.totalUsed)}<\/td><\/tr>`; }); }
+                    const uBody = document.getElementById('cbUtilityTableBody'); uBody.innerHTML = '';
+                    if (data.utils.length === 0) { uBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">ยังไม่มีการหักลบงบจากค่าสาธารณูปโภค<\/td><\/tr>'; }
+                    else { data.utils.forEach(u => { let icon = u.type.includes('ไฟ') ? '⚡ ' : (u.type.includes('น้ำ') ? '💧 ' : ''); uBody.innerHTML += `<tr><td class="text-start">${icon}${u.type} ประจำเดือน ${u.month} ${u.year}<\/td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(u.amount)}<\/td><td class="fw-bold">${formatCurrency(u.amount)}<\/td><\/tr>`; }); }
+                } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+            }).getCentralBudgetData();
+        }
+
+        function renderCentralChart(used, remain) {
+            const ctx = document.getElementById('centralChart');
+            if (centralChartInstance) centralChartInstance.destroy();
+            if (used === 0 && remain === 0) return;
+            centralChartInstance = new Chart(ctx.getContext('2d'), { type: 'doughnut', data: { labels: ['ใช้ไป', 'คงเหลือ'], datasets: [{ data: [used, remain], backgroundColor: ['#ef4444', '#10b981'], borderWidth: 0, cutout: '75%' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        }
+
+        
+        
+        
+        function loadDepartmentsData() {
+            if (!isGAS) return; showLoader("กำลังดึงข้อมูลกลุ่มงาน...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('departmentTableBody'); tbody.innerHTML = '';
+                if (res.success && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(dept => { tbody.innerHTML += `<tr><td class="text-center">${index++}<\/td><td class="fw-bold" style="color:var(--blue-600);">${dept.name}<\/td><td class="text-muted">${dept.desc || '-'}<\/td><\/tr>`; });
+                } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">ยังไม่มีข้อมูลกลุ่มงาน/ฝ่าย<\/td><\/tr>'; }
+            }).getDepartments();
+        }
+
+        function openDeptModal() { document.getElementById('departmentForm').reset(); deptModal.show(); }
+        function submitDepartmentForm(event) {
+            event.preventDefault(); if (!isGAS) return;
+            const formData = { name: document.getElementById('deptName').value, desc: document.getElementById('deptDesc').value };
+            showLoader("กำลังบันทึกข้อมูล...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); deptModal.hide(); loadDepartmentsData(); }
+                else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+            }).saveDepartment(formData);
+        }
+
+        
+        
+        
+        function loadDocTemplates() {
+            if (!isGAS) return; showLoader("กำลังโหลดแบบฟอร์ม...");
+            
+            const btnAdd = document.getElementById('btnAddDocTpl');
+            if (btnAdd) btnAdd.style.display = (currentUser && currentUser.role === 'ADMIN') ? '' : 'none';
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const container = document.getElementById('docTemplateCards'); container.innerHTML = '';
+                if (res.success && res.data.length > 0) {
+                    res.data.forEach(doc => {
+                        const iconColors = { 'fas fa-file-pdf': '#ef4444', 'fas fa-file-word': '#3b82f6', 'fas fa-file-excel': '#22c55e', 'fas fa-file-image': '#06b6d4', 'fas fa-file-invoice': '#eab308', 'fas fa-file-contract': '#1e293b', 'fas fa-file-signature': '#6b7280', 'fas fa-clipboard-check': '#22c55e', 'fas fa-money-check-alt': '#3b82f6', 'fas fa-receipt': '#6b7280' };
+                        const bgGrad = iconColors[doc.icon] ? `linear-gradient(135deg, ${iconColors[doc.icon]}, ${iconColors[doc.icon]}cc)` : 'linear-gradient(135deg, #3b82f6, #6366f1)';
+                        const deleteBtn = isAdmin ? `<button class="doc-delete-btn" onclick="deleteDocTpl('${doc.id}')" title="ลบ"><i class="fas fa-times"><\/i><\/button>` : '';
+                        container.innerHTML += `
+                            <div class="col-md-4 col-lg-3">
+                                <div class="doc-card">
+                                    ${deleteBtn}
+                                    <div class="doc-icon" style="background: ${bgGrad};"><i class="${doc.icon}"><\/i><\/div>
+                                    <div class="doc-title">${doc.name}<\/div>
+                                    <div class="doc-desc">${doc.desc || 'ไม่มีคำอธิบาย'}<\/div>
+                                    <a href="${doc.url}" target="_blank" class="doc-btn"><i class="fas fa-download me-1"><\/i> ดาวน์โหลด<\/a>
+                                <\/div>
+                            <\/div>`;
+                    });
+                } else { container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="fas fa-inbox fa-3x mb-3 d-block" style="opacity:0.3;"><\/i>ยังไม่มีแบบฟอร์ม คลิก "เพิ่มแบบฟอร์ม" เพื่อเริ่มต้น<\/div>'; }
+            }).getDocTemplates();
+        }
+
+        function openDocTplModal() { document.getElementById('docTemplateForm').reset(); docTplModal.show(); }
+        function submitDocTplForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึก...");
+            const data = { name: document.getElementById('docTplName').value, desc: document.getElementById('docTplDesc').value, icon: document.getElementById('docTplIcon').value, url: document.getElementById('docTplUrl').value, uploadedBy: currentUser.name };
+            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); docTplModal.hide(); loadDocTemplates(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDocTemplate(data);
+        }
+
+        function deleteDocTpl(id) {
+            Swal.fire({ title: 'ยืนยันการลบ?', text: 'ลบแบบฟอร์มนี้?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
+                .then(result => { if (result.isConfirmed) { showLoader("กำลังลบ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadDocTemplates(); } }).deleteDocTemplate(id); } });
+        }
+
+        
+        
+        
+        function loadProposals() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อเสนอโครงการ...");
+            
+            google.script.run.withSuccessHandler(deptRes => {
+                const deptSel = document.getElementById('propDepartment');
+                deptSel.innerHTML = '<option value="">-- เลือก --<\/option>';
+                if (deptRes.success) { deptRes.data.forEach(d => { deptSel.innerHTML += `<option value="${d.name}">${d.name}<\/option>`; }); }
+            }).getDepartments();
+
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('proposalTableBody'); tbody.innerHTML = '';
+                if (res.success && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(p => {
+                        let badgeClass = p.status === 'อนุมัติ' ? 'badge-status-approved' : (p.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
+                        let actionBtns = '';
+                        if (p.status === 'รอพิจารณา' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                            actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="reviewProposal('${p.id}','อนุมัติ')"><i class="fas fa-check"><\/i><\/button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="reviewProposal('${p.id}','ไม่อนุมัติ')"><i class="fas fa-times"><\/i><\/button>`;
+                        } else { actionBtns = '<span class="text-muted">-<\/span>'; }
+                        tbody.innerHTML += `<tr><td class="text-center">${index++}<\/td><td class="fw-bold">${p.name}<\/td><td class="text-muted">${p.department || '-'}<\/td><td>${formatCurrency(p.budget)}<\/td><td><span class="badge ${badgeClass} px-2 py-1">${p.status}<\/span><\/td><td>${p.proposedBy}<\/td><td>${p.reviewedBy || '-'}<\/td><td class="text-center">${actionBtns}<\/td><\/tr>`;
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-4">ยังไม่มีข้อเสนอโครงการ<\/td><\/tr>'; }
+            }).getProposals();
+        }
+
+        function openProposalModal() { document.getElementById('proposalForm').reset(); proposalModal.show(); }
+        function submitProposalForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งข้อเสนอ...");
+            const data = { name: document.getElementById('propName').value, objectives: document.getElementById('propObjectives').value, budget: document.getElementById('propBudget').value, department: document.getElementById('propDepartment').value, proposedBy: currentUser.name };
+            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); proposalModal.hide(); loadProposals(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveProposal(data);
+        }
+
+        function reviewProposal(id, status) {
+            if (status === 'ไม่อนุมัติ') {
+                Swal.fire({ title: 'เหตุผลที่ไม่อนุมัติ', input: 'textarea', showCancelButton: true, confirmButtonText: 'ยืนยัน', confirmButtonColor: '#ef4444' }).then(result => {
+                    if (result.isConfirmed) { showLoader("กำลังอัปเดต..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadProposals(); loadNotifications(); } }).updateProposalStatus(id, status, result.value || '', currentUser.name); }
+                });
+            } else {
+                Swal.fire({ title: 'อนุมัติข้อเสนอนี้?', text: 'ระบบจะสร้างโครงการอัตโนมัติ', icon: 'question', showCancelButton: true, confirmButtonText: 'อนุมัติ', confirmButtonColor: '#2563eb' }).then(result => {
+                    if (result.isConfirmed) { showLoader("กำลังอนุมัติ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadProposals(); loadNotifications(); } }).updateProposalStatus(id, status, '', currentUser.name); }
+                });
+            }
+        }
+
+        // ==========================================
+        // 11. Project Reports (รายงานโครงการ) - ลิ้งก์ส่งโครงการ
+        // ==========================================
+        function loadReportLinks() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อมูลลิ้งก์...");
+            
+            const btnSetting = document.getElementById('btnSettingReportLinks');
+            if (btnSetting) btnSetting.style.display = (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) ? '' : 'none';
+
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    const wordLink = res.data.wordLink || '#';
+                    const pdfLink = res.data.pdfLink || '#';
+                    
+                    const btnWord = document.getElementById('btnLinkWord');
+                    const btnPdf = document.getElementById('btnLinkPdf');
+                    
+                    btnWord.href = wordLink;
+                    if(wordLink === '#') btnWord.onclick = (e) => { e.preventDefault(); Swal.fire('แจ้งเตือน', 'ยังไม่ได้ตั้งค่าลิ้งก์ส่งโครงการ (Word)', 'warning'); };
+                    else btnWord.onclick = null;
+                    
+                    btnPdf.href = pdfLink;
+                    if(pdfLink === '#') btnPdf.onclick = (e) => { e.preventDefault(); Swal.fire('แจ้งเตือน', 'ยังไม่ได้ตั้งค่าลิ้งก์ส่งโครงการ (PDF)', 'warning'); };
+                    else btnPdf.onclick = null;
+
+                    document.getElementById('settingWordLink').value = wordLink !== '#' ? wordLink : '';
+                    document.getElementById('settingPdfLink').value = pdfLink !== '#' ? pdfLink : '';
+                }
+            }).getReportSettings();
+        }
+
+        function openReportSettingsModal() {
+            reportSettingsModal.show();
+        }
+
+        function submitReportSettingsForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึกตั้งค่า...");
+            const wordLink = document.getElementById('settingWordLink').value;
+            const pdfLink = document.getElementById('settingPdfLink').value;
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    reportSettingsModal.hide();
+                    loadReportLinks();
+                } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+            }).saveReportSettings(wordLink, pdfLink);
+        }
+
+        // ==========================================
+        // 12. Budget Tracking (ติดตามการใช้จ่ายงบฯ)
+        // ==========================================
+        function loadTrackingData() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อมูลติดตาม...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    // Summary cards
+                    const summaryContainer = document.getElementById('trackingSummaryCards'); summaryContainer.innerHTML = '';
+                    let totalIn = 0, totalOut = 0;
+                    res.data.budgetSummary.forEach(b => {
+                        summaryContainer.innerHTML += `<div class="col-md-4"><div class="tracking-stat-card"><div class="fw-bold mb-1" style="font-size:0.82rem;color:var(--slate-500);">${b.name}<\/div><div class="d-flex justify-content-between mt-2"><div><div class="stat-label">ได้รับ<\/div><div class="stat-value" style="font-size:1.1rem;color:var(--blue-600);">${formatCurrency(b.received)}<\/div><\/div><div><div class="stat-label">ใช้ไป<\/div><div class="stat-value" style="font-size:1.1rem;color:var(--red-500);">${formatCurrency(b.used)}<\/div><\/div><div><div class="stat-label">คงเหลือ<\/div><div class="stat-value" style="font-size:1.1rem;color:var(--emerald-500);">${formatCurrency(b.remain)}<\/div><\/div><\/div><\/div><\/div>`;
+                    });
+                    // Transactions table
+                    const tbody = document.getElementById('trackingTableBody'); tbody.innerHTML = '';
+                    if (res.data.transactions.length > 0) {
+                        res.data.transactions.forEach(t => {
+                            let typeIcon = t.type === 'รับจัดสรร' ? '<span class="badge-pill badge-approved"><i class="fas fa-arrow-down" style="font-size:0.6rem;"><\/i> รับเข้า<\/span>' : '<span class="badge-pill badge-rejected"><i class="fas fa-arrow-up" style="font-size:0.6rem;"><\/i> จ่ายออก<\/span>';
+                            totalIn += t.amountIn; totalOut += t.amountOut;
+                            tbody.innerHTML += `<tr><td>${t.date || '-'}<\/td><td>${typeIcon}<\/td><td class="text-muted">${t.category || '-'}<\/td><td>${t.description || '-'}<\/td><td class="fw-bold" style="color:var(--emerald-600);">${t.amountIn > 0 ? formatCurrency(t.amountIn) : '-'}<\/td><td class="fw-bold" style="color:var(--red-500);">${t.amountOut > 0 ? formatCurrency(t.amountOut) : '-'}<\/td><\/tr>`;
+                        });
+                        tbody.innerHTML += `<tr style="background:var(--slate-50);"><td colspan="4" class="text-end fw-bold">รวมทั้งหมด:<\/td><td class="fw-bold" style="color:var(--emerald-600);">${formatCurrency(totalIn)}<\/td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(totalOut)}<\/td><\/tr>`;
+                    } else { tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center py-4">ยังไม่มีรายการ<\/td><\/tr>'; }
+                    // Chart
+                    setTimeout(() => renderTrackingChart(totalIn, totalOut), 100);
+                }
+            }).getBudgetTrackingData();
+        }
+
+        // ==========================================
+        // 13. Users Management
+        // ==========================================
+        let currentUsersData = [];
+        let userModalInst;
+
+        function closeUserModal() { if(userModalInst) userModalInst.hide(); }
+
+        function loadUsers() {
+            if (!isGAS) return; showLoader("กำลังโหลดรายชื่อผู้ใช้...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('usersTableBody');
+                if (!res.success) { tbody.innerHTML = `<tr><td colspan="6" class="text-danger text-center py-4">ข้อผิดพลาด: ${res.error}<\/td><\/tr>`; return; }
+                tbody.innerHTML = ''; currentUsersData = res.data;
+                if (res.data && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(row => {
+                        let badge = row.role === 'ADMIN' ? 'badge-klang' : (row.role === 'EXECUTIVE' ? 'badge-udnun' : 'badge-default');
+                        tbody.innerHTML += `<tr><td class="text-center">${index++}<\/td><td><b>${row.username}<\/b><\/td><td>${row.name}<\/td><td>${row.department}<\/td><td><span class="badge ${badge} px-2 py-1">${row.role}<\/span><\/td><td class="text-center"><button class="btn btn-sm btn-outline-primary mx-1" style="border-radius:6px; padding:2px 8px;" onclick="editUser('${row.username}')" title="แก้ไข"><i class="fas fa-edit"><\/i><\/button><button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:6px; padding:2px 8px;" onclick="deleteUserData('${row.username}')" title="ลบ" ${row.username.toLowerCase() === 'admin' ? 'disabled' : ''}><i class="fas fa-trash"><\/i><\/button><\/td><\/tr>`;
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="6" class="text-muted text-center py-4">ยังไม่มีข้อมูล<\/td><\/tr>'; }
+                
+                // Load departments into user select
+                google.script.run.withSuccessHandler(deptRes => {
+                    if (deptRes.success) {
+                        const deptSelect = document.getElementById('userDept');
+                        deptSelect.innerHTML = '<option value="">-- เลือก --<\/option>';
+                        deptRes.data.forEach(d => { deptSelect.innerHTML += `<option value="${d.name}">${d.name}<\/option>`; });
+                    }
+                }).getDepartments();
+
+            }).getAllUsers();
+        }
+
+        function openUserModal() {
+            document.getElementById('userForm').reset();
+            document.getElementById('isEditUser').value = '';
+            document.getElementById('userNameInput').readOnly = false;
+            document.getElementById('userPasswordHelper').innerText = '* จำเป็นต้องระบุรหัสผ่านสำหรับผู้ใช้ใหม่';
+            userModalInst = new bootstrap.Modal(document.getElementById('userModal'));
+            userModalInst.show();
+        }
+
+        function editUser(username) {
+            const user = currentUsersData.find(u => u.username === username);
+            if (!user) return;
+            document.getElementById('userNameInput').value = user.username;
+            document.getElementById('userNameInput').readOnly = true;
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userPasswordHelper').innerText = '* เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน';
+            document.getElementById('userRole').value = user.role;
+            document.getElementById('userFullNameInput').value = user.name;
+            
+            
+            setTimeout(() => { document.getElementById('userDept').value = user.department; }, 100);
+            
+            document.getElementById('isEditUser').value = '1';
+            userModalInst = new bootstrap.Modal(document.getElementById('userModal'));
+            userModalInst.show();
+        }
+
+        function submitUserForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึกข้อมูล...");
+            const data = {
+                username: document.getElementById('userNameInput').value,
+                password: document.getElementById('userPassword').value,
+                role: document.getElementById('userRole').value,
+                name: document.getElementById('userFullNameInput').value,
+                department: document.getElementById('userDept').value,
+                isEdit: document.getElementById('isEditUser').value === '1'
+            };
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    closeUserModal();
+                    loadUsers();
+                } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+            }).saveUser(data);
+        }
+
+        function deleteUserData(username) {
+            Swal.fire({ title: 'ยืนยันการลบ?', text: "ลบผู้ใช้นี้ออกจากระบบหรือไม่?", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        showLoader("กำลังลบ...");
+                        google.script.run.withSuccessHandler(res => {
+                            hideLoader();
+                            if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadUsers(); }
+                            else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+                        }).deleteUser(username);
+                    }
+                });
+        }
+
+        
+        
+        
+        function loadReportSubmissions() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อมูลติดตามการส่งรายงาน...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (!res.success) { Swal.fire('ข้อผิดพลาด', res.error, 'error'); return; }
+                const tbody = document.getElementById('reportSubTableBody');
+                tbody.innerHTML = '';
+                const data = res.data;
+                let submitted = 0, notSubmitted = 0;
+
+                if (data && data.length > 0) {
+                    let index = 1;
+                    data.forEach(p => {
+                        if (p.reportStatus === 'ส่งแล้ว') submitted++; else notSubmitted++;
+                        const isSent = p.reportStatus === 'ส่งแล้ว';
+                        const badgeClass = isSent ? 'badge-approved' : 'badge-pending';
+                        const badgeText = isSent ? '<i class="fas fa-check-circle"><\/i> ส่งแล้ว' : '<i class="fas fa-clock"><\/i> ยังไม่ได้ส่ง';
+                        const progressColor = p.progress >= 80 ? 'var(--emerald-500)' : (p.progress >= 40 ? 'var(--amber-500)' : 'var(--red-500)');
+
+                        let actionBtns = '';
+                        if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                            if (isSent) {
+                                actionBtns = `<button class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ยังไม่ได้ส่ง')" title="เปลี่ยนเป็นยังไม่ได้ส่ง"><i class="fas fa-undo"><\/i> ยกเลิก<\/button>`;
+                            } else {
+                                actionBtns = `<button class="btn btn-sm btn-outline-success" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ส่งแล้ว')" title="เปลี่ยนเป็นส่งแล้ว"><i class="fas fa-check"><\/i> ส่งแล้ว<\/button>`;
+                            }
+                        } else {
+                            actionBtns = `<span class="text-muted" style="font-size:0.78rem;">-<\/span>`;
+                        }
+
+                        tbody.innerHTML += `<tr>
+                            <td class="text-center">${index++}<\/td>
+                            <td class="fw-bold">${p.projectName}<\/td>
+                            <td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(p.budget)}<\/td>
+                            <td class="text-center"><div style="display:flex;align-items:center;gap:6px;"><div style="flex:1;background:var(--slate-200);border-radius:8px;height:8px;overflow:hidden;"><div style="width:${p.progress}%;height:100%;background:${progressColor};border-radius:8px;"><\/div><\/div><span style="font-size:0.75rem;font-weight:600;color:${progressColor};">${p.progress}%<\/span><\/div><\/td>
+                            <td class="text-center"><span class="badge-pill ${badgeClass}">${badgeText}<\/span><\/td>
+                            <td style="font-size:0.82rem;color:var(--text-muted);">${p.reportNote || '-'}${p.reportUpdatedBy ? '<br><small class="text-muted">โดย ' + p.reportUpdatedBy + '<\/small>' : ''}<\/td>
+                            <td class="text-center">${actionBtns}<\/td>
+                        <\/tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center py-4">ยังไม่มีโครงการในระบบ<\/td><\/tr>';
+                }
+
+                // Summary Cards
+                const summaryEl = document.getElementById('rptSubSummaryCards');
+                summaryEl.innerHTML = `
+                    <div class="col-md-4"><div class="kpi-card"><div class="kpi-icon" style="background:var(--blue-100);color:var(--blue-600);"><i class="fas fa-folder-open"><\/i><\/div><div class="kpi-info"><div class="kpi-value">${data.length}<\/div><div class="kpi-label">โครงการทั้งหมด<\/div><\/div><\/div><\/div>
+                    <div class="col-md-4"><div class="kpi-card"><div class="kpi-icon" style="background:var(--emerald-100);color:var(--emerald-600);"><i class="fas fa-check-circle"><\/i><\/div><div class="kpi-info"><div class="kpi-value">${submitted}<\/div><div class="kpi-label">ส่งรายงานแล้ว<\/div><\/div><\/div><\/div>
+                    <div class="col-md-4"><div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-100);color:var(--amber-600);"><i class="fas fa-exclamation-circle"><\/i><\/div><div class="kpi-info"><div class="kpi-value">${notSubmitted}<\/div><div class="kpi-label">ยังไม่ได้ส่ง<\/div><\/div><\/div><\/div>
+                `;
+            }).getReportSubmissions();
+        }
+
+        function toggleReportStatus(projectId, newStatus) {
+            Swal.fire({
+                title: newStatus === 'ส่งแล้ว' ? 'ยืนยันว่าส่งรายงานแล้ว?' : 'ยกเลิกสถานะการส่ง?',
+                input: 'text',
+                inputLabel: 'หมายเหตุ (ถ้ามี)',
+                inputPlaceholder: 'เช่น ส่งเอกสารครบแล้ว...',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: newStatus === 'ส่งแล้ว' ? '#10b981' : '#f59e0b'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    showLoader("กำลังอัปเดตสถานะ...");
+                    google.script.run.withSuccessHandler(res => {
+                        hideLoader();
+                        if (res.success) {
+                            Swal.fire('สำเร็จ', res.message, 'success');
+                            loadReportSubmissions();
+                        } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+                    }).updateReportStatus(projectId, newStatus, result.value || '', currentUser.name);
+                }
+            });
+        }
+
+        function renderTrackingChart(totalIn, totalOut) {
+            const ctx = document.getElementById('trackingChart');
+            if (trackingChartInstance) trackingChartInstance.destroy();
+            if (totalIn === 0 && totalOut === 0) return;
+            trackingChartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['รับเข้า', 'จ่ายออก', 'คงเหลือ'], datasets: [{ data: [totalIn, totalOut, totalIn - totalOut], backgroundColor: ['#10b981', '#ef4444', '#3b82f6'], borderRadius: 8, barPercentage: 0.5 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { family: 'Prompt', size: 12 } } }, y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Prompt', size: 11 } } } } }
+            });
+        }
+
+        // ==========================================
+        // 13. Disbursements (อนุมัติเบิกจ่าย)
+        // ==========================================
+        function loadDisbursements() {
+            if (!isGAS) return; showLoader("กำลังโหลดคำขอเบิกจ่าย...");
+            // โหลด projects สำหรับ dropdown
+            google.script.run.withSuccessHandler(projRes => {
+                const projSel = document.getElementById('disbProject');
+                projSel.innerHTML = '<option value="">-- เลือก --<\/option>';
+                if (projRes.success) { projRes.data.forEach(p => { projSel.innerHTML += `<option value="${p.id}" data-name="${p.name}">${p.name}<\/option>`; }); }
+            }).getProjects();
+
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('disbursementTableBody'); tbody.innerHTML = '';
+                let pending = 0, approved = 0, rejected = 0;
+                if (res.success && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(d => {
+                        if (d.status === 'รออนุมัติ') pending++;
+                        else if (d.status === 'อนุมัติ') approved++;
+                        else if (d.status === 'ไม่อนุมัติ') rejected++;
+
+                        let badgeClass = d.status === 'อนุมัติ' ? 'badge-status-approved' : (d.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-waiting');
+                        let actionBtns = '';
+                        if (d.status === 'รออนุมัติ' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                            actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="handleApproveDisbursement('${d.id}', ${d.amount})" title="อนุมัติ"><i class="fas fa-check"><\/i> อนุมัติ<\/button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="handleRejectDisbursement('${d.id}')" title="ไม่อนุมัติ"><i class="fas fa-times"><\/i> ปฏิเสธ<\/button>`;
+                        } else if (d.status === 'อนุมัติ') { actionBtns = `<span style="color:var(--emerald-600);"><i class="fas fa-check-circle"><\/i> ${d.approvedBy || ''}<\/span>`; }
+                        else if (d.status === 'ไม่อนุมัติ') { actionBtns = `<span style="color:var(--red-500);" title="${d.rejectReason || ''}"><i class="fas fa-times-circle"><\/i> ปฏิเสธ<\/span>`; }
+                        else { actionBtns = '<span class="text-muted">-<\/span>'; }
+                        tbody.innerHTML += `<tr><td class="text-center">${index++}<\/td><td class="fw-bold">${d.projectName}<\/td><td class="text-muted">${d.requestDate || '-'}<\/td><td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(d.amount)}<\/td><td style="font-size:0.82rem;">${d.purpose || '-'}<\/td><td>${d.requestedBy || '-'}<\/td><td><span class="badge ${badgeClass} px-2 py-1">${d.status}<\/span><\/td><td class="text-center">${actionBtns}<\/td><\/tr>`;
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-4">ยังไม่มีคำขอเบิกจ่าย<\/td><\/tr>'; }
+                document.getElementById('disbPending').innerText = pending;
+                document.getElementById('disbApproved').innerText = approved;
+                document.getElementById('disbRejected').innerText = rejected;
+            }).getDisbursements();
+        }
+
+        function openDisbursementModal() { document.getElementById('disbursementForm').reset(); disbursementModal.show(); }
+        function submitDisbursementForm(e) {
+            e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งคำขอ...");
+            const projSel = document.getElementById('disbProject');
+            const data = { projectId: projSel.value, projectName: projSel.options[projSel.selectedIndex].getAttribute('data-name'), requestDate: document.getElementById('disbDate').value, amount: document.getElementById('disbAmount').value, purpose: document.getElementById('disbPurpose').value, requestedBy: currentUser.name };
+            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); disbursementModal.hide(); loadDisbursements(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDisbursement(data);
+        }
+
+        function handleApproveDisbursement(id, reqAmount) {
+            Swal.fire({ 
+                title: 'อนุมัติการเบิกจ่าย', 
+                text: 'ระบุยอดเงินที่จ่ายจริง (ระบบตั้งค่าเริ่มต้นเป็นยอดที่ขอเบิก)', 
+                input: 'number',
+                inputValue: reqAmount,
+                inputAttributes: {
+                    min: 0,
+                    step: 'any'
+                },
+                icon: 'question', 
+                showCancelButton: true, 
+                confirmButtonText: 'อนุมัติ', 
+                confirmButtonColor: '#2563eb' 
+            }).then(result => {
+                if (result.isConfirmed) { 
+                    const actualAmount = result.value;
+                    showLoader("กำลังอนุมัติ..."); 
+                    google.script.run.withSuccessHandler(res => { 
+                        hideLoader(); 
+                        if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadDisbursements(); loadNotifications(); } 
+                        else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } 
+                    }).approveDisbursement(id, currentUser.name, actualAmount); 
+                }
+            });
+        }
+
+        function handleRejectDisbursement(id) {
+            Swal.fire({ title: 'เหตุผลที่ปฏิเสธ', input: 'textarea', inputPlaceholder: 'ระบุเหตุผล...', showCancelButton: true, confirmButtonText: 'ยืนยัน', confirmButtonColor: '#ef4444' }).then(result => {
+                if (result.isConfirmed) { showLoader("กำลังปฏิเสธ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadDisbursements(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).rejectDisbursement(id, result.value || '', currentUser.name); }
+            });
+        }
+
+        
+        
+        
+        function loadPermissionsView() {
+            if (!isGAS) return; showLoader("กำลังโหลดสิทธิ์เมนู...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader(); const tbody = document.getElementById('permissionTableBody'); tbody.innerHTML = '';
+                if (res.success && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(p => {
+                        const adminIcon = p.ADMIN ? '<i class="fas fa-toggle-on role-check active" data-menu="' + p.menuKey + '" data-role="ADMIN"><\/i>' : '<i class="fas fa-toggle-off role-check inactive" data-menu="' + p.menuKey + '" data-role="ADMIN"><\/i>';
+                        const execIcon = p.EXECUTIVE ? '<i class="fas fa-toggle-on role-check active" data-menu="' + p.menuKey + '" data-role="EXECUTIVE"><\/i>' : '<i class="fas fa-toggle-off role-check inactive" data-menu="' + p.menuKey + '" data-role="EXECUTIVE"><\/i>';
+                        const teachIcon = p.TEACHER ? '<i class="fas fa-toggle-on role-check active" data-menu="' + p.menuKey + '" data-role="TEACHER"><\/i>' : '<i class="fas fa-toggle-off role-check inactive" data-menu="' + p.menuKey + '" data-role="TEACHER"><\/i>';
+                        tbody.innerHTML += `<tr><td class="text-center">${index++}<\/td><td class="fw-bold">${p.menuName}<\/td><td class="text-center">${adminIcon}<\/td><td class="text-center">${execIcon}<\/td><td class="text-center">${teachIcon}<\/td><\/tr>`;
+                    });
+                    
+                    document.querySelectorAll('.role-check').forEach(el => {
+                        el.addEventListener('click', function () {
+                            if (this.classList.contains('active')) {
+                                this.classList.remove('active', 'fa-toggle-on');
+                                this.classList.add('inactive', 'fa-toggle-off');
+                            } else {
+                                this.classList.remove('inactive', 'fa-toggle-off');
+                                this.classList.add('active', 'fa-toggle-on');
+                            }
+                        });
+                    });
+                } else { tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีข้อมูลสิทธิ์<\/td><\/tr>'; }
+            }).getMenuPermissions();
+        }
+
+        function savePermissions() {
+            if (!isGAS) return;
+            const rows = document.querySelectorAll('.role-check');
+            let permMap = {};
+            rows.forEach(el => {
+                const menuKey = el.getAttribute('data-menu');
+                const role = el.getAttribute('data-role');
+                const active = el.classList.contains('active');
+                if (!permMap[menuKey]) permMap[menuKey] = { menuKey: menuKey };
+                permMap[menuKey][role] = active;
+            });
+            const permList = Object.values(permMap);
+            showLoader("กำลังบันทึกสิทธิ์...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    loadMenuPermissions(); 
+                } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
+            }).saveMenuPermissions(permList);
+        }
+
+        
+        
+        
+        function toggleNotifDropdown() {
+            const dropdown = document.getElementById('notifDropdown');
+            const overlay = document.getElementById('notifOverlay');
+            const isOpen = dropdown.classList.contains('show');
+            if (isOpen) {
+                closeNotifDropdown();
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+                loadNotifications();
+            }
+        }
+        function closeNotifDropdown() {
+            document.getElementById('notifDropdown').classList.remove('show');
+            document.getElementById('notifOverlay').classList.remove('show');
+        }
+
+        function loadNotifications() {
+            if (!isGAS || !currentUser) return;
+            if (currentUser.role !== 'ADMIN' && currentUser.role !== 'EXECUTIVE') {
+                document.getElementById('notifDot').style.display = 'none';
+                return;
+            }
+            google.script.run.withSuccessHandler(res => {
+                if (!res.success) return;
+                const items = res.data;
+                const body = document.getElementById('notifBody');
+                const dot = document.getElementById('notifDot');
+                const countBadge = document.getElementById('notifCount');
+                const totalCount = items.length;
+
+                if (totalCount > 0) {
+                    dot.style.display = 'block';
+                    countBadge.style.display = 'inline';
+                    countBadge.innerText = totalCount;
+                } else {
+                    dot.style.display = 'none';
+                    countBadge.style.display = 'none';
+                }
+
+                if (items.length === 0) {
+                    body.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"><\/i>\u0e44\u0e21\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19\u0e43\u0e2b\u0e21\u0e48<\/div>';
+                    return;
+                }
+
+                body.innerHTML = '';
+                items.forEach(item => {
+                    let iconBg = '', iconColor = '', icon = '';
+                    if (item.type === 'proposal') {
+                        iconBg = 'var(--amber-100)'; iconColor = 'var(--amber-600)'; icon = 'fas fa-file-upload';
+                    } else if (item.type === 'disbursement') {
+                        iconBg = 'var(--blue-100)'; iconColor = 'var(--blue-600)'; icon = 'fas fa-check-double';
+                    } else {
+                        iconBg = 'var(--slate-100)'; iconColor = 'var(--slate-600)'; icon = 'fas fa-info-circle';
+                    }
+
+                    body.innerHTML += `
+                        <div class="notif-item" onclick="handleNotifClick('${item.type}')">
+                            <div class="notif-icon" style="background:${iconBg};color:${iconColor};">
+                                <i class="${icon}"><\/i>
+                            <\/div>
+                            <div class="notif-text">
+                                <div class="notif-title">${item.title}<\/div>
+                                <div class="notif-desc">${item.desc}<\/div>
+                            <\/div>
+                            <div class="notif-time">${item.time || ''}<\/div>
+                        <\/div>`;
+                });
+            }).getAdminNotifications();
+        }
+
+        function handleNotifClick(type) {
+            closeNotifDropdown();
+            if (type === 'proposal') {
+                const menuItem = document.querySelector('li[data-menu="proposals"]');
+                switchView('proposals', menuItem);
+            } else if (type === 'disbursement') {
+                const menuItem = document.querySelector('li[data-menu="disbursements"]');
+                switchView('disbursements', menuItem);
+            }
+        }
+
+        // ==========================================
+        
+        
+        function showLoader(msg) { document.getElementById('loader-text').innerText = msg; document.getElementById('loader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
+
+        
+        
+        
+        function loadBudgetSources() {
+            if (!isGAS) return;
+            showLoader("กำลังโหลดข้อมูลแหล่งงบประมาณ...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    const body = document.getElementById('budgetSourceTableBody');
+                    body.innerHTML = '';
+                    if (res.data.length === 0) {
+                        body.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">ไม่พบข้อมูล<\/td><\/tr>';
+                    } else {
+                        res.data.forEach((item, index) => {
+                            body.innerHTML += `
+                                <tr>
+                                    <td class="text-center">${index + 1}<\/td>
+                                    <td class="text-start">${item.name}<\/td>
+                                    <td class="text-end">${formatCurrency(item.received)}<\/td>
+                                    <td class="text-end text-danger">${formatCurrency(item.used)}<\/td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="openBudgetSourceModal('${item.id}', '${item.name}')"><i class="fas fa-edit"><\/i><\/button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteBudgetSource('${item.id}')"><i class="fas fa-trash-alt"><\/i><\/button>
+                                    <\/td>
+                                <\/tr>`;
+                        });
+                    }
+                } else { Swal.fire('Error', res.error, 'error'); }
+            }).getBudgetTypes();
+        }
+
+        function openBudgetSourceModal(id = '', name = '') {
+            document.getElementById('budgetSourceForm').reset();
+            document.getElementById('sourceId').value = id;
+            document.getElementById('sourceName').value = name;
+            budgetSourceModal.show();
+        }
+
+        function submitBudgetSourceForm(event) {
+            event.preventDefault();
+            const formData = {
+                id: document.getElementById('sourceId').value,
+                name: document.getElementById('sourceName').value
+            };
+            showLoader("กำลังบันทึกข้อมูล...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success) {
+                    budgetSourceModal.hide();
+                    Swal.fire('สำเร็จ', res.message, 'success');
+                    loadBudgetSources();
+                    loadBudgetTypeOptions(); 
+                } else { Swal.fire('ล้มเหลว', res.error, 'error'); }
+            }).saveBudgetType(formData);
+        }
+
+        function confirmDeleteBudgetSource(id) {
+            Swal.fire({
+                title: 'ยืนยันการลบ?',
+                text: 'คุณต้องการลบแหล่งงบประมาณนี้ใช่หรือไม่?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'ยืนยันลบ',
+                cancelButtonText: 'ยกเลิก'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    showLoader("กำลังลบข้อมูล...");
+                    google.script.run.withSuccessHandler(res => {
+                        hideLoader();
+                        if (res.success) {
+                            Swal.fire('ลบสำเร็จ', res.message, 'success');
+                            loadBudgetSources();
+                            loadBudgetTypeOptions();
+                        } else { Swal.fire('ไม่สามารถลบได้', res.error, 'error'); }
+                    }).deleteBudgetType(id);
+                }
+            });
+        }
+
+        function loadBudgetTypeOptions() {
+            if (!isGAS) return;
+            google.script.run.withSuccessHandler(res => {
+                if (res.success) {
+                    const selects = ['allocBudgetType', 'formBudgetType', 'propBudgetType', 'utilBudgetType'];
+                    selects.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            const currentVal = el.value;
+                            el.innerHTML = '<option value="">-- เลือกประเภทเงิน --<\/option>';
+                            res.data.forEach(item => {
+                                const opt = document.createElement('option');
+                                opt.value = item.name;
+                                opt.text = item.name;
+                                if (item.name === currentVal) opt.selected = true;
+                                el.appendChild(opt);
+                            });
+                        }
+                    });
+                }
+            }).getBudgetTypes();
+        }
+    <\/script>
+<\/body>
+
+<\/html>
