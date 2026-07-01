@@ -54,7 +54,7 @@ const MOCK_API = {
         return new Promise(resolve => {
             setTimeout(() => {
                 if (username === 'admin' && password === '1234') {
-                    resolve({ success: true, user: { name: 'ผู้ดูแลระบบ', role: 'admin' } });
+                    resolve({ success: true, user: { name: 'ผู้ดูแลระบบสูงสุด', role: 'admin' } });
                 } else if (username === 'kru' && password === '1234') {
                     resolve({ success: true, user: { name: 'คุณครูสมศรี', role: 'ครู' } });
                 } else if (username === 'boss' && password === '1234') {
@@ -64,44 +64,61 @@ const MOCK_API = {
                 }
             }, 1000);
         });
-    },
-    getDashboardData: async () => {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                resolve({
-                    totalBudget: 1500000,
-                    usedBudget: 450000,
-                    pendingBudget: 50000,
-                    remainBudget: 1000000,
-                    chartData: {
-                        labels: ['งบอุดหนุน', 'งบกลาง', 'งบอื่นๆ'],
-                        datasets: [{
-                            data: [800000, 500000, 200000],
-                            backgroundColor: ['#2563eb', '#10b981', '#f59e0b']
-                        }]
-                    },
-                    recentProjects: [
-                        { id: 'P001', name: 'ปรับปรุงห้องสมุด', owner: 'ครูสมศรี', status: 'อนุมัติ' },
-                        { id: 'P002', name: 'ค่ายคณิตศาสตร์', owner: 'ครูสมชาย', status: 'รอตรวจสอบ' }
-                    ]
-                });
-            }, 800);
-        });
     }
 };
 
 const API = {
-    // Set this to false when connecting to the real backend
     USE_MOCK: true,
     
-    login: async (username, password) => {
-        if (API.USE_MOCK) return MOCK_API.login(username, password);
-        return apiCall('login', { username, password });
-    },
-    
-    getDashboardData: async () => {
-        if (API.USE_MOCK) return MOCK_API.getDashboardData();
-        return apiCall('getDashboardData');
+    call: async (action, ...args) => {
+        if (API.USE_MOCK) {
+            if (MOCK_API[action]) return MOCK_API[action](...args);
+            
+            // Generic mock response for any unimplemented function
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({ success: true, message: 'ดำเนินการสำเร็จ (Mock Mode)', data: [] });
+                }, 500);
+            });
+        }
+        
+        // Wrap args in payload for fetch
+        // Note: For multi-argument functions, we should ideally serialize them.
+        // For simplicity, we just pass the first argument if it's the only one, or an array.
+        let payload = args.length === 1 ? args[0] : args;
+        if (args.length === 0) payload = {};
+        
+        return apiCall(action, payload);
     }
-    // Add other API functions here as needed
 };
+
+// Polyfill for google.script.run so the original 2500 lines of JS work out of the box!
+window.google = window.google || {};
+window.google.script = window.google.script || {};
+window.google.script.run = new Proxy({}, {
+    get: function(target, prop) {
+        if (prop === 'withSuccessHandler') {
+            return function(callback) {
+                return new Proxy({}, {
+                    get: function(t, action) {
+                        return function(...args) {
+                            API.call(action, ...args)
+                                .then(callback)
+                                .catch(err => {
+                                    console.error('API Error:', err);
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + err.message, 'error');
+                                    }
+                                });
+                        };
+                    }
+                });
+            };
+        }
+        
+        // Direct call without success handler
+        return function(...args) {
+            API.call(prop, ...args).catch(err => console.error(err));
+        };
+    }
+});
