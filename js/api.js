@@ -3,7 +3,7 @@ const CONFIG = {
     // Replace this URL with the Web App URL generated when you deploy Code.gs in Google Apps Script
     API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
- 
+
 /**
  * Make an API call to the Google Apps Script backend.
  * @param {string} action The function name to call in Apps Script
@@ -51,6 +51,12 @@ async function apiCall(action, payload = {}) {
 // Simulated API calls for development before connecting to real GAS
 const MOCK_API = {
     login: async (username, password) => {
+        // Handle object payload
+        if (typeof username === 'object' && username !== null) {
+            password = username.password;
+            username = username.username;
+        }
+        
         return new Promise(resolve => {
             setTimeout(() => {
                 if (username === 'admin' && password === '1234') {
