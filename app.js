@@ -14,6 +14,7 @@ const elements = {
     loginForm: document.getElementById('loginForm'),
     logoutBtn: document.getElementById('logout-btn'),
     menuItems: document.querySelectorAll('.menu-item'),
+    menuLabels: document.querySelectorAll('.menu-label'),
     viewSections: document.querySelectorAll('.view-section'),
     userName: document.getElementById('user-name'),
     userRole: document.getElementById('user-role'),
@@ -68,6 +69,9 @@ const setupEventListeners = () => {
                 // Hide login, show app
                 elements.loginScreen.style.display = 'none';
                 elements.appContainer.classList.remove('hidden');
+                
+                // Enforce Roles
+                setupRoles(result.user.role);
                 
                 // Init dashboard
                 switchView('dashboard');
@@ -197,6 +201,33 @@ const renderBudgetChart = (chartData) => {
             },
             cutout: '70%',
             borderWidth: 0
+        }
+    });
+};
+
+// Role-Based Access Control
+const setupRoles = (userRole) => {
+    // Check menu items
+    elements.menuItems.forEach(item => {
+        const allowedRoles = item.getAttribute('data-roles');
+        if (allowedRoles) {
+            if (allowedRoles.includes(userRole) || userRole === 'admin') {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        }
+    });
+
+    // Check menu labels
+    elements.menuLabels.forEach(label => {
+        const allowedRoles = label.getAttribute('data-roles');
+        if (allowedRoles) {
+            if (allowedRoles.includes(userRole) || userRole === 'admin') {
+                label.style.display = 'block';
+            } else {
+                label.style.display = 'none';
+            }
         }
     });
 };
