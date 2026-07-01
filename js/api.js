@@ -70,6 +70,40 @@ const MOCK_API = {
                 }
             }, 1000);
         });
+    },
+    
+    getDashboardData: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    success: true,
+                    data: {
+                        summary: { total: 1000000, used: 450000, reserve: 50000, remain: 500000 },
+                        typeDetails: [
+                            { name: 'งบอุดหนุน', received: 600000, used: 300000, remain: 300000 },
+                            { name: 'งบพัฒนาผู้เรียน', received: 400000, used: 150000, remain: 250000 }
+                        ],
+                        projects: [
+                            { status: 'อนุมัติแล้ว', name: 'โครงการเข้าค่ายคุณธรรม', budget: 50000, used: 20000, pct: 40 }
+                        ]
+                    }
+                });
+            }, 500);
+        });
+    },
+
+    getCentralBudgetData: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    success: true,
+                    data: {
+                        summary: { total: 1000000, used: 450000, reserve: 50000, remain: 500000 },
+                        projects: []
+                    }
+                });
+            }, 500);
+        });
     }
 };
 
