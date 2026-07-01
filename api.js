@@ -1,7 +1,7 @@
 // Configuration for the Google Apps Script API
 const CONFIG = {
     // Replace this URL with the Web App URL generated when you deploy Code.gs in Google Apps Script
-    API_URL: 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_SCRIPT_ID/exec'
+    API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
 
 /**
