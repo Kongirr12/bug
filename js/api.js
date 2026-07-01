@@ -50,7 +50,7 @@ async function apiCall(action, payload = {}) {
 
 // Simulated API calls for development before connecting to real GAS
 const MOCK_API = {
-    login: async (username, password) => {
+    loginUser: async (username, password) => {
         // Handle object payload
         if (typeof username === 'object' && username !== null) {
             password = username.password;
