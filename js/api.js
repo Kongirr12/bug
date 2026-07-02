@@ -72,20 +72,66 @@ const MOCK_API = {
         });
     },
     
+    _calculateBudgetSummary: () => {
+        const allocations = window.mock_Allocations || loadFromLocalStorage('mock_Allocations', []);
+        const projects = window.mock_Projects || loadFromLocalStorage('mock_Projects', []);
+        const utils = window.mock_Utilities || loadFromLocalStorage('mock_Utilities', []);
+        
+        let total = 0, used = 0, reserve = 0, remain = 0;
+        const typeMap = {};
+
+        allocations.forEach(a => {
+            const amt = parseFloat(a.amount || 0);
+            total += amt;
+            const bt = a.budgetType || 'ไม่ระบุ';
+            if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
+            typeMap[bt].received += amt;
+        });
+
+        projects.forEach(p => {
+            if (p.status !== 'ไม่อนุมัติ') {
+                const amt = parseFloat(p.budget || 0);
+                used += amt;
+                const bt = p.budgetType || 'ไม่ระบุ';
+                if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
+                typeMap[bt].used += amt;
+            }
+        });
+
+        utils.forEach(u => {
+            const amt = parseFloat(u.amount || 0);
+            reserve += amt;
+            const bt = u.budgetType || 'ไม่ระบุ';
+            if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
+            typeMap[bt].used += amt;
+        });
+
+        remain = total - used - reserve;
+        const typeDetails = Object.values(typeMap).map(t => {
+            t.remain = t.received - t.used;
+            return t;
+        });
+
+        return { summary: { total, used, reserve, remain }, typeDetails };
+    },
+
     getDashboardData: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
+                const calculated = MOCK_API._calculateBudgetSummary();
+                const projects = (window.mock_Projects || loadFromLocalStorage('mock_Projects', [])).map(p => ({
+                    status: p.status || 'รออนุมัติ',
+                    name: p.name,
+                    budget: parseFloat(p.budget || 0),
+                    used: parseFloat(p.used || 0),
+                    pct: parseFloat(p.budget || 0) > 0 ? (parseFloat(p.used || 0) / parseFloat(p.budget)) * 100 : 0
+                }));
                 resolve({
                     success: true,
                     data: {
-                        summary: { total: 1000000, used: 450000, reserve: 50000, remain: 500000 },
-                        typeDetails: [
-                            { name: 'งบอุดหนุน', received: 600000, used: 300000, remain: 300000 },
-                            { name: 'งบพัฒนาผู้เรียน', received: 400000, used: 150000, remain: 250000 }
-                        ],
-                        projects: [
-                            { status: 'อนุมัติแล้ว', name: 'โครงการเข้าค่ายคุณธรรม', budget: 50000, used: 20000, pct: 40 }
-                        ]
+                        summary: calculated.summary,
+                        typeDetails: calculated.typeDetails,
+                        projects: projects
                     }
                 });
             }, 500);
@@ -95,12 +141,13 @@ const MOCK_API = {
     getCentralBudgetData: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
+                const calculated = MOCK_API._calculateBudgetSummary();
                 resolve({
                     success: true,
                     data: {
-                        summary: { total: 1000000, used: 450000, reserve: 50000, remain: 500000 },
-                        projects: [],
-                        utils: []
+                        summary: calculated.summary,
+                        projects: window.mock_Projects || loadFromLocalStorage('mock_Projects', []),
+                        utils: window.mock_Utilities || loadFromLocalStorage('mock_Utilities', [])
                     }
                 });
             }, 500);
@@ -110,13 +157,55 @@ const MOCK_API = {
     getBudgetTrackingData: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
+                const calculated = MOCK_API._calculateBudgetSummary();
+                const transactions = [];
+                
+                const allocations = window.mock_Allocations || loadFromLocalStorage('mock_Allocations', []);
+                allocations.forEach(a => {
+                    transactions.push({
+                        date: a.date || '-',
+                        type: 'รับจัดสรร',
+                        category: a.budgetType,
+                        description: a.description || 'รับงบประมาณ',
+                        amountIn: parseFloat(a.amount || 0),
+                        amountOut: 0
+                    });
+                });
+
+                const projects = window.mock_Projects || loadFromLocalStorage('mock_Projects', []);
+                projects.forEach(p => {
+                    if (p.status !== 'ไม่อนุมัติ') {
+                        transactions.push({
+                            date: p.date || '-',
+                            type: 'จ่ายออก',
+                            category: p.budgetType,
+                            description: `โครงการ: ${p.name}`,
+                            amountIn: 0,
+                            amountOut: parseFloat(p.budget || 0)
+                        });
+                    }
+                });
+
+                const utils = window.mock_Utilities || loadFromLocalStorage('mock_Utilities', []);
+                utils.forEach(u => {
+                    transactions.push({
+                        date: `${u.month || '-'}/${u.year || '-'}`,
+                        type: 'จ่ายออก',
+                        category: u.budgetType,
+                        description: `สาธารณูปโภค: ${u.type}`,
+                        amountIn: 0,
+                        amountOut: parseFloat(u.amount || 0)
+                    });
+                });
+
+                // Sort transactions by date descending (rough sort)
+                transactions.sort((a, b) => (b.date > a.date ? 1 : -1));
+
                 resolve({
                     success: true,
                     data: {
-                        budgetSummary: [
-                            { name: 'งบอุดหนุน', received: 600000, used: 300000, remain: 300000 }
-                        ],
-                        transactions: []
+                        budgetSummary: calculated.typeDetails,
+                        transactions: transactions
                     }
                 });
             }, 500);
@@ -241,7 +330,11 @@ const MOCK_API = {
     saveMenuPermissions: async (data) => {
         return new Promise(resolve => {
             setTimeout(() => {
-                window.mock_permissions = data;
+                const merged = window.mock_permissions.map(existing => {
+                    const updated = data.find(d => d.menuKey === existing.menuKey);
+                    return updated ? { ...existing, ...updated } : existing;
+                });
+                window.mock_permissions = merged;
                 saveToLocalStorage('mock_permissions', window.mock_permissions);
                 resolve({ success: true, message: 'บันทึกสิทธิ์เรียบร้อยแล้ว' });
             }, 500);
@@ -294,7 +387,22 @@ function loadFromLocalStorage(key, defaultVal) {
 }
 
 function saveToLocalStorage(key, val) {
-    localStorage.setItem(key, JSON.stringify(val));
+    try {
+        localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) {
+        console.warn('LocalStorage limit exceeded. Data kept in memory only.', e);
+        if (typeof Swal !== 'undefined' && !window.hasWarnedStorageFull) {
+            window.hasWarnedStorageFull = true;
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'warning',
+                title: 'พื้นที่จัดเก็บจำลองเต็ม ไฟล์ใหญ่เกินไป (หากรีเฟรชหน้า ไฟล์ที่อัปโหลดจะหาย)',
+                showConfirmButton: false,
+                timer: 5000
+            });
+        }
+    }
 }
 
 window.mock_docTemplates = loadFromLocalStorage('mock_docTemplates', [
@@ -309,17 +417,24 @@ window.mock_users = loadFromLocalStorage('mock_users', [
     { id: 'u3', username: 'kru', name: 'คุณครูสมศรี', dept: 'วิชาการ', role: 'TEACHER' }
 ]);
 
-window.mock_permissions = loadFromLocalStorage('mock_permissions', [
-    { menu: 'dashboard', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'central-budget', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: false } },
-    { menu: 'projects', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: true } },
-    { menu: 'proposals', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'disbursements', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'tracking', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'doctemplates', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'reports', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
-    { menu: 'settings', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: false } }
-]);
+let savedPerms = loadFromLocalStorage('mock_permissions', null);
+if (savedPerms && savedPerms.length > 0 && !savedPerms[0].menuKey) {
+    savedPerms = null; // Discard old structure cache
+}
+window.mock_permissions = savedPerms || [
+    { menuKey: 'dashboard', menuName: 'ภาพรวม (Dashboard)', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'doctemplates', menuName: 'รูปแบบไฟล์ขออนุญาต', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'settings', menuName: 'ตั้งค่าข้อมูลพื้นฐาน', ADMIN: true, EXECUTIVE: false, TEACHER: false },
+    { menuKey: 'allocation', menuName: 'จัดสรรงบประมาณ', ADMIN: true, EXECUTIVE: false, TEACHER: false },
+    { menuKey: 'projects', menuName: 'สร้างโครงการ/กิจกรรม', ADMIN: true, EXECUTIVE: false, TEACHER: false },
+    { menuKey: 'utilities', menuName: 'บันทึกค่าสาธารณูปโภค', ADMIN: true, EXECUTIVE: false, TEACHER: false },
+    { menuKey: 'central-budget', menuName: 'วิเคราะห์การใช้งบกลาง', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'proposals', menuName: 'การเสนอโครงการ', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'reports', menuName: 'รายงานโครงการ', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'tracking', menuName: 'ติดตามการใช้จ่ายงบฯ', ADMIN: true, EXECUTIVE: true, TEACHER: true },
+    { menuKey: 'disbursements', menuName: 'อนุมัติเบิกจ่าย', ADMIN: true, EXECUTIVE: true, TEACHER: false }
+];
+saveToLocalStorage('mock_permissions', window.mock_permissions);
 
 const API = {
     USE_MOCK: true,
