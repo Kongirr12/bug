@@ -123,7 +123,7 @@ const MOCK_API = {
         });
     },
 
-    getDocumentTemplates: async () => {
+    getDocTemplates: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
                 resolve({
@@ -140,9 +140,9 @@ const MOCK_API = {
                 if (!window.mock_docTemplates) window.mock_docTemplates = [];
                 const newDoc = {
                     id: Date.now().toString(),
-                    title: data.title,
+                    name: data.name,
                     desc: data.desc,
-                    link: data.link,
+                    url: data.url,
                     icon: data.icon || 'fas fa-file-alt'
                 };
                 window.mock_docTemplates.push(newDoc);
@@ -160,13 +160,91 @@ const MOCK_API = {
                 resolve({ success: true, message: 'ลบแบบฟอร์มแล้ว' });
             }, 500);
         });
+    },
+
+    getUsers: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({ success: true, data: window.mock_users || [] });
+            }, 500);
+        });
+    },
+
+    saveUser: async (data) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_users) window.mock_users = [];
+                const newUser = {
+                    id: data.id || Date.now().toString(),
+                    username: data.username,
+                    name: data.name,
+                    dept: data.dept,
+                    role: data.role,
+                    password: data.password || '1234'
+                };
+                if (data.id) {
+                    const idx = window.mock_users.findIndex(u => u.id === data.id);
+                    if (idx !== -1) window.mock_users[idx] = newUser;
+                    else window.mock_users.push(newUser);
+                } else {
+                    window.mock_users.push(newUser);
+                }
+                resolve({ success: true, message: 'บันทึกข้อมูลผู้ใช้แล้ว' });
+            }, 500);
+        });
+    },
+
+    deleteUser: async (id) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (window.mock_users) {
+                    window.mock_users = window.mock_users.filter(u => u.id !== id);
+                }
+                resolve({ success: true, message: 'ลบผู้ใช้งานแล้ว' });
+            }, 500);
+        });
+    },
+
+    getMenuPermissions: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({ success: true, data: window.mock_permissions || [] });
+            }, 500);
+        });
+    },
+
+    saveMenuPermissions: async (data) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                window.mock_permissions = data;
+                resolve({ success: true, message: 'บันทึกสิทธิ์เรียบร้อยแล้ว' });
+            }, 500);
+        });
     }
 };
 
 window.mock_docTemplates = [
-    { id: '1', title: 'แบบฟอร์มขออนุมัติโครงการ', desc: 'ดาวน์โหลดไปแก้ไขสำหรับเสนอโครงการ', link: '#', icon: 'fas fa-file-word' },
-    { id: '2', title: 'ตัวอย่างโครงการ', desc: 'ไฟล์ตัวอย่างโครงการที่สมบูรณ์', link: '#', icon: 'fas fa-file-pdf' },
-    { id: '3', title: 'แบบฟอร์มเบิกจ่าย', desc: 'ใช้เมื่อต้องการเบิกจ่ายงบประมาณ', link: '#', icon: 'fas fa-money-check-alt' }
+    { id: '1', name: 'แบบฟอร์มขออนุมัติโครงการ', desc: 'ดาวน์โหลดไปแก้ไขสำหรับเสนอโครงการ', url: '#', icon: 'fas fa-file-word' },
+    { id: '2', name: 'ตัวอย่างโครงการ', desc: 'ไฟล์ตัวอย่างโครงการที่สมบูรณ์', url: '#', icon: 'fas fa-file-pdf' },
+    { id: '3', name: 'แบบฟอร์มเบิกจ่าย', desc: 'ใช้เมื่อต้องการเบิกจ่ายงบประมาณ', url: '#', icon: 'fas fa-money-check-alt' }
+];
+
+window.mock_users = [
+    { id: 'u1', username: 'admin', name: 'ผู้ดูแลระบบสูงสุด', dept: 'ผู้บริหาร', role: 'ADMIN' },
+    { id: 'u2', username: 'boss', name: 'ผอ.โรงเรียน', dept: 'ผู้บริหาร', role: 'EXECUTIVE' },
+    { id: 'u3', username: 'kru', name: 'คุณครูสมศรี', dept: 'วิชาการ', role: 'TEACHER' }
+];
+
+window.mock_permissions = [
+    { menu: 'dashboard', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'central-budget', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: false } },
+    { menu: 'projects', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: true } },
+    { menu: 'proposals', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'disbursements', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'tracking', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'doctemplates', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'reports', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
+    { menu: 'settings', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: false } }
 ];
 
 const API = {
