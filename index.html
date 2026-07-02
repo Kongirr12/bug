@@ -1597,7 +1597,22 @@
             });
             document.getElementById('utilYear').value = new Date().getFullYear() + 543;
 
-            
+            let savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('wrapper').style.display = 'flex';
+                document.getElementById('userFullName').innerText = currentUser.name;
+                document.getElementById('userRole').innerText = currentUser.role;
+                document.getElementById('userInitial').innerText = currentUser.name ? currentUser.name.charAt(0) : '?';
+                
+                loadMenuPermissions(() => { 
+                    switchView('dashboard'); 
+                    loadNotifications(); 
+                    loadBudgetTypeOptions();
+                    resetSessionTimeout(); 
+                });
+            }
             document.querySelectorAll('.icon-pick-item').forEach(item => {
                 item.addEventListener('click', function () {
                     document.querySelectorAll('.icon-pick-item').forEach(el => el.classList.remove('btn-primary'));
@@ -1620,6 +1635,7 @@
                 hideLoader();
                 if (res.success) {
                     currentUser = res.user;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('wrapper').style.display = 'flex';
                     document.getElementById('userFullName').innerText = currentUser.name;
@@ -1655,6 +1671,7 @@
 
         function forceLogout() {
             currentUser = null;
+            sessionStorage.removeItem('currentUser');
             menuPermissions = [];
             clearTimeout(sessionTimeoutTimer);
             document.getElementById('wrapper').style.display = 'none';
