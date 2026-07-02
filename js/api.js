@@ -99,7 +99,24 @@ const MOCK_API = {
                     success: true,
                     data: {
                         summary: { total: 1000000, used: 450000, reserve: 50000, remain: 500000 },
-                        projects: []
+                        projects: [],
+                        utils: []
+                    }
+                });
+            }, 500);
+        });
+    },
+
+    getBudgetTrackingData: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    success: true,
+                    data: {
+                        budgetSummary: [
+                            { name: 'งบอุดหนุน', received: 600000, used: 300000, remain: 300000 }
+                        ],
+                        transactions: []
                     }
                 });
             }, 500);
