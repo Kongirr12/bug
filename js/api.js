@@ -182,7 +182,7 @@ const MOCK_API = {
         });
     },
 
-    getUsers: async () => {
+    getAllUsers: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
                 resolve({ success: true, data: window.mock_users || [] });
@@ -238,6 +238,44 @@ const MOCK_API = {
             setTimeout(() => {
                 window.mock_permissions = data;
                 resolve({ success: true, message: 'บันทึกสิทธิ์เรียบร้อยแล้ว' });
+            }, 500);
+        });
+    },
+
+    getReportSubmissions: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_Projects) window.mock_Projects = [];
+                const data = window.mock_Projects.map(p => ({
+                    projectId: p.id,
+                    projectName: p.name,
+                    budget: p.budget,
+                    progress: p.progress || 0,
+                    reportStatus: p.reportStatus || 'ยังไม่ได้ส่ง',
+                    reportNote: p.reportNote || '',
+                    reportUpdatedBy: p.reportUpdatedBy || '',
+                    wordLink: p.wordLink || '',
+                    pdfLink: p.pdfLink || ''
+                }));
+                resolve({ success: true, data: data });
+            }, 500);
+        });
+    },
+
+    updateReportStatus: async (projectId, newStatus, note, updatedBy, wordLink, pdfLink) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (window.mock_Projects) {
+                    const proj = window.mock_Projects.find(p => p.id === projectId);
+                    if (proj) {
+                        proj.reportStatus = newStatus;
+                        proj.reportNote = note || '';
+                        proj.reportUpdatedBy = updatedBy || '';
+                        if (wordLink !== undefined) proj.wordLink = wordLink;
+                        if (pdfLink !== undefined) proj.pdfLink = pdfLink;
+                    }
+                }
+                resolve({ success: true, message: 'อัปเดตสถานะเรียบร้อยแล้ว' });
             }, 500);
         });
     }
