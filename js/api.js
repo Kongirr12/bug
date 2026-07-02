@@ -121,8 +121,53 @@ const MOCK_API = {
                 });
             }, 500);
         });
+    },
+
+    getDocumentTemplates: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    success: true,
+                    data: window.mock_docTemplates || []
+                });
+            }, 500);
+        });
+    },
+
+    saveDocTemplate: async (data) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_docTemplates) window.mock_docTemplates = [];
+                const newDoc = {
+                    id: Date.now().toString(),
+                    title: data.title,
+                    desc: data.desc,
+                    link: data.link,
+                    icon: data.icon || 'fas fa-file-alt'
+                };
+                window.mock_docTemplates.push(newDoc);
+                resolve({ success: true, message: 'บันทึกแบบฟอร์มแล้ว' });
+            }, 500);
+        });
+    },
+
+    deleteDocTemplate: async (id) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (window.mock_docTemplates) {
+                    window.mock_docTemplates = window.mock_docTemplates.filter(d => d.id !== id);
+                }
+                resolve({ success: true, message: 'ลบแบบฟอร์มแล้ว' });
+            }, 500);
+        });
     }
 };
+
+window.mock_docTemplates = [
+    { id: '1', title: 'แบบฟอร์มขออนุมัติโครงการ', desc: 'ดาวน์โหลดไปแก้ไขสำหรับเสนอโครงการ', link: '#', icon: 'fas fa-file-word' },
+    { id: '2', title: 'ตัวอย่างโครงการ', desc: 'ไฟล์ตัวอย่างโครงการที่สมบูรณ์', link: '#', icon: 'fas fa-file-pdf' },
+    { id: '3', title: 'แบบฟอร์มเบิกจ่าย', desc: 'ใช้เมื่อต้องการเบิกจ่ายงบประมาณ', link: '#', icon: 'fas fa-money-check-alt' }
+];
 
 const API = {
     USE_MOCK: true,
