@@ -139,7 +139,7 @@ const MOCK_API = {
             setTimeout(() => {
                 resolve({
                     success: true,
-                    data: window.mock_reportSettings || { wordLink: '#', pdfLink: '#' }
+                    data: window.mock_reportSettings || loadFromLocalStorage('mock_reportSettings', { wordLink: '#', pdfLink: '#' })
                 });
             }, 500);
         });
@@ -149,6 +149,7 @@ const MOCK_API = {
         return new Promise(resolve => {
             setTimeout(() => {
                 window.mock_reportSettings = { wordLink, pdfLink };
+                saveToLocalStorage('mock_reportSettings', window.mock_reportSettings);
                 resolve({ success: true, message: 'บันทึกการตั้งค่าลิงก์รายงานแล้ว' });
             }, 500);
         });
@@ -166,6 +167,7 @@ const MOCK_API = {
                     icon: data.icon || 'fas fa-file-alt'
                 };
                 window.mock_docTemplates.push(newDoc);
+                saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
                 resolve({ success: true, message: 'บันทึกแบบฟอร์มแล้ว' });
             }, 500);
         });
@@ -176,6 +178,7 @@ const MOCK_API = {
             setTimeout(() => {
                 if (window.mock_docTemplates) {
                     window.mock_docTemplates = window.mock_docTemplates.filter(d => d.id !== id);
+                    saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
                 }
                 resolve({ success: true, message: 'ลบแบบฟอร์มแล้ว' });
             }, 500);
@@ -209,6 +212,7 @@ const MOCK_API = {
                 } else {
                     window.mock_users.push(newUser);
                 }
+                saveToLocalStorage('mock_users', window.mock_users);
                 resolve({ success: true, message: 'บันทึกข้อมูลผู้ใช้แล้ว' });
             }, 500);
         });
@@ -219,6 +223,7 @@ const MOCK_API = {
             setTimeout(() => {
                 if (window.mock_users) {
                     window.mock_users = window.mock_users.filter(u => u.id !== id);
+                    saveToLocalStorage('mock_users', window.mock_users);
                 }
                 resolve({ success: true, message: 'ลบผู้ใช้งานแล้ว' });
             }, 500);
@@ -237,6 +242,7 @@ const MOCK_API = {
         return new Promise(resolve => {
             setTimeout(() => {
                 window.mock_permissions = data;
+                saveToLocalStorage('mock_permissions', window.mock_permissions);
                 resolve({ success: true, message: 'บันทึกสิทธิ์เรียบร้อยแล้ว' });
             }, 500);
         });
@@ -245,7 +251,7 @@ const MOCK_API = {
     getReportSubmissions: async () => {
         return new Promise(resolve => {
             setTimeout(() => {
-                if (!window.mock_Projects) window.mock_Projects = [];
+                if (!window.mock_Projects) window.mock_Projects = loadFromLocalStorage('mock_Projects', []);
                 const data = window.mock_Projects.map(p => ({
                     projectId: p.id,
                     projectName: p.name,
@@ -273,6 +279,7 @@ const MOCK_API = {
                         proj.reportUpdatedBy = updatedBy || '';
                         if (wordLink !== undefined) proj.wordLink = wordLink;
                         if (pdfLink !== undefined) proj.pdfLink = pdfLink;
+                        saveToLocalStorage('mock_Projects', window.mock_Projects);
                     }
                 }
                 resolve({ success: true, message: 'อัปเดตสถานะเรียบร้อยแล้ว' });
@@ -281,19 +288,28 @@ const MOCK_API = {
     }
 };
 
-window.mock_docTemplates = [
+function loadFromLocalStorage(key, defaultVal) {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : defaultVal;
+}
+
+function saveToLocalStorage(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+}
+
+window.mock_docTemplates = loadFromLocalStorage('mock_docTemplates', [
     { id: '1', name: 'แบบฟอร์มขออนุมัติโครงการ', desc: 'ดาวน์โหลดไปแก้ไขสำหรับเสนอโครงการ', url: '#', icon: 'fas fa-file-word' },
     { id: '2', name: 'ตัวอย่างโครงการ', desc: 'ไฟล์ตัวอย่างโครงการที่สมบูรณ์', url: '#', icon: 'fas fa-file-pdf' },
     { id: '3', name: 'แบบฟอร์มเบิกจ่าย', desc: 'ใช้เมื่อต้องการเบิกจ่ายงบประมาณ', url: '#', icon: 'fas fa-money-check-alt' }
-];
+]);
 
-window.mock_users = [
+window.mock_users = loadFromLocalStorage('mock_users', [
     { id: 'u1', username: 'admin', name: 'ผู้ดูแลระบบสูงสุด', dept: 'ผู้บริหาร', role: 'ADMIN' },
     { id: 'u2', username: 'boss', name: 'ผอ.โรงเรียน', dept: 'ผู้บริหาร', role: 'EXECUTIVE' },
     { id: 'u3', username: 'kru', name: 'คุณครูสมศรี', dept: 'วิชาการ', role: 'TEACHER' }
-];
+]);
 
-window.mock_permissions = [
+window.mock_permissions = loadFromLocalStorage('mock_permissions', [
     { menu: 'dashboard', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
     { menu: 'central-budget', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: false } },
     { menu: 'projects', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: true } },
@@ -303,7 +319,7 @@ window.mock_permissions = [
     { menu: 'doctemplates', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
     { menu: 'reports', roles: { ADMIN: true, EXECUTIVE: true, TEACHER: true } },
     { menu: 'settings', roles: { ADMIN: true, EXECUTIVE: false, TEACHER: false } }
-];
+]);
 
 const API = {
     USE_MOCK: true,
@@ -318,14 +334,14 @@ const API = {
                     if (action.startsWith('get') && action !== 'getReportSettings') {
                         let entity = action.replace('get', '');
                         if (entity === 'AllUsers') entity = 'Users';
-                        if (!window['mock_' + entity]) window['mock_' + entity] = [];
+                        if (!window['mock_' + entity]) window['mock_' + entity] = loadFromLocalStorage('mock_' + entity, []);
                         resolve({ success: true, data: window['mock_' + entity] });
                     } else if (action.startsWith('save')) {
                         let entity = action.replace('save', '');
                         if (entity === 'User') entity = 'Users';
                         else if (!entity.endsWith('s')) entity += 's';
                         
-                        if (!window['mock_' + entity]) window['mock_' + entity] = [];
+                        if (!window['mock_' + entity]) window['mock_' + entity] = loadFromLocalStorage('mock_' + entity, []);
                         let payload = args[0] || {};
                         if (!payload.id) payload.id = Date.now().toString();
                         
@@ -333,14 +349,17 @@ const API = {
                         if (idx !== -1) window['mock_' + entity][idx] = payload;
                         else window['mock_' + entity].push(payload);
                         
+                        saveToLocalStorage('mock_' + entity, window['mock_' + entity]);
                         resolve({ success: true, message: 'บันทึกข้อมูลเรียบร้อยแล้ว' });
                     } else if (action.startsWith('delete')) {
                         let entity = action.replace('delete', '');
                         if (entity === 'User') entity = 'Users';
                         else if (!entity.endsWith('s')) entity += 's';
                         
+                        if (!window['mock_' + entity]) window['mock_' + entity] = loadFromLocalStorage('mock_' + entity, []);
                         if (window['mock_' + entity]) {
                             window['mock_' + entity] = window['mock_' + entity].filter(x => x.id !== args[0]);
+                            saveToLocalStorage('mock_' + entity, window['mock_' + entity]);
                         }
                         resolve({ success: true, message: 'ลบข้อมูลเรียบร้อยแล้ว' });
                     } else if (action.startsWith('update') || action.startsWith('reject') || action.startsWith('approve')) {
