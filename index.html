@@ -981,8 +981,17 @@
                 
                 <div id="view-projects" class="view-section" style="display: none;">
                     <div class="panel" style="max-width: 800px; margin: 0 auto;">
-                        <div class="panel-header">
+                        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="panel-title"><i class="fas fa-folder-plus" style="color:var(--blue-500);"></i> สร้างโครงการ/กิจกรรมใหม่</div>
+                            <div class="mt-2 mt-sm-0">
+                                <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="exportProjectsCSV()">
+                                    <i class="fas fa-file-export"></i> ส่งออก CSV
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('importCsvFile').click()">
+                                    <i class="fas fa-file-import"></i> นำเข้าด้วย CSV
+                                </button>
+                                <input type="file" id="importCsvFile" accept=".csv" style="display:none;" onchange="importProjectsCSV(this)">
+                            </div>
                         </div>
                         <form id="projectForm" onsubmit="submitProjectForm(event)">
                             <div class="mb-3"><label class="form-label fw-bold">ชื่อโครงการ / กิจกรรม <span class="text-danger">*</span></label><input type="text" class="form-control" id="formProjName" required></div>
@@ -1831,6 +1840,100 @@
                     document.getElementById('projectForm').reset(); 
                 } 
             }).saveProject(data);
+        }
+
+        function exportProjectsCSV() {
+            if (!isGAS) return; showLoader("กำลังเตรียมไฟล์ CSV...");
+            google.script.run.withSuccessHandler(res => {
+                hideLoader();
+                if (res.success && res.data) {
+                    let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // Add BOM for Excel Thai support
+                    csvContent += "ชื่อโครงการ,แหล่งงบประมาณ,สถานะ,ขอรับจัดสรร,เบิกจ่ายไปแล้ว\n";
+                    res.data.forEach(p => {
+                        let name = p.name ? p.name.replace(/"/g, '""') : '';
+                        let budgetType = p.budgetType || p.source || '';
+                        let status = p.status || '';
+                        let budget = p.budget || p.allocated || 0;
+                        let used = p.used || p.totalUsed || 0;
+                        csvContent += `"${name}","${budgetType}","${status}",${budget},${used}\n`;
+                    });
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "projects_export.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลโครงการได้', 'error');
+                }
+            }).getProjects();
+        }
+
+        async function importProjectsCSV(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/);
+                if (lines.length <= 1) {
+                    Swal.fire('ข้อผิดพลาด', 'ไฟล์ CSV ไม่มีข้อมูล', 'error');
+                    input.value = '';
+                    return;
+                }
+                
+                const projects = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    // match CSV regex
+                    const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+                    if (row.length >= 4) {
+                        projects.push({
+                            name: (row[0] || '').replace(/^"|"$/g, '').trim(),
+                            budgetType: (row[1] || '').replace(/^"|"$/g, '').trim(),
+                            status: (row[2] || '').replace(/^"|"$/g, '').trim() || 'รอพิจารณา',
+                            budget: parseFloat((row[3] || '0').replace(/,/g, '')),
+                            used: row[4] ? parseFloat((row[4] || '0').replace(/,/g, '')) : 0,
+                            proposedBy: currentUser.name
+                        });
+                    }
+                }
+                
+                if (projects.length > 0) {
+                    Swal.fire({
+                        title: 'ยืนยันการนำเข้า',
+                        html: `พบข้อมูลโครงการจำนวน <b>${projects.length}</b> รายการ<br>ระบบจะค่อยๆ บันทึกทีละรายการ (อาจใช้เวลาสักครู่)`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'เริ่มนำเข้า'
+                    }).then(async result => {
+                        if (result.isConfirmed) {
+                            showLoader(`กำลังนำเข้า 0 / ${projects.length} ...`);
+                            let successCount = 0;
+                            let failCount = 0;
+                            for (let i = 0; i < projects.length; i++) {
+                                document.getElementById('loader-text').innerText = `กำลังนำเข้า ${i+1} / ${projects.length} ...`;
+                                try {
+                                    const res = await new Promise((resolve) => {
+                                        google.script.run.withSuccessHandler(resolve).saveProject(projects[i]);
+                                    });
+                                    if (res.success) successCount++; else failCount++;
+                                } catch (err) { failCount++; }
+                            }
+                            hideLoader();
+                            Swal.fire('สรุปการนำเข้า', `สำเร็จ: ${successCount} รายการ<br>ล้มเหลว: ${failCount} รายการ`, successCount > 0 ? 'success' : 'error');
+                            input.value = '';
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                } else {
+                    Swal.fire('ข้อผิดพลาด', 'ไม่พบรูปแบบข้อมูลโครงการในไฟล์ CSV', 'error');
+                    input.value = '';
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
         }
 
         
