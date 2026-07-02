@@ -1133,27 +1133,26 @@
                 <div id="view-reports" class="view-section" style="display: none;">
                     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                         <div>
-                            <h2 class="page-title"><i class="fas fa-clipboard-list" style="color:var(--blue-500);"></i> รายงานโครงการ</h2>
-                            <div class="page-subtitle">ส่งรายงานโครงการ (Word และ PDF)</div>
+                            <h2 class="page-title"><i class="fas fa-clipboard-list" style="color:var(--blue-500);"></i> ส่งรายงานโครงการ</h2>
+                            <div class="page-subtitle">แนบลิงก์ไฟล์ Word และ PDF เพื่อส่งรายงานผลการดำเนินงาน</div>
                         </div>
-                        <button class="btn-modern-primary" id="btnSettingReportLinks" onclick="openReportSettingsModal()" style="display:none;"><i class="fas fa-cog"></i> ตั้งค่าลิ้งก์ส่งโฟลเดอร์</button>
                     </div>
-                    <div class="row g-4 justify-content-center mt-3" id="reportLinksContainer">
-                        <div class="col-md-5">
-                            <div class="doc-card text-center py-5">
-                                <div class="doc-icon mx-auto mb-3" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fas fa-file-word"></i></div>
-                                <h4 class="fw-bold text-dark mb-2">ส่งโครงการ (Word)</h4>
-                                <p class="text-muted mb-4">อัปโหลดหรือส่งไฟล์รายงานในรูปแบบ Word</p>
-                                <a href="#" target="_blank" id="btnLinkWord" class="doc-btn d-inline-block px-4"><i class="fas fa-external-link-alt me-2"></i> ไปยังจุดส่งงาน</a>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="doc-card text-center py-5">
-                                <div class="doc-icon mx-auto mb-3" style="background: linear-gradient(135deg, #ef4444, #f87171);"><i class="fas fa-file-pdf"></i></div>
-                                <h4 class="fw-bold text-dark mb-2">ส่งโครงการ (PDF)</h4>
-                                <p class="text-muted mb-4">อัปโหลดหรือส่งไฟล์รายงานในรูปแบบ PDF</p>
-                                <a href="#" target="_blank" id="btnLinkPdf" class="doc-btn d-inline-block px-4"><i class="fas fa-external-link-alt me-2"></i> ไปยังจุดส่งงาน</a>
-                            </div>
+                    <div class="panel mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle table-bordered">
+                                <thead style="background-color: var(--slate-50);">
+                                    <tr>
+                                        <th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ</th>
+                                        <th width="35%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อโครงการ</th>
+                                        <th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">งบประมาณ</th>
+                                        <th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะการส่ง</th>
+                                        <th width="25%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teacherReportsTableBody">
+                                    <tr><td colspan="5" class="text-muted text-center py-4">กำลังโหลดข้อมูล...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1390,6 +1389,43 @@
     </div>
 
     
+    <!-- Submit Report Modal -->
+    <div class="modal fade" id="submitReportModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--emerald-500), var(--emerald-600)); color: white; border: none; padding: 1.5rem;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i> ส่งรายงานโครงการ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="submitReportForm" onsubmit="handleReportSubmit(event)">
+                        <input type="hidden" id="submitReportProjectId">
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ชื่อโครงการ</label>
+                            <input type="text" class="form-control bg-light" id="submitReportProjectName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ลิงก์ไฟล์รายงาน (Word)</label>
+                            <input type="url" class="form-control" id="submitReportWord" placeholder="เช่น https://docs.google.com/..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ลิงก์ไฟล์รายงาน (PDF)</label>
+                            <input type="url" class="form-control" id="submitReportPdf" placeholder="เช่น https://drive.google.com/..." required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">หมายเหตุ (ถ้ามี)</label>
+                            <textarea class="form-control" id="submitReportNote" rows="2" placeholder="เช่น แนบรูปภาพกิจกรรมไว้ในไฟล์ PDF แล้วครับ"></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light w-50 fw-bold" data-bs-dismiss="modal" style="border-radius:10px;">ยกเลิก</button>
+                            <button type="submit" class="btn w-50 fw-bold text-white" style="background: var(--emerald-600);border-radius:10px;">ส่งรายงาน</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="docTemplateModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1593,36 +1629,65 @@
                     loadMenuPermissions(() => { 
                         switchView('dashboard'); 
                         loadNotifications(); 
-                        loadBudgetTypeOptions(); 
+                        loadBudgetTypeOptions();
+                        resetSessionTimeout(); // Start inactivity timer
                     });
                 } else { Swal.fire('ล้มเหลว', res.message, 'error'); }
             }).loginUser(document.getElementById('username').value, document.getElementById('password').value);
+        }
+
+        let sessionTimeoutTimer;
+        const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+        function resetSessionTimeout() {
+            clearTimeout(sessionTimeoutTimer);
+            if (currentUser && document.getElementById('login-screen').style.display === 'none') {
+                sessionTimeoutTimer = setTimeout(() => {
+                    Swal.fire('หมดเวลาเซสชั่น', 'คุณไม่ได้ใช้งานระบบเป็นเวลา 10 นาที ระบบได้นำคุณออกจากระบบเพื่อความปลอดภัย', 'warning').then(() => {
+                        forceLogout();
+                    });
+                }, SESSION_TIMEOUT_MS);
+            }
+        }
+
+        // Add event listeners to reset timer on user activity
+        ['mousemove', 'keypress', 'click', 'scroll'].forEach(evt => document.addEventListener(evt, resetSessionTimeout));
+
+        function forceLogout() {
+            currentUser = null;
+            menuPermissions = [];
+            clearTimeout(sessionTimeoutTimer);
+            document.getElementById('wrapper').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+            document.getElementById('userFullName').innerText = '';
+            document.getElementById('userRole').innerText = '';
+            document.getElementById('userInitial').innerText = '?';
+            
+            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+            document.getElementById('view-dashboard').style.display = 'block';
+            
+            document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+            const dashItem = document.querySelector('li[data-menu="dashboard"]');
+            if(dashItem) dashItem.classList.add('active');
+            
+            if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+            if (centralChartInstance) { centralChartInstance.destroy(); centralChartInstance = null; }
+            if (trackingChartInstance) { trackingChartInstance.destroy(); trackingChartInstance = null; }
+            
+            // Re-render empty state for desktop view logic if needed
+            const w = window.innerWidth;
+            if(w <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('main-content').classList.remove('shifted');
+            }
         }
 
         function handleLogout() {
             Swal.fire({ title: 'ออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonText: 'ใช่', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#2563eb' })
                 .then(res => {
                     if (res.isConfirmed) {
-                        
-                        currentUser = null;
-                        menuPermissions = [];
-                        document.getElementById('wrapper').style.display = 'none';
-                        document.getElementById('login-screen').style.display = 'flex';
-                        document.getElementById('loginForm').reset();
-                        document.getElementById('userFullName').innerText = '';
-                        document.getElementById('userRole').innerText = '';
-                        document.getElementById('userInitial').innerText = '?';
-                        
-                        document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
-                        document.getElementById('view-dashboard').style.display = 'block';
-                        
-                        document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
-                        const dashItem = document.querySelector('li[data-menu="dashboard"]');
-                        if (dashItem) dashItem.classList.add('active');
-                        
-                        if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-                        if (centralChartInstance) { centralChartInstance.destroy(); centralChartInstance = null; }
-                        if (trackingChartInstance) { trackingChartInstance.destroy(); trackingChartInstance = null; }
+                        forceLogout();
                     }
                 });
         }
@@ -1701,7 +1766,7 @@
             if (viewName === 'departments') loadDepartmentsData();
             if (viewName === 'doctemplates') loadDocTemplates();
             if (viewName === 'proposals') loadProposals();
-            if (viewName === 'reports') loadReportLinks();
+            if (viewName === 'reports') loadTeacherReports();
             if (viewName === 'tracking') loadTrackingData();
             if (viewName === 'disbursements') loadDisbursements();
             if (viewName === 'menu-permissions') loadPermissionsView();
@@ -2124,51 +2189,64 @@
         // ==========================================
         // 11. Project Reports (รายงานโครงการ) - ลิ้งก์ส่งโครงการ
         // ==========================================
-        function loadReportLinks() {
-            if (!isGAS) return; showLoader("กำลังโหลดข้อมูลลิ้งก์...");
-            
-            const btnSetting = document.getElementById('btnSettingReportLinks');
-            if (btnSetting) btnSetting.style.display = (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) ? '' : 'none';
-
+        function loadTeacherReports() {
+            if (!isGAS) return; showLoader("กำลังโหลดข้อมูล...");
             google.script.run.withSuccessHandler(res => {
                 hideLoader();
-                if (res.success) {
-                    const wordLink = res.data.wordLink || '#';
-                    const pdfLink = res.data.pdfLink || '#';
-                    
-                    const btnWord = document.getElementById('btnLinkWord');
-                    const btnPdf = document.getElementById('btnLinkPdf');
-                    
-                    btnWord.href = wordLink;
-                    if(wordLink === '#') btnWord.onclick = (e) => { e.preventDefault(); Swal.fire('แจ้งเตือน', 'ยังไม่ได้ตั้งค่าลิ้งก์ส่งโครงการ (Word)', 'warning'); };
-                    else btnWord.onclick = null;
-                    
-                    btnPdf.href = pdfLink;
-                    if(pdfLink === '#') btnPdf.onclick = (e) => { e.preventDefault(); Swal.fire('แจ้งเตือน', 'ยังไม่ได้ตั้งค่าลิ้งก์ส่งโครงการ (PDF)', 'warning'); };
-                    else btnPdf.onclick = null;
+                if (!res.success) { Swal.fire('ข้อผิดพลาด', res.error, 'error'); return; }
+                const tbody = document.getElementById('teacherReportsTableBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                if (res.data && res.data.length > 0) {
+                    let index = 1;
+                    res.data.forEach(p => {
+                        const isSent = p.reportStatus === 'ส่งแล้ว';
+                        const badgeClass = isSent ? 'badge-approved' : 'badge-pending';
+                        const badgeText = isSent ? '<i class="fas fa-check-circle"></i> ส่งแล้ว' : '<i class="fas fa-clock"></i> ยังไม่ได้ส่ง';
+                        
+                        let actionBtns = `<button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:0.78rem;" onclick="openSubmitReportModal('${p.projectId}', '${p.projectName}', '${p.wordLink||''}', '${p.pdfLink||''}', '${p.reportNote||''}')"><i class="fas fa-paper-plane"></i> ส่งรายงาน</button>`;
 
-                    document.getElementById('settingWordLink').value = wordLink !== '#' ? wordLink : '';
-                    document.getElementById('settingPdfLink').value = pdfLink !== '#' ? pdfLink : '';
+                        tbody.innerHTML += `<tr>
+                            <td class="text-center">${index++}</td>
+                            <td class="fw-bold">${p.projectName}</td>
+                            <td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(p.budget)}</td>
+                            <td class="text-center"><span class="badge-pill ${badgeClass}">${badgeText}</span></td>
+                            <td class="text-center">${actionBtns}</td>
+                        </tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีโครงการในระบบ</td></tr>';
                 }
-            }).getReportSettings();
+            }).getReportSubmissions();
         }
 
-        function openReportSettingsModal() {
-            reportSettingsModal.show();
+        function openSubmitReportModal(projectId, projectName, wordLink, pdfLink, note) {
+            document.getElementById('submitReportProjectId').value = projectId;
+            document.getElementById('submitReportProjectName').value = projectName;
+            document.getElementById('submitReportWord').value = wordLink;
+            document.getElementById('submitReportPdf').value = pdfLink;
+            document.getElementById('submitReportNote').value = note;
+            new bootstrap.Modal(document.getElementById('submitReportModal')).show();
         }
 
-        function submitReportSettingsForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึกตั้งค่า...");
-            const wordLink = document.getElementById('settingWordLink').value;
-            const pdfLink = document.getElementById('settingPdfLink').value;
+        function handleReportSubmit(e) {
+            e.preventDefault();
+            const projectId = document.getElementById('submitReportProjectId').value;
+            const wordLink = document.getElementById('submitReportWord').value;
+            const pdfLink = document.getElementById('submitReportPdf').value;
+            const note = document.getElementById('submitReportNote').value;
+            
+            showLoader("กำลังบันทึก...");
             google.script.run.withSuccessHandler(res => {
                 hideLoader();
                 if (res.success) {
                     Swal.fire('สำเร็จ', res.message, 'success');
-                    reportSettingsModal.hide();
-                    loadReportLinks();
-                } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); }
-            }).saveReportSettings(wordLink, pdfLink);
+                    bootstrap.Modal.getInstance(document.getElementById('submitReportModal')).hide();
+                    loadTeacherReports();
+                } else {
+                    Swal.fire('ข้อผิดพลาด', res.error, 'error');
+                }
+            }).updateReportStatus(projectId, 'ส่งแล้ว', note, currentUser.name, wordLink, pdfLink);
         }
 
         // ==========================================
@@ -2319,14 +2397,20 @@
                         const progressColor = p.progress >= 80 ? 'var(--emerald-500)' : (p.progress >= 40 ? 'var(--amber-500)' : 'var(--red-500)');
 
                         let actionBtns = '';
+                        let fileBtns = '';
+                        if (isSent && (p.wordLink || p.pdfLink)) {
+                            if(p.wordLink) fileBtns += `<a href="${p.wordLink}" target="_blank" class="btn btn-sm btn-primary ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ Word"><i class="fas fa-file-word"></i></a>`;
+                            if(p.pdfLink) fileBtns += `<a href="${p.pdfLink}" target="_blank" class="btn btn-sm btn-danger ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ PDF"><i class="fas fa-file-pdf"></i></a>`;
+                        }
+
                         if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
                             if (isSent) {
-                                actionBtns = `<button class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ยังไม่ได้ส่ง')" title="เปลี่ยนเป็นยังไม่ได้ส่ง"><i class="fas fa-undo"></i> ยกเลิก</button>`;
+                                actionBtns = `<button class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ยังไม่ได้ส่ง')" title="เปลี่ยนเป็นยังไม่ได้ส่ง"><i class="fas fa-undo"></i> ยกเลิก</button>` + fileBtns;
                             } else {
                                 actionBtns = `<button class="btn btn-sm btn-outline-success" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ส่งแล้ว')" title="เปลี่ยนเป็นส่งแล้ว"><i class="fas fa-check"></i> ส่งแล้ว</button>`;
                             }
                         } else {
-                            actionBtns = `<span class="text-muted" style="font-size:0.78rem;">-</span>`;
+                            actionBtns = fileBtns || `<span class="text-muted" style="font-size:0.78rem;">-</span>`;
                         }
 
                         tbody.innerHTML += `<tr>
