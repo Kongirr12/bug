@@ -60,11 +60,11 @@ const MOCK_API = {
         return new Promise(resolve => {
             setTimeout(() => {
                 if (username === 'admin' && password === '1234') {
-                    resolve({ success: true, user: { name: 'ผู้ดูแลระบบสูงสุด', role: 'admin' } });
+                    resolve({ success: true, user: { name: 'ผู้ดูแลระบบสูงสุด', role: 'ADMIN' } });
                 } else if (username === 'kru' && password === '1234') {
-                    resolve({ success: true, user: { name: 'คุณครูสมศรี', role: 'ครู' } });
+                    resolve({ success: true, user: { name: 'คุณครูสมศรี', role: 'TEACHER' } });
                 } else if (username === 'boss' && password === '1234') {
-                    resolve({ success: true, user: { name: 'ผอ.โรงเรียน', role: 'ผู้บริหาร' } });
+                    resolve({ success: true, user: { name: 'ผอ.โรงเรียน', role: 'EXECUTIVE' } });
                 } else {
                     resolve({ success: false, message: 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง' });
                 }
