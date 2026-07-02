@@ -3,7 +3,7 @@ const CONFIG = {
     // Replace this URL with the Web App URL generated when you deploy Code.gs in Google Apps Script
     API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
- 
+
 /**
  * Make an API call to the Google Apps Script backend.
  * @param {string} action The function name to call in Apps Script
@@ -134,6 +134,26 @@ const MOCK_API = {
         });
     },
 
+    getReportSettings: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    success: true,
+                    data: window.mock_reportSettings || { wordLink: '#', pdfLink: '#' }
+                });
+            }, 500);
+        });
+    },
+
+    saveReportSettings: async (wordLink, pdfLink) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                window.mock_reportSettings = { wordLink, pdfLink };
+                resolve({ success: true, message: 'บันทึกการตั้งค่าลิงก์รายงานแล้ว' });
+            }, 500);
+        });
+    },
+
     saveDocTemplate: async (data) => {
         return new Promise(resolve => {
             setTimeout(() => {
@@ -257,7 +277,39 @@ const API = {
             // Generic mock response for any unimplemented function
             return new Promise(resolve => {
                 setTimeout(() => {
-                    resolve({ success: true, message: 'ดำเนินการสำเร็จ (Mock Mode)', data: [] });
+                    if (action.startsWith('get') && action !== 'getReportSettings') {
+                        let entity = action.replace('get', '');
+                        if (entity === 'AllUsers') entity = 'Users';
+                        if (!window['mock_' + entity]) window['mock_' + entity] = [];
+                        resolve({ success: true, data: window['mock_' + entity] });
+                    } else if (action.startsWith('save')) {
+                        let entity = action.replace('save', '');
+                        if (entity === 'User') entity = 'Users';
+                        else if (!entity.endsWith('s')) entity += 's';
+                        
+                        if (!window['mock_' + entity]) window['mock_' + entity] = [];
+                        let payload = args[0] || {};
+                        if (!payload.id) payload.id = Date.now().toString();
+                        
+                        const idx = window['mock_' + entity].findIndex(x => x.id === payload.id);
+                        if (idx !== -1) window['mock_' + entity][idx] = payload;
+                        else window['mock_' + entity].push(payload);
+                        
+                        resolve({ success: true, message: 'บันทึกข้อมูลเรียบร้อยแล้ว' });
+                    } else if (action.startsWith('delete')) {
+                        let entity = action.replace('delete', '');
+                        if (entity === 'User') entity = 'Users';
+                        else if (!entity.endsWith('s')) entity += 's';
+                        
+                        if (window['mock_' + entity]) {
+                            window['mock_' + entity] = window['mock_' + entity].filter(x => x.id !== args[0]);
+                        }
+                        resolve({ success: true, message: 'ลบข้อมูลเรียบร้อยแล้ว' });
+                    } else if (action.startsWith('update') || action.startsWith('reject') || action.startsWith('approve')) {
+                        resolve({ success: true, message: 'อัปเดตสถานะเรียบร้อยแล้ว' });
+                    } else {
+                        resolve({ success: true, message: 'ดำเนินการสำเร็จ (Mock Mode)', data: [] });
+                    }
                 }, 500);
             });
         }
