@@ -1250,7 +1250,10 @@
                             <h2 class="page-title"><i class="fas fa-user-shield" style="color:var(--blue-500);"></i> จัดการสิทธิ์เมนูตาม Role</h2>
                             <div class="page-subtitle">กำหนดสิทธิ์การเข้าถึงเมนูสำหรับแต่ละ Role</div>
                         </div>
-                        <button class="btn-modern-success" onclick="savePermissions()"><i class="fas fa-save"></i> บันทึกสิทธิ์</button>
+                        <div>
+                            <button class="btn-modern-primary me-2" onclick="switchView('users'); openUserModal();"><i class="fas fa-user-plus"></i> เพิ่มผู้ใช้งาน</button>
+                            <button class="btn-modern-success" onclick="savePermissions()"><i class="fas fa-save"></i> บันทึกสิทธิ์</button>
+                        </div>
                     </div>
                     <div class="panel">
                         <div class="alert" style="font-size: 0.82rem; background: var(--blue-100); color: #1e40af; border: none; border-radius: 12px;"><i class="fas fa-info-circle me-2"></i> คลิกที่ไอคอน <i class="fas fa-toggle-on text-success"></i>/<i class="fas fa-toggle-off text-muted"></i> เพื่อเปิด/ปิดสิทธิ์ จากนั้นกด "บันทึกสิทธิ์"</div>
