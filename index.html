@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1404,12 +1405,12 @@
                             <input type="text" class="form-control bg-light" id="submitReportProjectName" readonly>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ลิงก์ไฟล์รายงาน (Word)</label>
-                            <input type="url" class="form-control" id="submitReportWord" placeholder="เช่น https://docs.google.com/..." required>
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ไฟล์รายงาน (Word)</label>
+                            <input type="file" class="form-control" id="submitReportWord" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ลิงก์ไฟล์รายงาน (PDF)</label>
-                            <input type="url" class="form-control" id="submitReportPdf" placeholder="เช่น https://drive.google.com/..." required>
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ไฟล์รายงาน (PDF)</label>
+                            <input type="file" class="form-control" id="submitReportPdf" accept=".pdf,application/pdf">
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">หมายเหตุ (ถ้ามี)</label>
@@ -2239,30 +2240,60 @@
         function openSubmitReportModal(projectId, projectName, wordLink, pdfLink, note) {
             document.getElementById('submitReportProjectId').value = projectId;
             document.getElementById('submitReportProjectName').value = projectName;
-            document.getElementById('submitReportWord').value = wordLink;
-            document.getElementById('submitReportPdf').value = pdfLink;
+            document.getElementById('submitReportWord').value = '';
+            document.getElementById('submitReportPdf').value = '';
             document.getElementById('submitReportNote').value = note;
+            
+            // Store original links in dataset for fallback if no new file is uploaded
+            document.getElementById('submitReportWord').dataset.existing = wordLink;
+            document.getElementById('submitReportPdf').dataset.existing = pdfLink;
             new bootstrap.Modal(document.getElementById('submitReportModal')).show();
         }
 
-        function handleReportSubmit(e) {
+        async function handleReportSubmit(e) {
             e.preventDefault();
             const projectId = document.getElementById('submitReportProjectId').value;
-            const wordLink = document.getElementById('submitReportWord').value;
-            const pdfLink = document.getElementById('submitReportPdf').value;
             const note = document.getElementById('submitReportNote').value;
+            const wordInput = document.getElementById('submitReportWord');
+            const pdfInput = document.getElementById('submitReportPdf');
             
-            showLoader("กำลังบันทึก...");
-            google.script.run.withSuccessHandler(res => {
-                hideLoader();
-                if (res.success) {
-                    Swal.fire('สำเร็จ', res.message, 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('submitReportModal')).hide();
-                    loadTeacherReports();
-                } else {
-                    Swal.fire('ข้อผิดพลาด', res.error, 'error');
+            showLoader("กำลังอ่านไฟล์และบันทึกข้อมูล...");
+            
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+            
+            try {
+                let wordLink = wordInput.dataset.existing || '';
+                if (wordInput.files.length > 0) {
+                    if (wordInput.files[0].size > 50 * 1024 * 1024) throw new Error("ไฟล์ Word มีขนาดใหญ่เกินไป (จำกัดที่ 50MB)");
+                    wordLink = await toBase64(wordInput.files[0]);
                 }
-            }).updateReportStatus(projectId, 'ส่งแล้ว', note, currentUser.name, wordLink, pdfLink);
+                
+                let pdfLink = pdfInput.dataset.existing || '';
+                if (pdfInput.files.length > 0) {
+                    if (pdfInput.files[0].size > 50 * 1024 * 1024) throw new Error("ไฟล์ PDF มีขนาดใหญ่เกินไป (จำกัดที่ 50MB)");
+                    pdfLink = await toBase64(pdfInput.files[0]);
+                }
+                
+                google.script.run.withSuccessHandler(res => {
+                    hideLoader();
+                    if (res.success) {
+                        Swal.fire('สำเร็จ', res.message, 'success');
+                        bootstrap.Modal.getInstance(document.getElementById('submitReportModal')).hide();
+                        loadTeacherReports();
+                    } else {
+                        Swal.fire('ข้อผิดพลาด', res.error, 'error');
+                    }
+                }).updateReportStatus(projectId, 'ส่งแล้ว', note, currentUser.name, wordLink, pdfLink);
+                
+            } catch (err) {
+                hideLoader();
+                Swal.fire('ข้อผิดพลาด', err.message, 'error');
+            }
         }
 
         // ==========================================
@@ -2415,8 +2446,8 @@
                         let actionBtns = '';
                         let fileBtns = '';
                         if (isSent && (p.wordLink || p.pdfLink)) {
-                            if(p.wordLink) fileBtns += `<a href="${p.wordLink}" target="_blank" class="btn btn-sm btn-primary ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ Word"><i class="fas fa-file-word"></i></a>`;
-                            if(p.pdfLink) fileBtns += `<a href="${p.pdfLink}" target="_blank" class="btn btn-sm btn-danger ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ PDF"><i class="fas fa-file-pdf"></i></a>`;
+                            if(p.wordLink) fileBtns += `<a href="${p.wordLink}" download="Word_${p.projectName}" target="_blank" class="btn btn-sm btn-primary ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ Word"><i class="fas fa-file-word"></i></a>`;
+                            if(p.pdfLink) fileBtns += `<a href="${p.pdfLink}" download="PDF_${p.projectName}" target="_blank" class="btn btn-sm btn-danger ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ PDF"><i class="fas fa-file-pdf"></i></a>`;
                         }
 
                         if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
@@ -2531,7 +2562,7 @@
         function submitDisbursementForm(e) {
             e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งคำขอ...");
             const projSel = document.getElementById('disbProject');
-            const data = { projectId: projSel.value, projectName: projSel.options[projSel.selectedIndex].getAttribute('data-name'), requestDate: document.getElementById('disbDate').value, amount: document.getElementById('disbAmount').value, purpose: document.getElementById('disbPurpose').value, requestedBy: currentUser.name };
+            const data = { projectId: projSel.value, projectName: projSel.options[projSel.selectedIndex].getAttribute('data-name'), requestDate: document.getElementById('disbDate').value, amount: document.getElementById('disbAmount').value, purpose: document.getElementById('disbPurpose').value, requestedBy: currentUser.name, status: 'รออนุมัติ' };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); disbursementModal.hide(); loadDisbursements(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDisbursement(data);
         }
 
