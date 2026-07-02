@@ -3,7 +3,7 @@ const CONFIG = {
     // Replace this URL with the Web App URL generated when you deploy Code.gs in Google Apps Script
     API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
- 
+
 /**
  * Make an API call to the Google Apps Script backend.
  * @param {string} action The function name to call in Apps Script
@@ -113,6 +113,30 @@ const MOCK_API = {
         });
 
         return { summary: { total, used, reserve, remain }, typeDetails };
+    },
+
+    getBudgetTypes: async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const types = window.mock_BudgetTypes || loadFromLocalStorage('mock_BudgetTypes', []);
+                const calculated = MOCK_API._calculateBudgetSummary();
+                const typeMap = {};
+                calculated.typeDetails.forEach(t => {
+                    typeMap[t.name] = t;
+                });
+                const enriched = types.map(t => {
+                    const stats = typeMap[t.name] || { received: 0, used: 0, remain: 0 };
+                    return {
+                        id: t.id,
+                        name: t.name,
+                        received: stats.received,
+                        used: stats.used,
+                        remain: stats.remain
+                    };
+                });
+                resolve({ success: true, data: enriched });
+            }, 500);
+        });
     },
 
     getDashboardData: async () => {
