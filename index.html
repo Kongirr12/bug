@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
- 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2556,14 +2556,14 @@
                     let index = 1;
                     res.data.forEach(d => {
                         if (d.status === 'รออนุมัติ') pending++;
-                        else if (d.status === 'อนุมัติ') approved++;
+                        else if (d.status === 'อนุมัติ' || d.status === 'อนุมัติแล้ว') approved++;
                         else if (d.status === 'ไม่อนุมัติ') rejected++;
 
-                        let badgeClass = d.status === 'อนุมัติ' ? 'badge-status-approved' : (d.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-waiting');
+                        let badgeClass = (d.status === 'อนุมัติ' || d.status === 'อนุมัติแล้ว') ? 'badge-status-approved' : (d.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-waiting');
                         let actionBtns = '';
                         if (d.status === 'รออนุมัติ' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
                             actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="handleApproveDisbursement('${d.id}', ${d.amount})" title="อนุมัติ"><i class="fas fa-check"></i> อนุมัติ</button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="handleRejectDisbursement('${d.id}')" title="ไม่อนุมัติ"><i class="fas fa-times"></i> ปฏิเสธ</button>`;
-                        } else if (d.status === 'อนุมัติ') { actionBtns = `<span style="color:var(--emerald-600);"><i class="fas fa-check-circle"></i> ${d.approvedBy || ''}</span>`; }
+                        } else if (d.status === 'อนุมัติ' || d.status === 'อนุมัติแล้ว') { actionBtns = `<span style="color:var(--emerald-600);"><i class="fas fa-check-circle"></i> ${d.approvedBy || d.reviewedBy || ''}</span>`; }
                         else if (d.status === 'ไม่อนุมัติ') { actionBtns = `<span style="color:var(--red-500);" title="${d.rejectReason || ''}"><i class="fas fa-times-circle"></i> ปฏิเสธ</span>`; }
                         else { actionBtns = '<span class="text-muted">-</span>'; }
                         tbody.innerHTML += `<tr><td class="text-center">${index++}</td><td class="fw-bold">${d.projectName}</td><td class="text-muted">${d.requestDate || '-'}</td><td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(d.amount)}</td><td style="font-size:0.82rem;">${d.purpose || '-'}</td><td>${d.requestedBy || '-'}</td><td><span class="badge ${badgeClass} px-2 py-1">${d.status}</span></td><td class="text-center">${actionBtns}</td></tr>`;
