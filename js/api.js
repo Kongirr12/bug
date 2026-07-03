@@ -417,6 +417,79 @@ const MOCK_API = {
                 resolve({ success: true, message: 'อัปเดตสถานะเรียบร้อยแล้ว' });
             }, 500);
         });
+    },
+
+    updateProposalStatus: async (id, status, reason, updatedBy) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_Proposals) window.mock_Proposals = loadFromLocalStorage('mock_Proposals', []);
+                const prop = window.mock_Proposals.find(p => p.id === id);
+                if (prop) {
+                    prop.status = status;
+                    prop.rejectReason = reason || '';
+                    prop.reviewedBy = updatedBy || '';
+                    saveToLocalStorage('mock_Proposals', window.mock_Proposals);
+
+                    // If approved, create a new project
+                    if (status === 'อนุมัติ') {
+                        if (!window.mock_Projects) window.mock_Projects = loadFromLocalStorage('mock_Projects', []);
+                        window.mock_Projects.push({
+                            id: Date.now().toString(),
+                            name: prop.name,
+                            budgetType: 'งบกลาง', // default
+                            status: 'รอพิจารณา', // default
+                            budget: prop.budget,
+                            used: 0,
+                            proposedBy: prop.proposedBy
+                        });
+                        saveToLocalStorage('mock_Projects', window.mock_Projects);
+                    }
+                }
+                resolve({ success: true, message: 'อัปเดตสถานะเรียบร้อยแล้ว' });
+            }, 500);
+        });
+    },
+
+    approveDisbursement: async (id, updatedBy, actualAmount) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_Disbursements) window.mock_Disbursements = loadFromLocalStorage('mock_Disbursements', []);
+                const disb = window.mock_Disbursements.find(d => d.id === id);
+                if (disb) {
+                    disb.status = 'อนุมัติแล้ว';
+                    disb.reviewedBy = updatedBy || '';
+                    disb.actualAmount = parseFloat(actualAmount || disb.amount);
+                    saveToLocalStorage('mock_Disbursements', window.mock_Disbursements);
+                    
+                    // Also update the project's used amount
+                    if (disb.projectId) {
+                        if (!window.mock_Projects) window.mock_Projects = loadFromLocalStorage('mock_Projects', []);
+                        const proj = window.mock_Projects.find(p => p.id === disb.projectId);
+                        if (proj) {
+                            proj.used = (parseFloat(proj.used) || 0) + disb.actualAmount;
+                            saveToLocalStorage('mock_Projects', window.mock_Projects);
+                        }
+                    }
+                }
+                resolve({ success: true, message: 'อนุมัติเรียบร้อยแล้ว' });
+            }, 500);
+        });
+    },
+
+    rejectDisbursement: async (id, reason, updatedBy) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                if (!window.mock_Disbursements) window.mock_Disbursements = loadFromLocalStorage('mock_Disbursements', []);
+                const disb = window.mock_Disbursements.find(d => d.id === id);
+                if (disb) {
+                    disb.status = 'ไม่อนุมัติ';
+                    disb.rejectReason = reason || '';
+                    disb.reviewedBy = updatedBy || '';
+                    saveToLocalStorage('mock_Disbursements', window.mock_Disbursements);
+                }
+                resolve({ success: true, message: 'ปฏิเสธเรียบร้อยแล้ว' });
+            }, 500);
+        });
     }
 };
 
