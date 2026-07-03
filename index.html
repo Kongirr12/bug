@@ -735,7 +735,7 @@
 </head>
 
 
-    <script src="./js/api.js"></script>
+    <script src="./js/api.js?v=2"></script>
     <link rel="stylesheet" href="./css/style.css">
 <body>
 
@@ -2189,12 +2189,13 @@
                 if (res.success && res.data.length > 0) {
                     let index = 1;
                     res.data.forEach(p => {
-                        let badgeClass = p.status === 'อนุมัติ' ? 'badge-status-approved' : (p.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
+                        let currentStatus = (!p.status || p.status === 'undefined') ? 'รอพิจารณา' : p.status;
+                        let badgeClass = currentStatus === 'อนุมัติ' ? 'badge-status-approved' : (currentStatus === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
                         let actionBtns = '';
-                        if (p.status === 'รอพิจารณา' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                        if (currentStatus === 'รอพิจารณา' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
                             actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="reviewProposal('${p.id}','อนุมัติ')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="reviewProposal('${p.id}','ไม่อนุมัติ')"><i class="fas fa-times"></i></button>`;
                         } else { actionBtns = '<span class="text-muted">-</span>'; }
-                        tbody.innerHTML += `<tr><td class="text-center">${index++}</td><td class="fw-bold">${p.name}</td><td class="text-muted">${p.department || '-'}</td><td>${formatCurrency(p.budget)}</td><td><span class="badge ${badgeClass} px-2 py-1">${p.status}</span></td><td>${p.proposedBy}</td><td>${p.reviewedBy || '-'}</td><td class="text-center">${actionBtns}</td></tr>`;
+                        tbody.innerHTML += `<tr><td class="text-center">${index++}</td><td class="fw-bold">${p.name}</td><td class="text-muted">${p.department || '-'}</td><td>${formatCurrency(p.budget)}</td><td><span class="badge ${badgeClass} px-2 py-1">${currentStatus}</span></td><td>${p.proposedBy}</td><td>${p.reviewedBy || '-'}</td><td class="text-center">${actionBtns}</td></tr>`;
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-4">ยังไม่มีข้อเสนอโครงการ</td></tr>'; }
             }).getProposals();
@@ -2203,7 +2204,7 @@
         function openProposalModal() { document.getElementById('proposalForm').reset(); proposalModal.show(); }
         function submitProposalForm(e) {
             e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งข้อเสนอ...");
-            const data = { name: document.getElementById('propName').value, objectives: document.getElementById('propObjectives').value, budget: document.getElementById('propBudget').value, department: document.getElementById('propDepartment').value, proposedBy: currentUser.name };
+            const data = { name: document.getElementById('propName').value, objectives: document.getElementById('propObjectives').value, budget: document.getElementById('propBudget').value, department: document.getElementById('propDepartment').value, proposedBy: currentUser.name, status: 'รอพิจารณา' };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); proposalModal.hide(); loadProposals(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveProposal(data);
         }
 
