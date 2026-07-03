@@ -549,7 +549,7 @@ window.mock_permissions = savedPerms || [
 saveToLocalStorage('mock_permissions', window.mock_permissions);
 
 const API = {
-    USE_MOCK: true,
+    USE_MOCK: false,
     
     call: async (action, ...args) => {
         if (API.USE_MOCK) {
