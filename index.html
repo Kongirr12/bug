@@ -1603,6 +1603,7 @@
             let savedUser = sessionStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
+                if (currentUser && currentUser.role) currentUser.role = String(currentUser.role).trim().toUpperCase();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('wrapper').style.display = 'flex';
                 document.getElementById('userFullName').innerText = currentUser.name;
@@ -1638,6 +1639,7 @@
                 hideLoader();
                 if (res.success) {
                     currentUser = res.user;
+                    if (currentUser && currentUser.role) currentUser.role = String(currentUser.role).trim().toUpperCase();
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('wrapper').style.display = 'flex';
@@ -1728,7 +1730,7 @@
 
         function applyMenuPermissions() {
             if (!currentUser || menuPermissions.length === 0) return;
-            const role = currentUser.role;
+            const role = String(currentUser.role).trim().toUpperCase();
             const menuItems = document.querySelectorAll('.sidebar-menu > li[data-menu], .sidebar-submenu li[data-menu]');
             menuItems.forEach(item => {
                 const menuKey = item.getAttribute('data-menu');
