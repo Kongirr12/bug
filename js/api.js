@@ -3,6 +3,7 @@ const CONFIG = {
     // Replace this URL with the Web App URL generated when you deploy Code.gs in Google Apps Script
     API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
+
 /**
  * Make an API call to the Google Apps Script backend.
  * @param {string} action The function name to call in Apps Script
@@ -38,6 +39,10 @@ async function apiCall(action, payload = {}) {
         
         if (data.status === 'error') {
             throw new Error(data.message || 'API Error');
+        }
+        
+        if (data.status === 'success' && typeof data.data === 'undefined') {
+            throw new Error(`ฟังก์ชัน '${action}' ใน Code.gs ไม่ได้ส่งค่ากลับมา (ไม่มี return statement) หรือเกิดข้อผิดพลาดในการประมวลผล`);
         }
         
         return data.data;
