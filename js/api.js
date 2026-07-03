@@ -81,7 +81,8 @@ const MOCK_API = {
         const typeMap = {};
 
         allocations.forEach(a => {
-            const amt = parseFloat(a.amount || 0);
+            let amt = parseFloat(a.amount || 0);
+            if (isNaN(amt)) amt = 0;
             total += amt;
             const bt = a.budgetType || 'ไม่ระบุ';
             if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
@@ -90,7 +91,8 @@ const MOCK_API = {
 
         projects.forEach(p => {
             if (p.status !== 'ไม่อนุมัติ') {
-                const amt = parseFloat(p.budget || 0);
+                let amt = parseFloat(p.budget || 0);
+                if (isNaN(amt)) amt = 0;
                 used += amt;
                 const bt = p.budgetType || 'ไม่ระบุ';
                 if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
@@ -99,7 +101,8 @@ const MOCK_API = {
         });
 
         utils.forEach(u => {
-            const amt = parseFloat(u.amount || 0);
+            let amt = parseFloat(u.amount || 0);
+            if (isNaN(amt)) amt = 0;
             reserve += amt;
             const bt = u.budgetType || 'ไม่ระบุ';
             if (!typeMap[bt]) typeMap[bt] = { name: bt, received: 0, used: 0, remain: 0 };
@@ -166,11 +169,23 @@ const MOCK_API = {
         return new Promise(resolve => {
             setTimeout(() => {
                 const calculated = MOCK_API._calculateBudgetSummary();
+                const projects = (window.mock_Projects || loadFromLocalStorage('mock_Projects', [])).map(p => {
+                    let budget = parseFloat(p.budget || 0);
+                    if (isNaN(budget)) budget = 0;
+                    let used = parseFloat(p.used || 0);
+                    if (isNaN(used)) used = 0;
+                    return {
+                        name: p.name,
+                        allocated: budget,
+                        totalUsed: used,
+                        overAmount: used > budget ? used - budget : 0
+                    };
+                });
                 resolve({
                     success: true,
                     data: {
                         summary: calculated.summary,
-                        projects: window.mock_Projects || loadFromLocalStorage('mock_Projects', []),
+                        projects: projects,
                         utils: window.mock_Utilities || loadFromLocalStorage('mock_Utilities', [])
                     }
                 });
@@ -474,6 +489,20 @@ const API = {
                         let entity = action.replace('get', '');
                         if (entity === 'AllUsers') entity = 'Users';
                         if (!window['mock_' + entity]) window['mock_' + entity] = loadFromLocalStorage('mock_' + entity, []);
+                        
+                        // Patch for missing or undefined status in legacy data
+                        if (['Disbursements', 'Proposals', 'Projects'].includes(entity)) {
+                            let updated = false;
+                            window['mock_' + entity].forEach(d => {
+                                if (!d.status || d.status === 'undefined') {
+                                    if (entity === 'Proposals' || entity === 'Projects') d.status = 'รอพิจารณา';
+                                    else d.status = 'รออนุมัติ';
+                                    updated = true;
+                                }
+                            });
+                            if (updated) saveToLocalStorage('mock_' + entity, window['mock_' + entity]);
+                        }
+
                         resolve({ success: true, data: window['mock_' + entity] });
                     } else if (action.startsWith('save')) {
                         let entity = action.replace('save', '');
