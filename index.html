@@ -1190,7 +1190,7 @@
                             <h2 class="page-title"><i class="fas fa-file-alt" style="color:var(--blue-500);"></i> รูปแบบไฟล์ขออนุญาต</h2>
                             <div class="page-subtitle">แบบฟอร์มเอกสารสำหรับดาวน์โหลด</div>
                         </div>
-                        <button class="btn-modern-primary" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์ม</button>
+                        <button class="btn-modern-primary admin-only" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์ม</button>
                     </div>
                     <div class="row g-3" id="docTemplateCards">
                         <div class="col-12 text-center text-muted py-5">กำลังโหลดข้อมูล...</div>
@@ -2507,13 +2507,16 @@
         function loadDocTemplates() {
             if (!isGAS) return; showLoader("กำลังโหลดแบบฟอร์ม...");
             
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
             const btnAdd = document.getElementById('btnAddDocTpl');
-            if (btnAdd) btnAdd.style.display = 'inline-flex';
+            if (btnAdd) btnAdd.style.display = isAdmin ? 'inline-flex' : 'none';
 
             google.script.run.withSuccessHandler(res => {
                 hideLoader();
                 const container = document.getElementById('docTemplateCards');
                 container.innerHTML = '';
+                const isAdmin = currentUser && currentUser.role === 'ADMIN';
+
                 if (res.success && res.data && res.data.length > 0) {
                     currentDocTemplates = res.data;
                     res.data.forEach(doc => {
@@ -2535,17 +2538,20 @@
                         const downloadUrl = (doc.url && doc.url !== '#') ? doc.url : 'javascript:void(0)';
                         const targetAttr = (doc.url && doc.url !== '#') ? 'target="_blank" rel="noopener noreferrer"' : '';
                         
+                        const actionsHtml = isAdmin ? `
+                            <div class="doc-card-actions admin-only">
+                                <button type="button" class="doc-card-action-btn edit" onclick="editDocTpl('${doc.id}')" title="แก้ไขแบบฟอร์ม">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="doc-card-action-btn delete" onclick="deleteDocTpl('${doc.id}')" title="ลบแบบฟอร์ม">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>` : '';
+
                         container.innerHTML += `
                             <div class="col-md-6 col-lg-4 col-xl-3">
                                 <div class="doc-card position-relative">
-                                    <div class="doc-card-actions">
-                                        <button type="button" class="doc-card-action-btn edit" onclick="editDocTpl('${doc.id}')" title="แก้ไขแบบฟอร์ม">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button" class="doc-card-action-btn delete" onclick="deleteDocTpl('${doc.id}')" title="ลบแบบฟอร์ม">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </div>
+                                    ${actionsHtml}
                                     <div class="doc-icon" style="background: ${bgGrad};"><i class="${iconClass}"></i></div>
                                     <div class="doc-title text-truncate" title="${doc.name}">${doc.name}</div>
                                     <div class="doc-desc">${doc.desc || 'ไม่มีคำอธิบาย'}</div>
@@ -2557,20 +2563,23 @@
                     });
                 } else {
                     currentDocTemplates = [];
+                    const addBtnEmpty = isAdmin ? `
+                        <button class="btn btn-sm btn-primary mt-2 admin-only" onclick="openDocTplModal()">
+                            <i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์มแรก
+                        </button>` : '';
                     container.innerHTML = `
                         <div class="col-12 text-center text-muted py-5">
                             <i class="fas fa-file-circle-plus fa-3x mb-3 d-block" style="color:var(--slate-400);"></i>
                             <h5>ยังไม่มีแบบฟอร์มเอกสาร</h5>
-                            <p class="text-muted" style="font-size:0.88rem;">สามารถเพิ่มแบบฟอร์มสำหรับดาวน์โหลดได้ทันที</p>
-                            <button class="btn btn-sm btn-primary mt-2" onclick="openDocTplModal()">
-                                <i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์มแรก
-                            </button>
+                            <p class="text-muted" style="font-size:0.88rem;">สามารถดาวน์โหลดแบบฟอร์มเอกสารได้ที่นี่</p>
+                            ${addBtnEmpty}
                         </div>`;
                 }
             }).getDocTemplates();
         }
 
         function openDocTplModal() { 
+            if (!checkAdminPermission()) return;
             document.getElementById('docTemplateForm').reset(); 
             document.getElementById('docTplId').value = '';
             document.getElementById('docTplIcon').value = 'fas fa-file-word';
@@ -2590,6 +2599,7 @@
         }
 
         function editDocTpl(id) {
+            if (!checkAdminPermission()) return;
             const doc = currentDocTemplates.find(d => String(d.id) === String(id));
             if (!doc) return;
             document.getElementById('docTplId').value = doc.id;
@@ -2615,6 +2625,7 @@
 
         function submitDocTplForm(e) {
             e.preventDefault(); 
+            if (!checkAdminPermission()) return;
             if (!isGAS) return;
             showLoader("กำลังบันทึกข้อมูลแบบฟอร์ม...");
             const id = document.getElementById('docTplId').value;
@@ -2654,6 +2665,7 @@
         }
 
         function deleteDocTpl(id) {
+            if (!checkAdminPermission()) return;
             const doc = currentDocTemplates.find(d => String(d.id) === String(id));
             const docName = doc ? ` "${doc.name}"` : '';
             Swal.fire({ 
