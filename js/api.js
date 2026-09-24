@@ -109,12 +109,12 @@ function startTopProgressBar() {
         bar.id = 'top-progress-bar';
         if (document.body) document.body.prepend(bar);
     }
-    if (bar) {
-        bar.classList.add('loading');
+    if (bar && bar.style) {
+        if (bar.classList) bar.classList.add('loading');
         bar.style.opacity = '1';
         bar.style.width = '35%';
         setTimeout(() => {
-            if (activeRequestsCount > 0 && bar && bar.classList.contains('loading')) {
+            if (activeRequestsCount > 0 && bar && bar.style) {
                 bar.style.width = '75%';
             }
         }, 250);
@@ -126,13 +126,13 @@ function finishTopProgressBar() {
     activeRequestsCount = Math.max(0, activeRequestsCount - 1);
     if (activeRequestsCount === 0) {
         const bar = document.getElementById('top-progress-bar');
-        if (bar) {
+        if (bar && bar.style) {
             bar.style.width = '100%';
             setTimeout(() => {
                 bar.style.opacity = '0';
                 setTimeout(() => {
                     bar.style.width = '0%';
-                    bar.classList.remove('loading');
+                    if (bar.classList) bar.classList.remove('loading');
                 }, 300);
             }, 200);
         }
@@ -445,30 +445,38 @@ const MOCK_API = {
     saveDocTemplate: async (data) => {
         return new Promise(resolve => {
             setTimeout(() => {
-                if (!window.mock_docTemplates) window.mock_docTemplates = [];
+                if (!window.mock_docTemplates) window.mock_docTemplates = loadFromLocalStorage('mock_docTemplates', []);
+                if (data.id) {
+                    const idx = window.mock_docTemplates.findIndex(d => String(d.id) === String(data.id));
+                    if (idx !== -1) {
+                        window.mock_docTemplates[idx] = { ...window.mock_docTemplates[idx], ...data };
+                        saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
+                        resolve({ success: true, message: 'แก้ไขแบบฟอร์มเรียบร้อยแล้ว' });
+                        return;
+                    }
+                }
                 const newDoc = {
                     id: Date.now().toString(),
                     name: data.name,
                     desc: data.desc,
                     url: data.url,
-                    icon: data.icon || 'fas fa-file-alt'
+                    icon: data.icon || 'fas fa-file-word'
                 };
                 window.mock_docTemplates.push(newDoc);
                 saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
-                resolve({ success: true, message: 'บันทึกแบบฟอร์มแล้ว' });
-            }, 500);
+                resolve({ success: true, message: 'บันทึกแบบฟอร์มเรียบร้อยแล้ว' });
+            }, 300);
         });
     },
 
     deleteDocTemplate: async (id) => {
         return new Promise(resolve => {
             setTimeout(() => {
-                if (window.mock_docTemplates) {
-                    window.mock_docTemplates = window.mock_docTemplates.filter(d => d.id !== id);
-                    saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
-                }
-                resolve({ success: true, message: 'ลบแบบฟอร์มแล้ว' });
-            }, 500);
+                if (!window.mock_docTemplates) window.mock_docTemplates = loadFromLocalStorage('mock_docTemplates', []);
+                window.mock_docTemplates = window.mock_docTemplates.filter(d => String(d.id) !== String(id));
+                saveToLocalStorage('mock_docTemplates', window.mock_docTemplates);
+                resolve({ success: true, message: 'ลบแบบฟอร์มเรียบร้อยแล้ว' });
+            }, 300);
         });
     },
 

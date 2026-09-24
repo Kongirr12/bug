@@ -655,14 +655,41 @@
             transition:var(--transition); text-decoration:none; display:inline-block;
         }
         .doc-card .doc-btn:hover { background:var(--teal-dark); color:white; transform:translateY(-1px); }
-        .doc-card .doc-delete-btn {
-            position:absolute; top:10px; right:10px;
-            background:var(--rose-soft); border:none; color:var(--rose);
-            width:28px; height:28px; border-radius:8px; cursor:pointer;
-            display:flex; align-items:center; justify-content:center; font-size:0.75rem;
-            opacity:0; transition:opacity 0.3s;
+        .doc-card-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 6px;
+            z-index: 5;
         }
-        .doc-card:hover .doc-delete-btn { opacity:1; }
+        .doc-card-action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--slate-200);
+            background: white;
+            color: var(--slate-600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .doc-card-action-btn.edit:hover {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+            transform: scale(1.08);
+        }
+        .doc-card-action-btn.delete:hover {
+            background: #fff1f2;
+            color: #e11d48;
+            border-color: #fecdd3;
+            transform: scale(1.08);
+        }
 
         /* ── TRACKING STATS ──────────────────────── */
         .tracking-stat-card {
@@ -1155,7 +1182,7 @@
                             <h2 class="page-title"><i class="fas fa-file-alt" style="color:var(--blue-500);"></i> รูปแบบไฟล์ขออนุญาต</h2>
                             <div class="page-subtitle">แบบฟอร์มเอกสารสำหรับดาวน์โหลด</div>
                         </div>
-                        <button class="btn-modern-primary admin-only" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus"></i> เพิ่มแบบฟอร์ม</button>
+                        <button class="btn-modern-primary" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์ม</button>
                     </div>
                     <div class="row g-3" id="docTemplateCards">
                         <div class="col-12 text-center text-muted py-5">กำลังโหลดข้อมูล...</div>
@@ -1513,32 +1540,49 @@
     </div>
 
     <div class="modal fade" id="docTemplateModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i> เพิ่มแบบฟอร์มใหม่</h5></div>
-                <div class="modal-body">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--teal), var(--teal-dark)); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                    <h5 class="modal-title" id="docTplModalTitle"><i class="fas fa-file-alt me-2"></i> เพิ่มแบบฟอร์มใหม่</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
                     <form id="docTemplateForm" onsubmit="submitDocTplForm(event)">
-                        <div class="mb-3"><label class="form-label fw-bold">ชื่อแบบฟอร์ม <span class="text-danger">*</span></label><input type="text" class="form-control" id="docTplName" required placeholder="เช่น แบบขออนุมัติเบิกจ่าย"></div>
-                        <div class="mb-3"><label class="form-label fw-bold">คำอธิบาย</label><textarea class="form-control" id="docTplDesc" rows="2" placeholder="อธิบายรายละเอียดแบบฟอร์ม..."></textarea></div>
+                        <input type="hidden" id="docTplId" value="">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">เลือกไอคอน <span class="text-danger">*</span></label>
-                            <div class="d-flex flex-wrap gap-2" id="iconPicker">
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-pdf" title="PDF"><i class="fas fa-file-pdf text-danger"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-word" title="Word"><i class="fas fa-file-word text-primary"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-excel" title="Excel"><i class="fas fa-file-excel text-success"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-image" title="Image"><i class="fas fa-file-image text-info"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-invoice" title="Invoice"><i class="fas fa-file-invoice text-warning"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-contract" title="Contract"><i class="fas fa-file-contract text-dark"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-signature" title="Signature"><i class="fas fa-file-signature text-secondary"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-clipboard-check" title="Checklist"><i class="fas fa-clipboard-check text-success"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-money-check-alt" title="Money Check"><i class="fas fa-money-check-alt text-primary"></i></span>
-                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-receipt" title="Receipt"><i class="fas fa-receipt text-secondary"></i></span>
-                            </div>
-                            <input type="hidden" id="docTplIcon" value="fas fa-file-pdf">
+                            <label class="form-label fw-bold">ชื่อแบบฟอร์มเอกสาร <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="docTplName" required placeholder="เช่น แบบฟอร์มขออนุมัติโครงการ หรือ แบบเบิกจ่าย">
                         </div>
-                        <div class="mb-3"><label class="form-label fw-bold">URL ไฟล์ Google Drive <span class="text-danger">*</span></label><input type="url" class="form-control" id="docTplUrl" required placeholder="https://drive.google.com/..."></div>
-                        <hr>
-                        <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" class="btn-modern-success"><i class="fas fa-save"></i> บันทึก</button></div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">คำอธิบายประกอบ</label>
+                            <textarea class="form-control" id="docTplDesc" rows="2" placeholder="อธิบายรายละเอียด คำแนะนำ หรือขั้นตอนการใช้งานแบบฟอร์ม..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">เลือกประเภทไฟล์ / ไอคอน <span class="text-danger">*</span></label>
+                            <div class="d-flex flex-wrap gap-2" id="iconPicker">
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-word" title="Word"><i class="fas fa-file-word text-primary"></i> Word</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-pdf" title="PDF"><i class="fas fa-file-pdf text-danger"></i> PDF</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-excel" title="Excel"><i class="fas fa-file-excel text-success"></i> Excel</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-image" title="Image"><i class="fas fa-file-image text-info"></i> รูปภาพ</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-clipboard-check" title="Checklist"><i class="fas fa-clipboard-check text-success"></i> แบบประเมิน</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-money-check-alt" title="เบิกจ่าย"><i class="fas fa-money-check-alt text-primary"></i> เบิกจ่าย</span>
+                                <span class="icon-pick-item btn btn-outline-secondary" data-icon="fas fa-file-alt" title="เอกสารทั่วไป"><i class="fas fa-file-alt text-secondary"></i> ทั่วไป</span>
+                            </div>
+                            <input type="hidden" id="docTplIcon" value="fas fa-file-word">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ลิงก์ดาวน์โหลดไฟล์ (Google Drive / ลิงก์ตรง) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="docTplUrl" required placeholder="https://drive.google.com/file/d/... หรือ ลิงก์ไฟล์">
+                            <div class="form-text text-muted mt-2" style="font-size: 0.8rem; background: var(--slate-50); padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--teal);">
+                                <i class="fas fa-info-circle text-teal me-1"></i>
+                                <strong>คำแนะนำ:</strong> หากเป็นไฟล์ใน Google Drive ให้คลิกขวาที่ไฟล์ > แชร์ > ปรับสิทธิ์เป็น <strong>"ทุกคนที่มีลิงก์ (Anyone with link)"</strong> แล้วนำลิงก์มาวางที่นี่ได้ทันที
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="text-end">
+                            <button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" class="btn-modern-success"><i class="fas fa-save me-1"></i> บันทึกข้อมูล</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -2350,51 +2394,189 @@
         
         
         
+        let currentDocTemplates = [];
+
         function loadDocTemplates() {
             if (!isGAS) return; showLoader("กำลังโหลดแบบฟอร์ม...");
             
             const btnAdd = document.getElementById('btnAddDocTpl');
-            if (btnAdd) btnAdd.style.display = (currentUser && currentUser.role === 'ADMIN') ? '' : 'none';
-            const isAdmin = currentUser && currentUser.role === 'ADMIN';
+            if (btnAdd) btnAdd.style.display = 'inline-flex';
+
             google.script.run.withSuccessHandler(res => {
-                hideLoader(); const container = document.getElementById('docTemplateCards'); container.innerHTML = '';
-                if (res.success && res.data.length > 0) {
+                hideLoader();
+                const container = document.getElementById('docTemplateCards');
+                container.innerHTML = '';
+                if (res.success && res.data && res.data.length > 0) {
+                    currentDocTemplates = res.data;
                     res.data.forEach(doc => {
-                        const iconColors = { 'fas fa-file-pdf': '#ef4444', 'fas fa-file-word': '#3b82f6', 'fas fa-file-excel': '#22c55e', 'fas fa-file-image': '#06b6d4', 'fas fa-file-invoice': '#eab308', 'fas fa-file-contract': '#1e293b', 'fas fa-file-signature': '#6b7280', 'fas fa-clipboard-check': '#22c55e', 'fas fa-money-check-alt': '#3b82f6', 'fas fa-receipt': '#6b7280' };
-                        const bgGrad = iconColors[doc.icon] ? `linear-gradient(135deg, ${iconColors[doc.icon]}, ${iconColors[doc.icon]}cc)` : 'linear-gradient(135deg, #3b82f6, #6366f1)';
-                        const deleteBtn = isAdmin ? `<button class="doc-delete-btn" onclick="deleteDocTpl('${doc.id}')" title="ลบ"><i class="fas fa-times"></i></button>` : '';
+                        const iconColors = {
+                            'fas fa-file-pdf': '#ef4444',
+                            'fas fa-file-word': '#2563eb',
+                            'fas fa-file-excel': '#16a34a',
+                            'fas fa-file-image': '#0891b2',
+                            'fas fa-file-alt': '#64748b',
+                            'fas fa-clipboard-check': '#059669',
+                            'fas fa-money-check-alt': '#4f46e5',
+                            'fas fa-file-contract': '#334155',
+                            'fas fa-file-signature': '#475569',
+                            'fas fa-file-invoice': '#d97706',
+                            'fas fa-receipt': '#64748b'
+                        };
+                        const iconClass = doc.icon || 'fas fa-file-word';
+                        const bgGrad = iconColors[iconClass] ? `linear-gradient(135deg, ${iconColors[iconClass]}, ${iconColors[iconClass]}cc)` : 'linear-gradient(135deg, #2563eb, #6366f1)';
+                        const downloadUrl = (doc.url && doc.url !== '#') ? doc.url : 'javascript:void(0)';
+                        const targetAttr = (doc.url && doc.url !== '#') ? 'target="_blank" rel="noopener noreferrer"' : '';
+                        
                         container.innerHTML += `
-                            <div class="col-md-4 col-lg-3">
-                                <div class="doc-card">
-                                    ${deleteBtn}
-                                    <div class="doc-icon" style="background: ${bgGrad};"><i class="${doc.icon}"></i></div>
-                                    <div class="doc-title">${doc.name}</div>
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="doc-card position-relative">
+                                    <div class="doc-card-actions">
+                                        <button type="button" class="doc-card-action-btn edit" onclick="editDocTpl('${doc.id}')" title="แก้ไขแบบฟอร์ม">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="doc-card-action-btn delete" onclick="deleteDocTpl('${doc.id}')" title="ลบแบบฟอร์ม">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="doc-icon" style="background: ${bgGrad};"><i class="${iconClass}"></i></div>
+                                    <div class="doc-title text-truncate" title="${doc.name}">${doc.name}</div>
                                     <div class="doc-desc">${doc.desc || 'ไม่มีคำอธิบาย'}</div>
-                                    <a href="${doc.url}" target="_blank" class="doc-btn"><i class="fas fa-download me-1"></i> ดาวน์โหลด</a>
+                                    <a href="${downloadUrl}" ${targetAttr} class="doc-btn w-100 text-center">
+                                        <i class="fas fa-download me-1"></i> ดาวน์โหลดไฟล์
+                                    </a>
                                 </div>
                             </div>`;
                     });
-                } else { container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="fas fa-inbox fa-3x mb-3 d-block" style="opacity:0.3;"></i>ยังไม่มีแบบฟอร์ม คลิก "เพิ่มแบบฟอร์ม" เพื่อเริ่มต้น</div>'; }
+                } else {
+                    currentDocTemplates = [];
+                    container.innerHTML = `
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="fas fa-file-circle-plus fa-3x mb-3 d-block" style="color:var(--slate-400);"></i>
+                            <h5>ยังไม่มีแบบฟอร์มเอกสาร</h5>
+                            <p class="text-muted" style="font-size:0.88rem;">สามารถเพิ่มแบบฟอร์มสำหรับดาวน์โหลดได้ทันที</p>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="openDocTplModal()">
+                                <i class="fas fa-plus-circle me-1"></i> เพิ่มแบบฟอร์มแรก
+                            </button>
+                        </div>`;
+                }
             }).getDocTemplates();
         }
 
         function openDocTplModal() { 
-            if (!checkAdminPermission()) return;
             document.getElementById('docTemplateForm').reset(); 
+            document.getElementById('docTplId').value = '';
+            document.getElementById('docTplIcon').value = 'fas fa-file-word';
+            document.getElementById('docTplModalTitle').innerHTML = '<i class="fas fa-file-alt me-2"></i> เพิ่มแบบฟอร์มใหม่';
+            
+            document.querySelectorAll('#iconPicker .icon-pick-item').forEach((el, idx) => {
+                if (el.getAttribute('data-icon') === 'fas fa-file-word') {
+                    el.classList.remove('btn-outline-secondary');
+                    el.classList.add('btn-primary');
+                } else {
+                    el.classList.remove('btn-primary');
+                    el.classList.add('btn-outline-secondary');
+                }
+            });
+
             docTplModal.show(); 
         }
+
+        function editDocTpl(id) {
+            const doc = currentDocTemplates.find(d => String(d.id) === String(id));
+            if (!doc) return;
+            document.getElementById('docTplId').value = doc.id;
+            document.getElementById('docTplName').value = doc.name || '';
+            document.getElementById('docTplDesc').value = doc.desc || '';
+            document.getElementById('docTplUrl').value = doc.url || '';
+            const iconVal = doc.icon || 'fas fa-file-word';
+            document.getElementById('docTplIcon').value = iconVal;
+            document.getElementById('docTplModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i> แก้ไขแบบฟอร์ม';
+            
+            document.querySelectorAll('#iconPicker .icon-pick-item').forEach(el => {
+                if (el.getAttribute('data-icon') === iconVal) {
+                    el.classList.remove('btn-outline-secondary');
+                    el.classList.add('btn-primary');
+                } else {
+                    el.classList.remove('btn-primary');
+                    el.classList.add('btn-outline-secondary');
+                }
+            });
+
+            docTplModal.show();
+        }
+
         function submitDocTplForm(e) {
             e.preventDefault(); 
-            if (!checkAdminPermission()) return;
-            if (!isGAS) return; showLoader("กำลังบันทึก...");
-            const data = { name: document.getElementById('docTplName').value, desc: document.getElementById('docTplDesc').value, icon: document.getElementById('docTplIcon').value, url: document.getElementById('docTplUrl').value, uploadedBy: currentUser.name };
-            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); docTplModal.hide(); loadDocTemplates(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDocTemplate(data);
+            if (!isGAS) return;
+            showLoader("กำลังบันทึกข้อมูลแบบฟอร์ม...");
+            const id = document.getElementById('docTplId').value;
+            let fileUrl = document.getElementById('docTplUrl').value.trim();
+            if (fileUrl && !fileUrl.startsWith('http://') && !fileUrl.startsWith('https://') && fileUrl !== '#') {
+                fileUrl = 'https://' + fileUrl;
+            }
+
+            const data = { 
+                name: document.getElementById('docTplName').value.trim(), 
+                desc: document.getElementById('docTplDesc').value.trim(), 
+                icon: document.getElementById('docTplIcon').value || 'fas fa-file-word', 
+                url: fileUrl, 
+                uploadedBy: (currentUser && currentUser.name) ? currentUser.name : 'ผู้ดูแลระบบ' 
+            };
+            if (id) {
+                data.id = id;
+            }
+
+            google.script.run.withSuccessHandler(res => { 
+                hideLoader(); 
+                if (res.success) { 
+                    if (window.FAST_CACHE) window.FAST_CACHE.invalidateEntity('doctemplates');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: res.message || 'บันทึกแบบฟอร์มเรียบร้อยแล้ว',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }); 
+                    docTplModal.hide(); 
+                    loadDocTemplates(); 
+                } else { 
+                    Swal.fire('ข้อผิดพลาด', res.error || 'เกิดข้อผิดพลาดในการบันทึก', 'error'); 
+                } 
+            }).saveDocTemplate(data);
         }
 
         function deleteDocTpl(id) {
-            if (!checkAdminPermission()) return;
-            Swal.fire({ title: 'ยืนยันการลบ?', text: 'ลบแบบฟอร์มนี้?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
-                .then(result => { if (result.isConfirmed) { showLoader("กำลังลบ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadDocTemplates(); } }).deleteDocTemplate(id); } });
+            const doc = currentDocTemplates.find(d => String(d.id) === String(id));
+            const docName = doc ? ` "${doc.name}"` : '';
+            Swal.fire({ 
+                title: 'ยืนยันการลบ?', 
+                text: `คุณต้องการลบแบบฟอร์ม${docName} ใช่หรือไม่?`, 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonText: 'ใช่, ลบเลย!', 
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#ef4444' 
+            }).then(result => { 
+                if (result.isConfirmed) { 
+                    showLoader("กำลังลบแบบฟอร์ม..."); 
+                    google.script.run.withSuccessHandler(res => { 
+                        hideLoader(); 
+                        if (res.success) { 
+                            if (window.FAST_CACHE) window.FAST_CACHE.invalidateEntity('doctemplates');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ลบแล้ว!',
+                                text: res.message || 'ลบแบบฟอร์มเรียบร้อยแล้ว',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }); 
+                            loadDocTemplates(); 
+                        } else {
+                            Swal.fire('ข้อผิดพลาด', res.error || 'เกิดข้อผิดพลาดในการลบ', 'error');
+                        }
+                    }).deleteDocTemplate(id); 
+                } 
+            });
         }
 
         
