@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบริหารจัดการงบประมาณของสถานศึกษา</title>
     <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="alternate icon" type="image/png" href="images/favicon.png">
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -258,7 +259,45 @@
         #loader-text { color:var(--ink-2); font-weight:500; font-size:0.9rem; }
 
         /* ── WRAPPER / MAIN LAYOUT ───────────────── */
-        #wrapper { display:none; height:100vh; flex-direction:column; }
+        #login-screen { display: none !important; }
+        #wrapper { display: flex; height: 100vh; flex-direction: column; }
+
+        /* ── ADMIN / GUEST ACCESS STYLES ─────────── */
+        body:not(.is-admin) .admin-only {
+            display: none !important;
+        }
+        body.is-admin .not-admin-only {
+            display: none !important;
+        }
+        body.is-admin #btnAdminLogin {
+            display: none !important;
+        }
+        body:not(.is-admin) #adminProfileWrapper {
+            display: none !important;
+        }
+        .btn-admin-login {
+            background: var(--teal-soft);
+            color: var(--teal-dark);
+            border: 1.5px solid var(--teal-mid);
+            padding: 7px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            font-family: 'Prompt', sans-serif;
+            text-decoration: none;
+        }
+        .btn-admin-login:hover {
+            background: var(--teal);
+            color: white;
+            border-color: var(--teal);
+            box-shadow: 0 4px 14px rgba(13,148,136,0.25);
+            transform: translateY(-1px);
+        }
 
         /* ── TOPBAR ──────────────────────────────── */
         .topbar {
@@ -747,38 +786,6 @@
     </div>
 
     
-    <div id="login-screen">
-        <!-- Left: Brand Panel -->
-        <div class="login-panel-left">
-            <div class="login-brand-icon"><i class="fas fa-school"></i></div>
-            <div class="login-brand-title">ระบบบริหารจัดการงบประมาณ</div>
-            <div class="login-brand-sub">โรงเรียนมหาชัยพิทยาคาร<br>สำนักงานเขตพื้นที่การศึกษามัธยมศึกษามหาสารคาม</div>
-            <div class="login-brand-dev">พัฒนาโดย ครูก้องนที อุ่นเจริญ</div>
-        </div>
-        <!-- Right: Form Panel -->
-        <div class="login-panel-right">
-            <div class="login-form-box">
-                <div class="form-eyebrow">Budget Management System</div>
-                <h1>เข้าสู่ระบบ</h1>
-                <div class="login-hint">กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าใช้งาน</div>
-                <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="field-group">
-                        <label class="field-label">ชื่อผู้ใช้งาน</label>
-                        <input type="text" id="username" required placeholder="กรอกชื่อผู้ใช้" autocomplete="username">
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">รหัสผ่าน</label>
-                        <input type="password" id="password" required placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
-                    </div>
-                    <button type="submit" class="login-submit-btn">
-                        <i class="fas fa-arrow-right-to-bracket" style="margin-right:8px;"></i> เข้าสู่ระบบ
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    
     <div id="wrapper">
         
         <div class="topbar">
@@ -797,7 +804,7 @@
                 <input type="text" placeholder="ค้นหาโครงการ, หมวดหมู่งบประมาณ...">
             </div>
             <div class="topbar-actions">
-                <div class="notif-wrapper">
+                <div class="notif-wrapper admin-only" style="display:none;">
                     <button class="notif-btn" id="notifBellBtn" title="การแจ้งเตือน" onclick="toggleNotifDropdown()">
                         <i class="fas fa-bell"></i>
                         <span class="dot" id="notifDot" style="display:none;"></span>
@@ -813,15 +820,25 @@
                     </div>
                 </div>
                 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifDropdown()"></div>
-                <div class="topbar-divider"></div>
-                <div class="user-profile">
-                    <div class="avatar-circle" id="userInitial">?</div>
-                    <div class="d-none d-sm-block">
-                        <div class="name" id="userFullName">กำลังโหลด...</div>
-                        <div class="role" id="userRole">ROLE</div>
+
+                <!-- Admin Login Button (Visible for Guest / View-only mode) -->
+                <button id="btnAdminLogin" class="btn-admin-login" onclick="openAdminLoginModal()" title="เข้าสู่ระบบสำหรับผู้ดูแล">
+                    <i class="fas fa-user-shield"></i>
+                    <span>เข้าสู่ระบบ (Admin)</span>
+                </button>
+
+                <!-- Admin Profile & Logout (Visible when Admin is logged in) -->
+                <div id="adminProfileWrapper" class="d-flex align-items-center gap-2 admin-only" style="display:none;">
+                    <div class="topbar-divider"></div>
+                    <div class="user-profile">
+                        <div class="avatar-circle" id="userInitial">A</div>
+                        <div class="d-none d-sm-block text-start">
+                            <div class="name" id="userFullName">ผู้ดูแลระบบ</div>
+                            <div class="role badge bg-primary text-white" id="userRole" style="font-size:0.65rem; padding:2px 6px;">ADMIN</div>
+                        </div>
                     </div>
+                    <button class="logout-btn" onclick="handleLogout()" title="ออกจากระบบผู้ดูแล"><i class="fas fa-power-off"></i></button>
                 </div>
-                <button class="logout-btn" onclick="handleLogout()" title="ออกจากระบบ"><i class="fas fa-power-off"></i></button>
             </div>
         </div>
 
@@ -963,7 +980,7 @@
                             <h2 class="page-title"><i class="fas fa-hand-holding-usd" style="color:var(--emerald-500);"></i> จัดสรรงบประมาณ</h2>
                             <div class="page-subtitle">บันทึกยอดจัดสรรงบประมาณที่ได้รับในปีปัจจุบัน</div>
                         </div>
-                        <button class="btn-modern-success" onclick="openAllocationModal()"><i class="fas fa-plus"></i> เพิ่มยอดจัดสรร</button>
+                        <button class="btn-modern-success admin-only" onclick="openAllocationModal()"><i class="fas fa-plus"></i> เพิ่มยอดจัดสรร</button>
                     </div>
                     <div class="alloc-table-container">
                         <div class="alloc-header-panel">
@@ -981,7 +998,10 @@
 
                 
                 <div id="view-projects" class="view-section" style="display: none;">
-                    <div class="panel" style="max-width: 800px; margin: 0 auto;">
+                    <div class="alert alert-info text-center py-4 my-3 not-admin-only" style="border-radius:var(--radius-lg);">
+                        <i class="fas fa-lock me-2"></i>เมนูสร้างโครงการ/กิจกรรม เปิดให้เฉพาะผู้ดูแลระบบ (Admin) เท่านั้น
+                    </div>
+                    <div class="panel admin-only" style="max-width: 800px; margin: 0 auto;">
                         <div class="panel-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="panel-title"><i class="fas fa-folder-plus" style="color:var(--blue-500);"></i> สร้างโครงการ/กิจกรรมใหม่</div>
                             <div class="mt-2 mt-sm-0">
@@ -1014,7 +1034,7 @@
 
                 
                 <div id="view-utilities" class="view-section" style="display: none;">
-                    <div class="panel mb-4">
+                    <div class="panel mb-4 admin-only">
                         <div class="panel-header">
                             <div class="panel-title"><i class="fas fa-plus-circle" style="color:var(--blue-500);"></i> บันทึกค่าสาธารณูปโภค</div>
                         </div>
@@ -1086,7 +1106,7 @@
                             <h2 class="page-title"><i class="fas fa-sitemap" style="color:var(--blue-500);"></i> ข้อมูลกลุ่มงาน/ฝ่าย</h2>
                             <div class="page-subtitle">จัดการข้อมูลกลุ่มงานภายในสถานศึกษา</div>
                         </div>
-                        <button class="btn-modern-primary" onclick="openDeptModal()"><i class="fas fa-plus"></i> เพิ่มกลุ่มงาน</button>
+                        <button class="btn-modern-primary admin-only" onclick="openDeptModal()"><i class="fas fa-plus"></i> เพิ่มกลุ่มงาน</button>
                     </div>
                     <div class="panel">
                         <div class="table-responsive">
@@ -1105,7 +1125,7 @@
                             <h2 class="page-title"><i class="fas fa-file-alt" style="color:var(--blue-500);"></i> รูปแบบไฟล์ขออนุญาต</h2>
                             <div class="page-subtitle">แบบฟอร์มเอกสารสำหรับดาวน์โหลด</div>
                         </div>
-                        <button class="btn-modern-primary" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus"></i> เพิ่มแบบฟอร์ม</button>
+                        <button class="btn-modern-primary admin-only" id="btnAddDocTpl" onclick="openDocTplModal()"><i class="fas fa-plus"></i> เพิ่มแบบฟอร์ม</button>
                     </div>
                     <div class="row g-3" id="docTemplateCards">
                         <div class="col-12 text-center text-muted py-5">กำลังโหลดข้อมูล...</div>
@@ -1119,7 +1139,7 @@
                             <h2 class="page-title"><i class="fas fa-file-upload" style="color:var(--blue-500);"></i> การเสนอโครงการ</h2>
                             <div class="page-subtitle">จัดการข้อเสนอโครงการและการอนุมัติ</div>
                         </div>
-                        <button class="btn-modern-primary" onclick="openProposalModal()"><i class="fas fa-plus"></i> ส่งข้อเสนอใหม่</button>
+                        <button class="btn-modern-primary admin-only" onclick="openProposalModal()"><i class="fas fa-plus"></i> ส่งข้อเสนอใหม่</button>
                     </div>
                     <div class="panel">
                         <div class="table-responsive">
@@ -1226,7 +1246,7 @@
                             <h2 class="page-title"><i class="fas fa-check-double" style="color:var(--blue-500);"></i> อนุมัติเบิกจ่าย</h2>
                             <div class="page-subtitle">จัดการคำขอเบิกจ่ายงบประมาณ</div>
                         </div>
-                        <button class="btn-modern-primary" onclick="openDisbursementModal()"><i class="fas fa-plus"></i> ส่งคำขอเบิกจ่าย</button>
+                        <button class="btn-modern-primary admin-only" onclick="openDisbursementModal()"><i class="fas fa-plus"></i> ส่งคำขอเบิกจ่าย</button>
                     </div>
                     
                     <div class="row g-3 mb-4">
@@ -1253,7 +1273,7 @@
                             <h2 class="page-title"><i class="fas fa-user-shield" style="color:var(--blue-500);"></i> จัดการสิทธิ์เมนูตาม Role</h2>
                             <div class="page-subtitle">กำหนดสิทธิ์การเข้าถึงเมนูสำหรับแต่ละ Role</div>
                         </div>
-                        <div>
+                        <div class="admin-only">
                             <button class="btn-modern-primary me-2" onclick="switchView('users'); openUserModal();"><i class="fas fa-user-plus"></i> เพิ่มผู้ใช้งาน</button>
                             <button class="btn-modern-success" onclick="savePermissions()"><i class="fas fa-save"></i> บันทึกสิทธิ์</button>
                         </div>
@@ -1278,7 +1298,7 @@
                             <h2 class="page-title"><i class="fas fa-users" style="color:var(--blue-500);"></i> จัดการผู้ใช้งาน</h2>
                             <div class="page-subtitle">จัดการรายชื่อผู้ใช้ รหัสผ่าน และสิทธิ์การเข้าถึง</div>
                         </div>
-                        <button class="btn-modern-primary" onclick="openUserModal()"><i class="fas fa-user-plus"></i> เพิ่มผู้ใช้งาน</button>
+                        <button class="btn-modern-primary admin-only" onclick="openUserModal()"><i class="fas fa-user-plus"></i> เพิ่มผู้ใช้งาน</button>
                     </div>
                     <div class="panel">
                         <div class="table-responsive">
@@ -1308,7 +1328,7 @@
                             <h2 class="page-title"><i class="fas fa-wallet" style="color:var(--blue-500);"></i> จัดการแหล่งงบประมาณ</h2>
                             <div class="page-subtitle">จัดการรายชื่อประเภทเงิน/แหล่งงบประมาณที่ได้รับ</div>
                         </div>
-                        <button class="btn-modern-primary" onclick="openBudgetSourceModal()"><i class="fas fa-plus"></i> เพิ่มแหล่งงบประมาณ</button>
+                        <button class="btn-modern-primary admin-only" onclick="openBudgetSourceModal()"><i class="fas fa-plus"></i> เพิ่มแหล่งงบประมาณ</button>
                     </div>
                     <div class="panel">
                         <div class="table-responsive">
@@ -1330,6 +1350,38 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+            <div class="modal-content">
+                <div class="modal-header-modern d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title mb-0"><i class="fas fa-user-shield" style="color:var(--teal);"></i> เข้าสู่ระบบสำหรับ Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert mb-3" style="background-color: var(--teal-soft); color: var(--teal-dark); font-size: 0.82rem; border-radius: 10px; border:none;">
+                        <i class="fas fa-info-circle me-1"></i> เข้าสู่ระบบเฉพาะผู้ดูแลเพื่อปลดล็อคสิทธิ์การแก้ไขข้อมูล
+                    </div>
+                    <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size:0.85rem;">ชื่อผู้ใช้งาน (Username)</label>
+                            <input type="text" class="form-control" id="adminUsername" required placeholder="admin" autocomplete="username">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size:0.85rem;">รหัสผ่าน (Password)</label>
+                            <input type="password" class="form-control" id="adminPassword" required placeholder="••••" autocomplete="current-password">
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn-modern-primary justify-content-center">
+                                <i class="fas fa-arrow-right-to-bracket me-1"></i> เข้าสู่ระบบ
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -1603,21 +1655,28 @@
 
             let savedUser = sessionStorage.getItem('currentUser');
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                if (currentUser && currentUser.role) currentUser.role = String(currentUser.role).trim().toUpperCase();
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('wrapper').style.display = 'flex';
-                document.getElementById('userFullName').innerText = currentUser.name;
-                document.getElementById('userRole').innerText = currentUser.role;
-                document.getElementById('userInitial').innerText = currentUser.name ? currentUser.name.charAt(0) : '?';
-                
-                loadMenuPermissions(() => { 
-                    switchView('dashboard'); 
-                    loadNotifications(); 
-                    loadBudgetTypeOptions();
-                    resetSessionTimeout(); 
-                });
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    if (currentUser && currentUser.role) currentUser.role = String(currentUser.role).trim().toUpperCase();
+                } catch(e) { currentUser = null; }
             }
+            if (!currentUser || currentUser.role !== 'ADMIN') {
+                currentUser = { name: 'ผู้เยี่ยมชม (Guest)', role: 'GUEST' };
+            }
+
+            document.getElementById('wrapper').style.display = 'flex';
+            updateUIForRole();
+            applyMenuPermissions();
+
+            loadMenuPermissions(() => {
+                switchView('dashboard');
+                loadBudgetTypeOptions();
+                if (currentUser && currentUser.role === 'ADMIN') {
+                    loadNotifications();
+                    resetSessionTimeout();
+                }
+            });
+
             document.querySelectorAll('.icon-pick-item').forEach(item => {
                 item.addEventListener('click', function () {
                     document.querySelectorAll('.icon-pick-item').forEach(el => el.classList.remove('btn-primary'));
@@ -1629,33 +1688,103 @@
             });
         });
 
-        
-        
-        
-        function handleLogin(event) {
+        function updateUIForRole() {
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
+            document.body.classList.toggle('is-admin', isAdmin);
+
+            const btnAdmin = document.getElementById('btnAdminLogin');
+            const adminProfile = document.getElementById('adminProfileWrapper');
+            const notifWrap = document.querySelector('.notif-wrapper');
+
+            if (isAdmin) {
+                if (btnAdmin) btnAdmin.style.display = 'none';
+                if (adminProfile) adminProfile.style.display = 'flex';
+                if (notifWrap) notifWrap.style.display = 'block';
+                const nameEl = document.getElementById('userFullName');
+                const roleEl = document.getElementById('userRole');
+                const initEl = document.getElementById('userInitial');
+                if (nameEl) nameEl.innerText = currentUser.name || 'ผู้ดูแลระบบ';
+                if (roleEl) roleEl.innerText = 'ADMIN';
+                if (initEl) initEl.innerText = currentUser.name ? currentUser.name.charAt(0) : 'A';
+            } else {
+                if (btnAdmin) btnAdmin.style.display = 'inline-flex';
+                if (adminProfile) adminProfile.style.display = 'none';
+                if (notifWrap) notifWrap.style.display = 'none';
+            }
+        }
+
+        function checkAdminPermission() {
+            if (!currentUser || currentUser.role !== 'ADMIN') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'โหมดดูข้อมูลเท่านั้น (Read-Only)',
+                    text: 'เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถบันทึกหรือแก้ไขข้อมูลได้',
+                    confirmButtonText: 'เข้าสู่ระบบ Admin',
+                    showCancelButton: true,
+                    cancelButtonText: 'ปิด',
+                    confirmButtonColor: '#0d9488'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        openAdminLoginModal();
+                    }
+                });
+                return false;
+            }
+            return true;
+        }
+
+        function openAdminLoginModal() {
+            const form = document.getElementById('adminLoginForm');
+            if (form) form.reset();
+            const modalEl = document.getElementById('adminLoginModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        function handleAdminLogin(event) {
             event.preventDefault();
             if (!isGAS) return Swal.fire('Error', 'ต้องรันผ่าน Google Apps Script', 'error');
-            showLoader("กำลังเข้าสู่ระบบ...");
+            const u = document.getElementById('adminUsername').value.trim();
+            const p = document.getElementById('adminPassword').value.trim();
+            showLoader("กำลังตรวจสอบสิทธิ์...");
             google.script.run.withSuccessHandler(res => {
                 hideLoader();
                 if (res.success) {
-                    currentUser = res.user;
-                    if (currentUser && currentUser.role) currentUser.role = String(currentUser.role).trim().toUpperCase();
+                    const user = res.user;
+                    const role = String(user.role).trim().toUpperCase();
+                    if (role !== 'ADMIN') {
+                        Swal.fire('สิทธิ์ไม่เพียงพอ', 'เฉพาะบัญชีระดับ ADMIN เท่านั้นที่สามารถจัดการข้อมูลได้', 'warning');
+                        return;
+                    }
+                    currentUser = user;
+                    currentUser.role = 'ADMIN';
                     sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('wrapper').style.display = 'flex';
-                    document.getElementById('userFullName').innerText = currentUser.name;
-                    document.getElementById('userRole').innerText = currentUser.role;
-                    document.getElementById('userInitial').innerText = currentUser.name ? currentUser.name.charAt(0) : '?';
-                    
-                    loadMenuPermissions(() => { 
-                        switchView('dashboard'); 
-                        loadNotifications(); 
-                        loadBudgetTypeOptions();
-                        resetSessionTimeout(); // Start inactivity timer
+
+                    const modalEl = document.getElementById('adminLoginModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    updateUIForRole();
+                    applyMenuPermissions();
+                    loadNotifications();
+                    resetSessionTimeout();
+
+                    // Reload active view to render admin controls
+                    const activeMenu = document.querySelector('.sidebar-menu > li.active, .sidebar-submenu li.active');
+                    const curView = activeMenu ? activeMenu.getAttribute('data-menu') : 'dashboard';
+                    switchView(curView);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เข้าสู่ระบบสำเร็จ',
+                        text: 'ยินดีต้อนรับผู้ดูแลระบบ (' + (currentUser.name || 'Admin') + ')',
+                        timer: 1600,
+                        showConfirmButton: false
                     });
-                } else { Swal.fire('ล้มเหลว', res.message, 'error'); }
-            }).loginUser(document.getElementById('username').value, document.getElementById('password').value);
+                } else {
+                    Swal.fire('เข้าสู่ระบบไม่สำเร็จ', res.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+                }
+            }).loginUser(u, p);
         }
 
         let sessionTimeoutTimer;
@@ -1663,61 +1792,49 @@
 
         function resetSessionTimeout() {
             clearTimeout(sessionTimeoutTimer);
-            if (currentUser && document.getElementById('login-screen').style.display === 'none') {
+            if (currentUser && currentUser.role === 'ADMIN') {
                 sessionTimeoutTimer = setTimeout(() => {
-                    Swal.fire('หมดเวลาเซสชั่น', 'คุณไม่ได้ใช้งานระบบเป็นเวลา 10 นาที ระบบได้นำคุณออกจากระบบเพื่อความปลอดภัย', 'warning').then(() => {
+                    Swal.fire('หมดเวลาเซสชั่น', 'คุณไม่ได้ใช้งานระบบเป็นเวลา 10 นาที ระบบได้นำคุณออกจากระบบแอดมินเพื่อความปลอดภัย', 'warning').then(() => {
                         forceLogout();
                     });
                 }, SESSION_TIMEOUT_MS);
             }
         }
 
-        // Add event listeners to reset timer on user activity
         ['mousemove', 'keypress', 'click', 'scroll'].forEach(evt => document.addEventListener(evt, resetSessionTimeout));
 
         function forceLogout() {
-            currentUser = null;
+            currentUser = { name: 'ผู้เยี่ยมชม (Guest)', role: 'GUEST' };
             sessionStorage.removeItem('currentUser');
-            menuPermissions = [];
             clearTimeout(sessionTimeoutTimer);
-            document.getElementById('wrapper').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('loginForm').reset();
-            document.getElementById('userFullName').innerText = '';
-            document.getElementById('userRole').innerText = '';
-            document.getElementById('userInitial').innerText = '?';
-            
-            document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
-            document.getElementById('view-dashboard').style.display = 'block';
-            
-            document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
-            const dashItem = document.querySelector('li[data-menu="dashboard"]');
-            if(dashItem) dashItem.classList.add('active');
-            
-            if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-            if (centralChartInstance) { centralChartInstance.destroy(); centralChartInstance = null; }
-            if (trackingChartInstance) { trackingChartInstance.destroy(); trackingChartInstance = null; }
-            
-            // Re-render empty state for desktop view logic if needed
-            const w = window.innerWidth;
-            if(w <= 768) {
-                document.getElementById('sidebar').classList.remove('show');
-                document.getElementById('main-content').classList.remove('shifted');
-            }
+            updateUIForRole();
+            applyMenuPermissions();
+            switchView('dashboard');
         }
 
         function handleLogout() {
-            Swal.fire({ title: 'ออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonText: 'ใช่', cancelButtonText: 'ยกเลิก', confirmButtonColor: '#2563eb' })
-                .then(res => {
-                    if (res.isConfirmed) {
-                        forceLogout();
-                    }
-                });
+            Swal.fire({
+                title: 'ออกจากระบบผู้ดูแล?',
+                text: 'ระบบจะกลับสู่โหมดดูข้อมูลทั่วไป (Read-only)',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ออกจากระบบ',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#0d9488'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    forceLogout();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ออกจากระบบแล้ว',
+                        text: 'เข้าสู่โหมดดูข้อมูลทั่วไปเรียบร้อยแล้ว',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
         }
 
-        
-        
-        
         function loadMenuPermissions(callback) {
             if (!isGAS) { if (callback) callback(); return; }
             google.script.run.withSuccessHandler(res => {
@@ -1730,30 +1847,31 @@
         }
 
         function applyMenuPermissions() {
-            if (!currentUser || menuPermissions.length === 0) return;
-            const role = String(currentUser.role).trim().toUpperCase();
-            const menuItems = document.querySelectorAll('.sidebar-menu > li[data-menu], .sidebar-submenu li[data-menu]');
-            menuItems.forEach(item => {
-                const menuKey = item.getAttribute('data-menu');
-                const perm = menuPermissions.find(p => p.menuKey === menuKey);
-                if (perm) {
-                    const allowed = perm[role];
-                    if (!allowed) {
-                        item.style.display = 'none';
-                    } else {
-                        item.style.display = '';
-                    }
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
+
+            if (isAdmin) {
+                document.querySelectorAll('.sidebar-menu > li, .sidebar-submenu li').forEach(item => {
+                    item.style.display = '';
+                });
+                const settingsMenu = document.querySelector('li[data-menu="settings"]');
+                if (settingsMenu) settingsMenu.style.display = '';
+                return;
+            }
+
+            // Non-admin (Guest/Read-only):
+            // Hide admin-only setting menus
+            const adminOnlyMenus = ['settings', 'projects'];
+            document.querySelectorAll('.sidebar-menu > li[data-menu]').forEach(item => {
+                const key = item.getAttribute('data-menu');
+                if (adminOnlyMenus.includes(key)) {
+                    item.style.display = 'none';
+                } else {
+                    item.style.display = '';
                 }
             });
-            
-            document.querySelectorAll('.sidebar-submenu').forEach(sub => {
-                const visibleChildren = sub.querySelectorAll('li:not([style*="display: none"])');
-                const parentToggle = sub.previousElementSibling;
-                if (visibleChildren.length === 0 && parentToggle) {
-                    parentToggle.style.display = 'none';
-                    sub.style.display = 'none';
-                }
-            });
+
+            const subSettings = document.getElementById('submenu-settings');
+            if (subSettings) subSettings.style.display = 'none';
         }
 
         
@@ -1851,7 +1969,7 @@
                         total += row.amount; 
                         let badge = row.budgetType.includes("อุดหนุน") ? "badge-udnun" : (row.budgetType.includes("กลาง") ? "badge-klang" : "badge-default"); 
                         let actionBtns = '';
-                        if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                        if (currentUser && currentUser.role === 'ADMIN') {
                             actionBtns = `<button class="btn btn-sm btn-outline-primary mx-1" style="border-radius:6px; padding:2px 8px;" onclick="editAllocation('${row.id}')" title="แก้ไข"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:6px; padding:2px 8px;" onclick="deleteAllocData('${row.id}')" title="ลบ"><i class="fas fa-trash"></i></button>`;
                         } else {
                             actionBtns = `<span class="text-muted">-</span>`;
@@ -1867,6 +1985,7 @@
         }
 
         function openAllocationModal() { 
+            if (!checkAdminPermission()) return;
             document.getElementById('allocationForm').reset(); 
             document.getElementById('allocId').value = '';
             
@@ -1875,12 +1994,15 @@
         }
         function closeAllocationModal() { allocModal.hide(); }
         function submitAllocationForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึกยอด...");
+            e.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return; showLoader("กำลังบันทึกยอด...");
             const data = { id: document.getElementById('allocId').value, date: document.getElementById('allocDate').value, budgetType: document.getElementById('allocBudgetType').value, description: document.getElementById('allocDesc').value, amount: document.getElementById('allocAmount').value, recordedBy: currentUser.name };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); closeAllocationModal(); loadAllocationData(); } }).saveAllocation(data);
         }
 
         function editAllocation(id) {
+            if (!checkAdminPermission()) return;
             const alloc = currentAllocations.find(a => a.id === id);
             if (!alloc) return;
             document.getElementById('allocId').value = alloc.id;
@@ -1888,9 +2010,6 @@
             document.getElementById('allocDesc').value = alloc.description;
             document.getElementById('allocAmount').value = alloc.amount;
             if (allocDatePicker) {
-                
-                
-                
                 document.getElementById('allocDate').value = alloc.date;
                 allocDatePicker.setDate(alloc.date, true, "d M Y");
             }
@@ -1898,6 +2017,7 @@
         }
 
         function deleteAllocData(id) {
+            if (!checkAdminPermission()) return;
             Swal.fire({ title: 'ยืนยันการลบ?', text: "การลบจะหักยอดเงินออกจากงบประมาณด้วย ดำเนินการต่อหรือไม่?", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
                 .then((result) => { 
                     if (result.isConfirmed) { 
@@ -1915,7 +2035,9 @@
         
         
         function submitProjectForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("บันทึกโครงการ...");
+            e.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return; showLoader("บันทึกโครงการ...");
             const data = { 
                 name: document.getElementById('formProjName').value, 
                 budgetType: document.getElementById('formBudgetType').value, 
@@ -2045,20 +2167,24 @@
         
         function loadUtilitiesData() {
             if (!isGAS) return; showLoader("กำลังโหลดประวัติสาธารณูปโภค...");
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
             google.script.run.withSuccessHandler(res => {
                 hideLoader(); const tbody = document.getElementById('utilityTableBody'); tbody.innerHTML = '';
                 if (res.success && res.data.length > 0) {
                     res.data.forEach(row => {
                         let iconHTML = ''; if (row.type === 'ค่าไฟฟ้า') iconHTML = '<i class="fas fa-bolt me-2" style="color:var(--amber-500);"></i>'; else if (row.type === 'ค่าน้ำประปา') iconHTML = '<i class="fas fa-tint text-info me-2"></i>'; else if (row.type === 'ค่าโทรศัพท์/อินเทอร์เน็ต') iconHTML = '<i class="fas fa-globe me-2" style="color:var(--blue-500);"></i>'; else iconHTML = '<i class="fas fa-building text-secondary me-2"></i>';
                         let badgeClass = row.budgetType.includes('กลาง') ? 'badge-klang' : 'badge-udnun';
-                        tbody.innerHTML += `<tr><td style="color:var(--slate-700);">${row.month} ${row.year}</td><td class="fw-bold" style="font-size:0.85rem;">${iconHTML} ${row.type}</td><td><span class="badge ${badgeClass}" style="font-size:0.7rem;">${row.budgetType}</span></td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(row.amount)} ฿</td><td class="text-center"><button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:8px;" onclick="deleteUtility('${row.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+                        const actionBtns = isAdmin ? `<button class="btn btn-sm btn-outline-danger mx-1" style="border-radius:8px;" onclick="deleteUtility('${row.id}')"><i class="fas fa-trash"></i></button>` : `<span class="text-muted">-</span>`;
+                        tbody.innerHTML += `<tr><td style="color:var(--slate-700);">${row.month} ${row.year}</td><td class="fw-bold" style="font-size:0.85rem;">${iconHTML} ${row.type}</td><td><span class="badge ${badgeClass}" style="font-size:0.7rem;">${row.budgetType}</span></td><td class="fw-bold" style="color:var(--red-500);">${formatCurrency(row.amount)} ฿</td><td class="text-center">${actionBtns}</td></tr>`;
                     });
                 } else { tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีประวัติ</td></tr>'; }
             }).getUtilities();
         }
 
         function submitUtilityForm(event) {
-            event.preventDefault(); if (!isGAS) return;
+            event.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return;
             const formData = { 
                 type: document.getElementById('utilType').value, 
                 month: document.getElementById('utilMonth').value, 
@@ -2072,6 +2198,7 @@
         }
 
         function deleteUtility(id) {
+            if (!checkAdminPermission()) return;
             Swal.fire({ title: 'ยืนยันการลบ?', text: "จะคืนเงินกลับเข้าแหล่งงบประมาณเดิมอัตโนมัติ", icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
                 .then((result) => { if (result.isConfirmed) { showLoader("กำลังลบ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadUtilitiesData(); } }).deleteUtility(id); } });
         }
@@ -2163,14 +2290,21 @@
             }).getDocTemplates();
         }
 
-        function openDocTplModal() { document.getElementById('docTemplateForm').reset(); docTplModal.show(); }
+        function openDocTplModal() { 
+            if (!checkAdminPermission()) return;
+            document.getElementById('docTemplateForm').reset(); 
+            docTplModal.show(); 
+        }
         function submitDocTplForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("กำลังบันทึก...");
+            e.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return; showLoader("กำลังบันทึก...");
             const data = { name: document.getElementById('docTplName').value, desc: document.getElementById('docTplDesc').value, icon: document.getElementById('docTplIcon').value, url: document.getElementById('docTplUrl').value, uploadedBy: currentUser.name };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); docTplModal.hide(); loadDocTemplates(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDocTemplate(data);
         }
 
         function deleteDocTpl(id) {
+            if (!checkAdminPermission()) return;
             Swal.fire({ title: 'ยืนยันการลบ?', text: 'ลบแบบฟอร์มนี้?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!', confirmButtonColor: '#ef4444' })
                 .then(result => { if (result.isConfirmed) { showLoader("กำลังลบ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('ลบแล้ว!', res.message, 'success'); loadDocTemplates(); } }).deleteDocTemplate(id); } });
         }
@@ -2195,7 +2329,7 @@
                         let currentStatus = (!p.status || p.status === 'undefined') ? 'รอพิจารณา' : p.status;
                         let badgeClass = currentStatus === 'อนุมัติ' ? 'badge-status-approved' : (currentStatus === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
                         let actionBtns = '';
-                        if (currentStatus === 'รอพิจารณา' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                        if (currentStatus === 'รอพิจารณา' && currentUser && currentUser.role === 'ADMIN') {
                             actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="reviewProposal('${p.id}','อนุมัติ')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="reviewProposal('${p.id}','ไม่อนุมัติ')"><i class="fas fa-times"></i></button>`;
                         } else { actionBtns = '<span class="text-muted">-</span>'; }
                         tbody.innerHTML += `<tr><td class="text-center">${index++}</td><td class="fw-bold">${p.name}</td><td class="text-muted">${p.department || '-'}</td><td>${formatCurrency(p.budget)}</td><td><span class="badge ${badgeClass} px-2 py-1">${currentStatus}</span></td><td>${p.proposedBy}</td><td>${p.reviewedBy || '-'}</td><td class="text-center">${actionBtns}</td></tr>`;
@@ -2204,14 +2338,21 @@
             }).getProposals();
         }
 
-        function openProposalModal() { document.getElementById('proposalForm').reset(); proposalModal.show(); }
+        function openProposalModal() { 
+            if (!checkAdminPermission()) return;
+            document.getElementById('proposalForm').reset(); 
+            proposalModal.show(); 
+        }
         function submitProposalForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งข้อเสนอ...");
+            e.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return; showLoader("กำลังส่งข้อเสนอ...");
             const data = { name: document.getElementById('propName').value, objectives: document.getElementById('propObjectives').value, budget: document.getElementById('propBudget').value, department: document.getElementById('propDepartment').value, proposedBy: currentUser.name, status: 'รอพิจารณา' };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); proposalModal.hide(); loadProposals(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveProposal(data);
         }
 
         function reviewProposal(id, status) {
+            if (!checkAdminPermission()) return;
             if (status === 'ไม่อนุมัติ') {
                 Swal.fire({ title: 'เหตุผลที่ไม่อนุมัติ', input: 'textarea', showCancelButton: true, confirmButtonText: 'ยืนยัน', confirmButtonColor: '#ef4444' }).then(result => {
                     if (result.isConfirmed) { showLoader("กำลังอัปเดต..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadProposals(); loadNotifications(); } }).updateProposalStatus(id, status, result.value || '', currentUser.name); }
@@ -2241,7 +2382,9 @@
                         const badgeClass = isSent ? 'badge-approved' : 'badge-pending';
                         const badgeText = isSent ? '<i class="fas fa-check-circle"></i> ส่งแล้ว' : '<i class="fas fa-clock"></i> ยังไม่ได้ส่ง';
                         
-                        let actionBtns = `<button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:0.78rem;" onclick="openSubmitReportModal('${p.projectId}', '${p.projectName}', '${p.wordLink||''}', '${p.pdfLink||''}', '${p.reportNote||''}')"><i class="fas fa-paper-plane"></i> ส่งรายงาน</button>`;
+                        let actionBtns = (currentUser && currentUser.role === 'ADMIN')
+                            ? `<button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:0.78rem;" onclick="openSubmitReportModal('${p.projectId}', '${p.projectName}', '${p.wordLink||''}', '${p.pdfLink||''}', '${p.reportNote||''}')"><i class="fas fa-paper-plane"></i> ส่งรายงาน</button>`
+                            : `<span class="text-muted" style="font-size:0.78rem;">-</span>`;
 
                         tbody.innerHTML += `<tr>
                             <td class="text-center">${index++}</td>
@@ -2258,6 +2401,7 @@
         }
 
         function openSubmitReportModal(projectId, projectName, wordLink, pdfLink, note) {
+            if (!checkAdminPermission()) return;
             document.getElementById('submitReportProjectId').value = projectId;
             document.getElementById('submitReportProjectName').value = projectName;
             document.getElementById('submitReportWord').value = '';
@@ -2470,7 +2614,7 @@
                             if(p.pdfLink) fileBtns += `<a href="${p.pdfLink}" download="PDF_${p.projectName}" target="_blank" class="btn btn-sm btn-danger ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ PDF"><i class="fas fa-file-pdf"></i></a>`;
                         }
 
-                        if (currentUser && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                        if (currentUser && currentUser.role === 'ADMIN') {
                             if (isSent) {
                                 actionBtns = `<button class="btn btn-sm btn-outline-warning" style="border-radius:8px;font-size:0.78rem;" onclick="toggleReportStatus('${p.projectId}', 'ยังไม่ได้ส่ง')" title="เปลี่ยนเป็นยังไม่ได้ส่ง"><i class="fas fa-undo"></i> ยกเลิก</button>` + fileBtns;
                             } else {
@@ -2505,6 +2649,7 @@
         }
 
         function toggleReportStatus(projectId, newStatus) {
+            if (!checkAdminPermission()) return;
             Swal.fire({
                 title: newStatus === 'ส่งแล้ว' ? 'ยืนยันว่าส่งรายงานแล้ว?' : 'ยกเลิกสถานะการส่ง?',
                 input: 'text',
@@ -2564,7 +2709,7 @@
 
                         let badgeClass = (d.status === 'อนุมัติ' || d.status === 'อนุมัติแล้ว') ? 'badge-status-approved' : (d.status === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-waiting');
                         let actionBtns = '';
-                        if (d.status === 'รออนุมัติ' && (currentUser.role === 'ADMIN' || currentUser.role === 'EXECUTIVE')) {
+                        if (d.status === 'รออนุมัติ' && currentUser && currentUser.role === 'ADMIN') {
                             actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="handleApproveDisbursement('${d.id}', ${d.amount})" title="อนุมัติ"><i class="fas fa-check"></i> อนุมัติ</button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="handleRejectDisbursement('${d.id}')" title="ไม่อนุมัติ"><i class="fas fa-times"></i> ปฏิเสธ</button>`;
                         } else if (d.status === 'อนุมัติ' || d.status === 'อนุมัติแล้ว') { actionBtns = `<span style="color:var(--emerald-600);"><i class="fas fa-check-circle"></i> ${d.approvedBy || d.reviewedBy || ''}</span>`; }
                         else if (d.status === 'ไม่อนุมัติ') { actionBtns = `<span style="color:var(--red-500);" title="${d.rejectReason || ''}"><i class="fas fa-times-circle"></i> ปฏิเสธ</span>`; }
@@ -2578,15 +2723,22 @@
             }).getDisbursements();
         }
 
-        function openDisbursementModal() { document.getElementById('disbursementForm').reset(); disbursementModal.show(); }
+        function openDisbursementModal() { 
+            if (!checkAdminPermission()) return;
+            document.getElementById('disbursementForm').reset(); 
+            disbursementModal.show(); 
+        }
         function submitDisbursementForm(e) {
-            e.preventDefault(); if (!isGAS) return; showLoader("กำลังส่งคำขอ...");
+            e.preventDefault(); 
+            if (!checkAdminPermission()) return;
+            if (!isGAS) return; showLoader("กำลังส่งคำขอ...");
             const projSel = document.getElementById('disbProject');
             const data = { projectId: projSel.value, projectName: projSel.options[projSel.selectedIndex].getAttribute('data-name'), requestDate: document.getElementById('disbDate').value, amount: document.getElementById('disbAmount').value, purpose: document.getElementById('disbPurpose').value, requestedBy: currentUser.name, status: 'รออนุมัติ' };
             google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); disbursementModal.hide(); loadDisbursements(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveDisbursement(data);
         }
 
         function handleApproveDisbursement(id, reqAmount) {
+            if (!checkAdminPermission()) return;
             Swal.fire({ 
                 title: 'อนุมัติการเบิกจ่าย', 
                 text: 'ระบุยอดเงินที่จ่ายจริง (ระบบตั้งค่าเริ่มต้นเป็นยอดที่ขอเบิก)', 
@@ -2614,6 +2766,7 @@
         }
 
         function handleRejectDisbursement(id) {
+            if (!checkAdminPermission()) return;
             Swal.fire({ title: 'เหตุผลที่ปฏิเสธ', input: 'textarea', inputPlaceholder: 'ระบุเหตุผล...', showCancelButton: true, confirmButtonText: 'ยืนยัน', confirmButtonColor: '#ef4444' }).then(result => {
                 if (result.isConfirmed) { showLoader("กำลังปฏิเสธ..."); google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); loadDisbursements(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).rejectDisbursement(id, result.value || '', currentUser.name); }
             });
