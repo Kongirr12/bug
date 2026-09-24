@@ -4,52 +4,207 @@ const CONFIG = {
     API_URL: 'https://script.google.com/macros/s/AKfycbyJi8hhxx-L_3xqokw_ceLcPPl5KPHMEU-Cqt1aIVjfIsGUZvRKsv6jitRvZGV_eFWx/exec'
 };
 
+// --- HIGH-PERFORMANCE CLIENT CACHE & SWR LAYER ---
+const FAST_CACHE = {
+    memory: {},
+    PREFIX: 'mhc_budget_cache_',
+    FRESH_TTL: 45 * 1000, // 45 seconds strictly fresh (0 network requests)
+    MAX_TTL: 24 * 60 * 60 * 1000, // 24 hours SWR cache
+
+    get(key) {
+        const now = Date.now();
+        // 1. Fast in-memory check (0ms)
+        const mem = this.memory[key];
+        if (mem && (now - mem.timestamp < this.MAX_TTL)) {
+            return {
+                data: mem.data,
+                timestamp: mem.timestamp,
+                isFresh: (now - mem.timestamp) < this.FRESH_TTL
+            };
+        }
+        // 2. Persistent localStorage check (survives page refresh/browser restart)
+        try {
+            const raw = localStorage.getItem(this.PREFIX + key);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (now - parsed.timestamp < this.MAX_TTL) {
+                    this.memory[key] = parsed; // Sync to memory
+                    return {
+                        data: parsed.data,
+                        timestamp: parsed.timestamp,
+                        isFresh: (now - parsed.timestamp) < this.FRESH_TTL
+                    };
+                }
+            }
+        } catch (e) {}
+        return null;
+    },
+
+    set(key, data) {
+        const entry = { data: data, timestamp: Date.now() };
+        this.memory[key] = entry;
+        try {
+            localStorage.setItem(this.PREFIX + key, JSON.stringify(entry));
+        } catch (e) {}
+    },
+
+    touch(key) {
+        const now = Date.now();
+        if (this.memory[key]) {
+            this.memory[key].timestamp = now;
+            try {
+                localStorage.setItem(this.PREFIX + key, JSON.stringify(this.memory[key]));
+            } catch (e) {}
+        }
+    },
+
+    invalidateAll() {
+        this.memory = {};
+        try {
+            const toRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith(this.PREFIX)) {
+                    toRemove.push(k);
+                }
+            }
+            toRemove.forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+    },
+
+    invalidateEntity(entityName) {
+        const lower = String(entityName).toLowerCase();
+        Object.keys(this.memory).forEach(k => {
+            const lk = k.toLowerCase();
+            if (lk.includes(lower) || lk.includes('dashboard') || lk.includes('central') || lk.includes('tracking')) {
+                delete this.memory[k];
+            }
+        });
+        try {
+            const toRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith(this.PREFIX)) {
+                    const lk = k.toLowerCase();
+                    if (lk.includes(lower) || lk.includes('dashboard') || lk.includes('central') || lk.includes('tracking')) {
+                        toRemove.push(k);
+                    }
+                }
+            }
+            toRemove.forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+    }
+};
+
+window.FAST_CACHE = FAST_CACHE;
+
+// --- TOP PROGRESS BAR CONTROLLER ---
+let activeRequestsCount = 0;
+function startTopProgressBar() {
+    if (typeof document === 'undefined') return;
+    activeRequestsCount++;
+    let bar = document.getElementById('top-progress-bar');
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'top-progress-bar';
+        if (document.body) document.body.prepend(bar);
+    }
+    if (bar) {
+        bar.classList.add('loading');
+        bar.style.opacity = '1';
+        bar.style.width = '35%';
+        setTimeout(() => {
+            if (activeRequestsCount > 0 && bar && bar.classList.contains('loading')) {
+                bar.style.width = '75%';
+            }
+        }, 250);
+    }
+}
+
+function finishTopProgressBar() {
+    if (typeof document === 'undefined') return;
+    activeRequestsCount = Math.max(0, activeRequestsCount - 1);
+    if (activeRequestsCount === 0) {
+        const bar = document.getElementById('top-progress-bar');
+        if (bar) {
+            bar.style.width = '100%';
+            setTimeout(() => {
+                bar.style.opacity = '0';
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                    bar.classList.remove('loading');
+                }, 300);
+            }, 200);
+        }
+    }
+}
+
+// In-flight request deduplication map
+const IN_FLIGHT_REQUESTS = new Map();
+
 /**
- * Make an API call to the Google Apps Script backend.
+ * Make an API call to the Google Apps Script backend with deduplication and timeout.
  * @param {string} action The function name to call in Apps Script
  * @param {object} payload The data to send
  * @returns {Promise<any>}
  */
 async function apiCall(action, payload = {}) {
-    try {
-        // Since GAS Web Apps handle CORS by default, we can POST to them.
-        // For simplicity and avoiding CORS preflight issues with complex headers, 
-        // a common pattern is to send POST requests with text/plain, or use URL parameters for GET.
-        
-        // However, standard fetch with JSON usually works if GAS is configured properly with doPost.
-        // We will send a POST request containing the action and payload.
-        
-        const response = await fetch(CONFIG.API_URL, {
-            method: 'POST',
-            // text/plain avoids CORS preflight OPTIONS request which GAS doesn't handle well natively
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
-            body: JSON.stringify({
-                action: action,
-                payload: payload
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.status === 'error') {
-            throw new Error(data.message || 'API Error');
-        }
-        
-        if (data.status === 'success' && typeof data.data === 'undefined') {
-            throw new Error(`ฟังก์ชัน '${action}' ใน Code.gs ไม่ได้ส่งค่ากลับมา (ไม่มี return statement) หรือเกิดข้อผิดพลาดในการประมวลผล`);
-        }
-        
-        return data.data;
-    } catch (error) {
-        console.error(`API Call failed (${action}):`, error);
-        throw error;
+    const requestKey = action + '_' + JSON.stringify(payload);
+    if (IN_FLIGHT_REQUESTS.has(requestKey)) {
+        return IN_FLIGHT_REQUESTS.get(requestKey);
     }
+
+    const fetchPromise = (async () => {
+        startTopProgressBar();
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
+        try {
+            const response = await fetch(CONFIG.API_URL, {
+                method: 'POST',
+                // text/plain avoids CORS preflight OPTIONS request
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify({
+                    action: action,
+                    payload: payload
+                }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.status === 'error') {
+                throw new Error(data.message || 'API Error');
+            }
+            
+            if (data.status === 'success' && typeof data.data === 'undefined') {
+                throw new Error(`ฟังก์ชัน '${action}' ใน Code.gs ไม่ได้ส่งค่ากลับมา`);
+            }
+            
+            return data.data;
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                throw new Error('การเชื่อมต่อเซิร์ฟเวอร์หมดเวลา (Timeout)');
+            }
+            console.error(`API Call failed (${action}):`, error);
+            throw error;
+        } finally {
+            clearTimeout(timeoutId);
+            finishTopProgressBar();
+            IN_FLIGHT_REQUESTS.delete(requestKey);
+        }
+    })();
+
+    IN_FLIGHT_REQUESTS.set(requestKey, fetchPromise);
+    return fetchPromise;
 }
 
 // Simulated API calls for development before connecting to real GAS
@@ -498,11 +653,17 @@ const MOCK_API = {
 };
 
 function loadFromLocalStorage(key, defaultVal) {
-    const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultVal;
+    if (typeof localStorage === 'undefined') return defaultVal;
+    try {
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : defaultVal;
+    } catch (e) {
+        return defaultVal;
+    }
 }
 
 function saveToLocalStorage(key, val) {
+    if (typeof localStorage === 'undefined') return;
     try {
         localStorage.setItem(key, JSON.stringify(val));
     } catch (e) {
@@ -626,33 +787,130 @@ const API = {
     }
 };
 
-// Polyfill for google.script.run so the original 2500 lines of JS work out of the box!
+// Function to handle google.script.run calls with SWR caching, instant synchronous callback, and mutation bust
+function handleGoogleScriptCall(action, args, successCallback, failureCallback) {
+    const isRead = action.startsWith('get');
+    const isMutation = !isRead && action !== 'loginUser';
+
+    // 1. If mutation, invalidate client cache immediately
+    if (isMutation) {
+        FAST_CACHE.invalidateAll();
+    }
+
+    // 2. Fast Read Path with SWR (Stale-While-Revalidate)
+    if (isRead) {
+        const cacheKey = action + '_' + JSON.stringify(args);
+        const cached = FAST_CACHE.get(cacheKey);
+
+        if (cached) {
+            // A. INSTANT SYNCHRONOUS RESOLUTION (0ms!)
+            if (successCallback) {
+                try {
+                    successCallback({ success: true, data: cached.data });
+                } catch (e) {
+                    console.error(`Error in successCallback for cached ${action}:`, e);
+                }
+            }
+
+            // B. If strictly fresh (< 45s), skip network entirely
+            if (cached.isFresh) {
+                return;
+            }
+
+            // C. Background silent revalidation for stale data
+            API.call(action, ...args)
+                .then(freshResult => {
+                    const freshData = (freshResult && freshResult.data !== undefined) ? freshResult.data : freshResult;
+                    const isDifferent = JSON.stringify(freshData) !== JSON.stringify(cached.data);
+                    if (isDifferent) {
+                        FAST_CACHE.set(cacheKey, freshData);
+                        if (successCallback) {
+                            try {
+                                successCallback({ success: true, data: freshData });
+                            } catch (e) {
+                                console.error(`Error updating UI with fresh ${action}:`, e);
+                            }
+                        }
+                    } else {
+                        FAST_CACHE.touch(cacheKey);
+                    }
+                })
+                .catch(err => {
+                    console.warn(`Background revalidation failed (${action}):`, err);
+                });
+            return;
+        }
+    }
+
+    // 3. Cold Fetch or Mutation / Login
+    API.call(action, ...args)
+        .then(result => {
+            if (isRead) {
+                const cacheKey = action + '_' + JSON.stringify(args);
+                const dataToCache = (result && result.data !== undefined) ? result.data : result;
+                FAST_CACHE.set(cacheKey, dataToCache);
+            }
+            if (successCallback) {
+                successCallback(result);
+            }
+        })
+        .catch(err => {
+            console.error(`API Call failed (${action}):`, err);
+            if (failureCallback) {
+                failureCallback(err);
+            } else if (typeof Swal !== 'undefined' && !action.startsWith('get')) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + err.message, 'error');
+            }
+        });
+}
+
+// Polyfill for google.script.run so all client JS operates seamlessly and lightning-fast!
 window.google = window.google || {};
 window.google.script = window.google.script || {};
 window.google.script.run = new Proxy({}, {
     get: function(target, prop) {
         if (prop === 'withSuccessHandler') {
             return function(callback) {
-                return new Proxy({}, {
+                let failureHandler = null;
+                const innerProxy = new Proxy({}, {
                     get: function(t, action) {
+                        if (action === 'withFailureHandler') {
+                            return function(failCb) {
+                                failureHandler = failCb;
+                                return innerProxy;
+                            };
+                        }
                         return function(...args) {
-                            API.call(action, ...args)
-                                .then(callback)
-                                .catch(err => {
-                                    console.error('API Error:', err);
-                                    if (typeof Swal !== 'undefined') {
-                                        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้: ' + err.message, 'error');
-                                    }
-                                });
+                            handleGoogleScriptCall(action, args, callback, failureHandler);
                         };
                     }
                 });
+                return innerProxy;
             };
         }
-        
-        // Direct call without success handler
+        if (prop === 'withFailureHandler') {
+            return function(failCb) {
+                let successHandler = null;
+                const innerProxy = new Proxy({}, {
+                    get: function(t, action) {
+                        if (action === 'withSuccessHandler') {
+                            return function(succCb) {
+                                successHandler = succCb;
+                                return innerProxy;
+                            };
+                        }
+                        return function(...args) {
+                            handleGoogleScriptCall(action, args, successHandler, failCb);
+                        };
+                    }
+                });
+                return innerProxy;
+            };
+        }
+
+        // Direct call without handlers (e.g. prefetch / fire-and-forget)
         return function(...args) {
-            API.call(prop, ...args).catch(err => console.error(err));
+            handleGoogleScriptCall(prop, args, null, null);
         };
     }
 });

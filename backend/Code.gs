@@ -4,11 +4,80 @@
  * "Execute as: Me", "Who has access: Anyone"
  */
 
+const CACHE_TTL_SECONDS = 300; // 5 minutes cache for read queries
+
+function getScriptCache_(key) {
+  try {
+    const cached = CacheService.getScriptCache().get(key);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (e) {
+    Logger.log('Cache read exception: ' + e);
+  }
+  return null;
+}
+
+function putScriptCache_(key, data) {
+  try {
+    const str = JSON.stringify(data);
+    // Limit is 100KB per key in CacheService
+    if (str.length < 95000) {
+      CacheService.getScriptCache().put(key, str, CACHE_TTL_SECONDS);
+    }
+  } catch (e) {
+    Logger.log('Cache put exception: ' + e);
+  }
+}
+
+function invalidateAllScriptCache_() {
+  try {
+    const keys = [
+      'getDashboardData',
+      'getCentralBudgetData',
+      'getBudgetTrackingData',
+      'getReportSubmissions',
+      'getTeacherReports',
+      'getBudgetSources',
+      'getMenuPermissions',
+      'getBudgetTypes',
+      'getDepartments',
+      'getDocTemplates',
+      'getAllocations',
+      'getProjects',
+      'getUtilities',
+      'getProposals',
+      'getDisbursements',
+      'getUsers',
+      'getAllUsers',
+      'getNotifications'
+    ];
+    CacheService.getScriptCache().removeAll(keys);
+  } catch (e) {
+    Logger.log('Cache invalidate exception: ' + e);
+  }
+}
+
 function doPost(e) {
   try {
     const postData = JSON.parse(e.postData.contents);
     const action = postData.action;
     const payload = postData.payload || {};
+    
+    // 1. FAST SERVER-SIDE CACHE CHECK FOR READ ACTIONS
+    const isRead = action.startsWith('get');
+    const isSimpleGet = isRead && (!payload || Object.keys(payload).length === 0);
+    const cacheKey = isSimpleGet ? action : (isRead ? action + '_' + Utilities.base64Encode(JSON.stringify(payload)).substring(0, 30) : null);
+    
+    if (isRead && cacheKey) {
+      const cached = getScriptCache_(cacheKey);
+      if (cached) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: 'success',
+          data: cached
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
     
     let result = {};
     if (typeof this[action] === 'function') {
@@ -19,6 +88,13 @@ function doPost(e) {
     
     if (Array.isArray(result)) {
       result = { success: true, data: result };
+    }
+    
+    // 2. INVALIDATE SERVER CACHE ON MUTATIONS, OR STORE ON READS
+    if (!isRead && action !== 'loginUser') {
+      invalidateAllScriptCache_();
+    } else if (isRead && cacheKey && result && result.success !== false) {
+      putScriptCache_(cacheKey, result);
     }
     
     return ContentService.createTextOutput(JSON.stringify({

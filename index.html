@@ -8,6 +8,16 @@
     <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
     <link rel="alternate icon" type="image/png" href="images/favicon.png">
     
+    <!-- Speed & Network Preconnect -->
+    <link rel="preconnect" href="https://script.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://script.google.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -242,6 +252,19 @@
             .login-panel-left { display:none; }
             .login-panel-right { padding: 40px 28px; }
         }
+
+        /* ── TOP PROGRESS BAR ─────────────────────── */
+        #top-progress-bar {
+            position: fixed; top: 0; left: 0;
+            height: 3px; width: 0%;
+            background: linear-gradient(90deg, #0d9488, #06b6d4, #3b82f6);
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.7);
+            z-index: 100000;
+            transition: width 0.25s ease, opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #top-progress-bar.loading { opacity: 1; }
 
         /* ── LOADER ─────────────────────────────── */
         #loader {
@@ -775,9 +798,10 @@
 </head>
 
 
-    <script src="./js/api.js?v=2"></script>
+    <script src="./js/api.js?v=3"></script>
     <link rel="stylesheet" href="./css/style.css">
 <body>
+    <div id="top-progress-bar"></div>
 
     
     <div id="loader">
@@ -820,6 +844,12 @@
                     </div>
                 </div>
                 <div class="notif-overlay" id="notifOverlay" onclick="closeNotifDropdown()"></div>
+
+                <!-- Fast Sync Refresh Button -->
+                <button id="btnSyncRefresh" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" onclick="forceSyncRefresh()" title="อัปเดตข้อมูลสดจาก Google Sheet" style="border-radius: 8px; padding: 6px 12px; font-weight: 500; border-color: var(--slate-200); background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <i class="fas fa-sync-alt" id="syncIcon" style="color: var(--teal); font-size: 0.85rem;"></i>
+                    <span class="d-none d-md-inline" style="font-size: 0.82rem; color: var(--slate-700);">รีเฟรชข้อมูล</span>
+                </button>
 
                 <!-- Admin Login Button (Visible for Guest / View-only mode) -->
                 <button id="btnAdminLogin" class="btn-admin-login" onclick="openAdminLoginModal()" title="เข้าสู่ระบบสำหรับผู้ดูแล">
@@ -1668,14 +1698,20 @@
             updateUIForRole();
             applyMenuPermissions();
 
-            loadMenuPermissions(() => {
-                switchView('dashboard');
-                loadBudgetTypeOptions();
-                if (currentUser && currentUser.role === 'ADMIN') {
-                    loadNotifications();
-                    resetSessionTimeout();
-                }
-            });
+            // Instant UI rendering (0ms perceived load time from cache)
+            switchView('dashboard');
+            loadMenuPermissions();
+            loadBudgetTypeOptions();
+
+            if (currentUser && currentUser.role === 'ADMIN') {
+                loadNotifications();
+                resetSessionTimeout();
+            }
+
+            // Background prefetch remaining screens for instantaneous navigation
+            setTimeout(() => {
+                prefetchCommonViews();
+            }, 600);
 
             document.querySelectorAll('.icon-pick-item').forEach(item => {
                 item.addEventListener('click', function () {
@@ -1833,6 +1869,58 @@
                     });
                 }
             });
+        }
+
+        function prefetchCommonViews() {
+            if (!isGAS) return;
+            const views = [
+                'getAllocations',
+                'getUtilities',
+                'getCentralBudgetData',
+                'getBudgetTrackingData',
+                'getDocTemplates',
+                'getProposals',
+                'getTeacherReports',
+                'getReportSubmissions'
+            ];
+            views.forEach((act, idx) => {
+                setTimeout(() => {
+                    try {
+                        if (typeof google !== 'undefined' && google.script && google.script.run && typeof google.script.run[act] === 'function') {
+                            google.script.run[act]();
+                        }
+                    } catch(e) {}
+                }, idx * 120);
+            });
+        }
+
+        function forceSyncRefresh() {
+            const icon = document.getElementById('syncIcon');
+            if (icon) icon.classList.add('fa-spin');
+            
+            if (window.FAST_CACHE) window.FAST_CACHE.invalidateAll();
+            
+            loadMenuPermissions();
+            loadBudgetTypeOptions();
+            
+            const activeItem = document.querySelector('.sidebar-menu > li.active, .sidebar-submenu li.active');
+            const curView = activeItem ? (activeItem.getAttribute('data-menu') || 'dashboard') : 'dashboard';
+            
+            switchView(curView);
+            
+            setTimeout(() => {
+                if (icon) icon.classList.remove('fa-spin');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'อัปเดตข้อมูลล่าสุดเรียบร้อยแล้ว',
+                        showConfirmButton: false,
+                        timer: 1600
+                    });
+                }
+            }, 600);
         }
 
         function loadMenuPermissions(callback) {
