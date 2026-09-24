@@ -902,32 +902,32 @@
         <div class="main-container">
             
             <nav id="sidebar">
-                <div class="sidebar-section-label">เมนูหลัก</div>
+                <div class="sidebar-section-label">เมนูทั่วไป</div>
                 <ul class="sidebar-menu">
                     <li class="active" data-menu="dashboard" onclick="switchView('dashboard', this)"><i class="fas fa-chart-pie menu-icon"></i> ภาพรวม (Dashboard)</li>
                     <li data-menu="doctemplates" onclick="switchView('doctemplates', this)"><i class="fas fa-file-alt menu-icon"></i> รูปแบบไฟล์ขออนุญาต</li>
+                    <li data-menu="proposals" onclick="switchView('proposals', this)"><i class="fas fa-file-upload menu-icon"></i> การเสนอโครงการ</li>
+                    <li data-menu="reports" onclick="switchView('reports', this)"><i class="fas fa-clipboard-list menu-icon"></i> รายงานโครงการ</li>
+                    <li data-menu="report-submissions" onclick="switchView('report-submissions', this)"><i class="fas fa-tasks menu-icon"></i> ติดตามการส่งรายงาน</li>
+                    <li data-menu="tracking" onclick="switchView('tracking', this)"><i class="fas fa-search-dollar menu-icon"></i> ติดตามการใช้จ่ายงบฯ</li>
 
-                    
-                    <li data-menu="settings" onclick="toggleSubmenu('submenu-settings', 'icon-settings')">
+                    <li class="sidebar-section-label admin-only" style="padding-top:16px; margin-top:8px; border-top:1px solid var(--border);">การบริหารจัดการ (Admin)</li>
+                    <li class="admin-only" data-menu="allocation" onclick="switchView('allocation', this)"><i class="fas fa-hand-holding-usd menu-icon"></i> จัดสรรงบประมาณ</li>
+                    <li class="admin-only" data-menu="projects" onclick="switchView('projects', this)"><i class="fas fa-folder-plus menu-icon"></i> สร้างโครงการ/กิจกรรม</li>
+                    <li class="admin-only" data-menu="disbursements" onclick="switchView('disbursements', this)"><i class="fas fa-check-double menu-icon"></i> อนุมัติเบิกจ่าย</li>
+                    <li class="admin-only" data-menu="utilities" onclick="switchView('utilities', this)"><i class="fas fa-bolt menu-icon"></i> บันทึกค่าสาธารณูปโภค</li>
+                    <li class="admin-only" data-menu="central-budget" onclick="switchView('central-budget', this)"><i class="fas fa-chart-line menu-icon"></i> วิเคราะห์การใช้งบกลาง</li>
+
+                    <li class="admin-only" data-menu="settings" onclick="toggleSubmenu('submenu-settings', 'icon-settings')">
                         <i class="fas fa-cog menu-icon"></i> ตั้งค่าข้อมูลพื้นฐาน
                         <i class="fas fa-chevron-down menu-arrow" id="icon-settings"></i>
                     </li>
-                    <ul id="submenu-settings" class="sidebar-submenu">
+                    <ul id="submenu-settings" class="sidebar-submenu admin-only">
                         <li data-menu="settings" onclick="switchView('departments', this)"><i class="fas fa-sitemap" style="width:20px;text-align:center;margin-right:10px;"></i> กลุ่มงาน/ฝ่าย</li>
                         <li data-menu="budget-sources" onclick="switchView('budget-sources', this)"><i class="fas fa-wallet" style="width:20px;text-align:center;margin-right:10px;"></i> แหล่งงบประมาณ</li>
                         <li data-menu="settings" onclick="switchView('users', this)"><i class="fas fa-users" style="width:20px;text-align:center;margin-right:10px;"></i> จัดการสมาชิก</li>
                         <li data-menu="settings" onclick="switchView('menu-permissions', this)"><i class="fas fa-user-shield" style="width:20px;text-align:center;margin-right:10px;"></i> จัดการสิทธิ์เมนู</li>
                     </ul>
-
-                    <li data-menu="allocation" onclick="switchView('allocation', this)"><i class="fas fa-hand-holding-usd menu-icon"></i> จัดสรรงบประมาณ</li>
-                    <li data-menu="projects" onclick="switchView('projects', this)"><i class="fas fa-folder-plus menu-icon"></i> สร้างโครงการ/กิจกรรม</li>
-                    <li data-menu="utilities" onclick="switchView('utilities', this)"><i class="fas fa-bolt menu-icon"></i> บันทึกค่าสาธารณูปโภค</li>
-                    <li data-menu="central-budget" onclick="switchView('central-budget', this)"><i class="fas fa-chart-line menu-icon"></i> วิเคราะห์การใช้งบกลาง</li>
-                    <li data-menu="proposals" onclick="switchView('proposals', this)"><i class="fas fa-file-upload menu-icon"></i> การเสนอโครงการ</li>
-                    <li data-menu="reports" onclick="switchView('reports', this)"><i class="fas fa-clipboard-list menu-icon"></i> รายงานโครงการ</li>
-                    <li data-menu="report-submissions" onclick="switchView('report-submissions', this)"><i class="fas fa-tasks menu-icon"></i> ติดตามการส่งรายงาน</li>
-                    <li data-menu="tracking" onclick="switchView('tracking', this)"><i class="fas fa-search-dollar menu-icon"></i> ติดตามการใช้จ่ายงบฯ</li>
-                    <li data-menu="disbursements" onclick="switchView('disbursements', this)"><i class="fas fa-check-double menu-icon"></i> อนุมัติเบิกจ่าย</li>
                 </ul>
             </nav>
 
@@ -1017,9 +1017,17 @@
                         </div>
                     </div>
                     <div class="panel">
-                        <div class="panel-header">
-                            <div class="panel-title"><i class="fas fa-list-ul"></i> รายละเอียดระดับโครงการและร้อยละการใช้งาน</div>
-                            <span style="font-size:0.75rem;color:var(--slate-400);">ข้อมูลโครงการล่าสุด</span>
+                        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <div class="panel-title"><i class="fas fa-list-ul"></i> รายละเอียดระดับโครงการและร้อยละการใช้งาน</div>
+                                <span style="font-size:0.75rem;color:var(--slate-400);">ข้อมูลโครงการและงบประมาณ</span>
+                            </div>
+                            <div style="max-width: 280px; width: 100%;">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="dashProjSearch" placeholder="ค้นหาชื่อโครงการ..." oninput="filterDashboardProjects()">
+                                </div>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover table-custom table-bordered">
@@ -1194,11 +1202,30 @@
                     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                         <div>
                             <h2 class="page-title"><i class="fas fa-file-upload" style="color:var(--blue-500);"></i> การเสนอโครงการ</h2>
-                            <div class="page-subtitle">จัดการข้อเสนอโครงการและการอนุมัติ</div>
+                            <div class="page-subtitle">เสนอโครงการใหม่และติดตามการอนุมัติ</div>
                         </div>
-                        <button class="btn-modern-primary admin-only" onclick="openProposalModal()"><i class="fas fa-plus"></i> ส่งข้อเสนอใหม่</button>
+                        <button class="btn-modern-primary" onclick="openProposalModal()"><i class="fas fa-plus"></i> ส่งข้อเสนอใหม่</button>
                     </div>
                     <div class="panel">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-2 flex-grow-1" style="max-width: 480px;">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="proposalSearchInput" placeholder="ค้นหาชื่อโครงการ หรือ ผู้เสนอ..." oninput="filterProposals()">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select" id="proposalStatusFilter" onchange="filterProposals()" style="width: 140px; font-size:0.88rem; border-radius: 8px;">
+                                    <option value="">ทุกสถานะ</option>
+                                    <option value="รอพิจารณา">รอพิจารณา</option>
+                                    <option value="อนุมัติ">อนุมัติ</option>
+                                    <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" id="btnMyProposals" onclick="filterMyProposals()" style="border-radius: 8px; font-size:0.88rem; white-space: nowrap;">
+                                    <i class="fas fa-user-check me-1"></i> ข้อเสนอของฉัน
+                                </button>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle table-bordered">
                                 <thead style="background-color: var(--slate-50);">
@@ -1215,10 +1242,28 @@
                     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                         <div>
                             <h2 class="page-title"><i class="fas fa-clipboard-list" style="color:var(--blue-500);"></i> ส่งรายงานโครงการ</h2>
-                            <div class="page-subtitle">แนบลิงก์ไฟล์ Word และ PDF เพื่อส่งรายงานผลการดำเนินงาน</div>
+                            <div class="page-subtitle">แนบลิงก์ไฟล์ Word และ PDF เพื่อส่งรายงานผลการดำเนินงาน หรือตรวจสอบสถานะรายงาน</div>
                         </div>
                     </div>
                     <div class="panel mt-3">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-2 flex-grow-1" style="max-width: 480px;">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" id="reportSearchInput" placeholder="ค้นหาชื่อโครงการ หรือ ผู้รับผิดชอบ..." oninput="filterTeacherReports()">
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select" id="reportStatusFilter" onchange="filterTeacherReports()" style="width: 140px; font-size:0.88rem; border-radius: 8px;">
+                                    <option value="">ทุกสถานะ</option>
+                                    <option value="ยังไม่ได้ส่ง">ยังไม่ได้ส่ง</option>
+                                    <option value="ส่งแล้ว">ส่งแล้ว</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" id="btnMyReports" onclick="filterMyReports()" style="border-radius: 8px; font-size:0.88rem; white-space: nowrap;">
+                                    <i class="fas fa-user-check me-1"></i> โครงการของฉัน
+                                </button>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle table-bordered">
                                 <thead style="background-color: var(--slate-50);">
@@ -1226,8 +1271,8 @@
                                         <th width="5%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ลำดับ</th>
                                         <th width="35%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">ชื่อโครงการ</th>
                                         <th width="15%" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">งบประมาณ</th>
-                                        <th width="20%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะการส่ง</th>
-                                        <th width="25%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ</th>
+                                        <th width="15%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">สถานะการส่ง</th>
+                                        <th width="30%" class="text-center" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;">จัดการ / ไฟล์รายงาน</th>
                                     </tr>
                                 </thead>
                                 <tbody id="teacherReportsTableBody">
@@ -1518,6 +1563,10 @@
                             <input type="text" class="form-control bg-light" id="submitReportProjectName" readonly>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ชื่อผู้ส่งรายงาน / ครูผู้รับผิดชอบ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="submitReportSender" required placeholder="ระบุชื่อ-สกุล ครูผู้ส่งรายงาน">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label text-muted fw-bold" style="font-size:0.85rem;">ไฟล์รายงาน (Word)</label>
                             <input type="file" class="form-control" id="submitReportWord" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         </div>
@@ -1596,11 +1645,21 @@
                 <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-file-upload me-2"></i> ส่งข้อเสนอโครงการใหม่</h5></div>
                 <div class="modal-body">
                     <form id="proposalForm" onsubmit="submitProposalForm(event)">
-                        <div class="mb-3"><label class="form-label fw-bold">ชื่อโครงการ <span class="text-danger">*</span></label><input type="text" class="form-control" id="propName" required></div>
-                        <div class="mb-3"><label class="form-label fw-bold">วัตถุประสงค์ <span class="text-danger">*</span></label><textarea class="form-control" id="propObjectives" rows="3" required></textarea></div>
+                        <div class="mb-3"><label class="form-label fw-bold">ชื่อโครงการ <span class="text-danger">*</span></label><input type="text" class="form-control" id="propName" required placeholder="ระบุชื่อโครงการ"></div>
+                        <div class="mb-3"><label class="form-label fw-bold">วัตถุประสงค์ <span class="text-danger">*</span></label><textarea class="form-control" id="propObjectives" rows="3" required placeholder="ระบุวัตถุประสงค์ของโครงการ"></textarea></div>
                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">งบประมาณที่ขอ (บาท) <span class="text-danger">*</span></label><input type="number" class="form-control" id="propBudget" required min="0"></div>
-                            <div class="col-md-6 mb-3"><label class="form-label fw-bold">กลุ่มงาน/ฝ่าย <span class="text-danger">*</span></label><select class="form-select" id="propDepartment" required><option value="">-- เลือก --</option></select></div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">ผู้เสนอโครงการ (ชื่อ-สกุล) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="propProposedBy" required placeholder="ระบุชื่อ-สกุล ครูผู้เสนอโครงการ">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">กลุ่มงาน/ฝ่าย <span class="text-danger">*</span></label>
+                                <select class="form-select" id="propDepartment" required><option value="">-- เลือกกลุ่มงาน/ฝ่าย --</option></select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">งบประมาณที่ขอ (บาท) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="propBudget" required min="0" placeholder="0.00">
                         </div>
                         <hr>
                         <div class="text-end"><button type="button" class="btn-modern-secondary me-2" data-bs-dismiss="modal">ยกเลิก</button><button type="submit" class="btn-modern-success"><i class="fas fa-paper-plane"></i> ส่งข้อเสนอ</button></div>
@@ -1990,15 +2049,17 @@
                 return;
             }
 
-            // Non-admin (Guest/Read-only):
-            // Hide admin-only setting menus
-            const adminOnlyMenus = ['settings', 'projects'];
-            document.querySelectorAll('.sidebar-menu > li[data-menu]').forEach(item => {
+            // Non-admin (Guest/Teachers - not logged in as Admin):
+            // Show only functions appropriate for general teachers/visitors:
+            const allowedMenus = ['dashboard', 'doctemplates', 'proposals', 'reports', 'report-submissions', 'tracking'];
+            document.querySelectorAll('.sidebar-menu > li').forEach(item => {
                 const key = item.getAttribute('data-menu');
-                if (adminOnlyMenus.includes(key)) {
+                if (item.classList.contains('admin-only')) {
                     item.style.display = 'none';
-                } else {
+                } else if (key && allowedMenus.includes(key)) {
                     item.style.display = '';
+                } else if (key) {
+                    item.style.display = 'none';
                 }
             });
 
@@ -2006,7 +2067,6 @@
             if (subSettings) subSettings.style.display = 'none';
         }
 
-        
         function toggleSubmenu(submenuId, iconId) {
             const submenu = document.getElementById(submenuId);
             const icon = document.getElementById(iconId);
@@ -2014,10 +2074,13 @@
             icon.classList.toggle('rotate');
         }
 
-        
-        
-        
         function switchView(viewName, element) {
+            const isAdmin = currentUser && currentUser.role === 'ADMIN';
+            const allowedForGuest = ['dashboard', 'doctemplates', 'proposals', 'reports', 'report-submissions', 'tracking'];
+            if (!isAdmin && !allowedForGuest.includes(viewName)) {
+                viewName = 'dashboard';
+            }
+
             document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
             if (element && !element.parentElement.classList.contains('sidebar-submenu')) {
                 document.querySelectorAll('.sidebar-menu > li').forEach(el => el.classList.remove('active'));
@@ -2028,9 +2091,11 @@
                 document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
             }
 
-            document.getElementById('view-' + viewName).style.display = 'block';
+            const targetSection = document.getElementById('view-' + viewName);
+            if (targetSection) targetSection.style.display = 'block';
+
             if (element) { element.classList.add('active'); }
-            else { const targetMenu = document.querySelector(`li[onclick*="'${viewName}'"]`); if (targetMenu) targetMenu.classList.add('active'); }
+            else { const targetMenu = document.querySelector(`li[data-menu="${viewName}"]`); if (targetMenu) targetMenu.classList.add('active'); }
 
             if (viewName === 'dashboard') loadDashboardData();
             if (viewName === 'allocation') loadAllocationData();
@@ -2053,6 +2118,49 @@
         
         
         
+        let allDashboardProjects = [];
+
+        function filterDashboardProjects() {
+            renderDashboardProjectsTable();
+        }
+
+        function renderDashboardProjectsTable() {
+            const projBody = document.getElementById('projectTableBody');
+            if (!projBody) return;
+            projBody.innerHTML = '';
+            const query = (document.getElementById('dashProjSearch')?.value || '').toLowerCase().trim();
+            const filtered = allDashboardProjects.filter(p => {
+                if (!query) return true;
+                return (p.name || '').toLowerCase().includes(query) || (p.proposedBy || '').toLowerCase().includes(query);
+            });
+
+            if (filtered.length === 0) {
+                projBody.innerHTML = '<tr><td colspan="6" class="text-muted text-center py-3">ไม่พบข้อมูลโครงการ</td></tr>';
+                return;
+            }
+
+            let index = 1;
+            filtered.forEach(p => {
+                let stClass = p.status === 'อนุมัติแล้ว' ? 'badge-approved' : 'badge-pending';
+                projBody.innerHTML += `<tr>
+                    <td>${index++}</td>
+                    <td class="text-start" style="font-weight:500;">
+                        ${p.name}
+                        ${p.proposedBy ? `<br><small class="text-muted"><i class="fas fa-user me-1"></i>${p.proposedBy}</small>` : ''}
+                    </td>
+                    <td><span class="badge-pill ${stClass}">${p.status}</span></td>
+                    <td>${formatCurrency(p.budget)}</td>
+                    <td style="color:${p.used > 0 ? 'var(--red-500)' : 'inherit'};font-weight:${p.used > 0 ? '600' : '400'};">${formatCurrency(p.used)}</td>
+                    <td>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <div class="progress progress-slim"><div class="progress-bar" style="width: ${p.pct}%; background:var(--blue-500);"></div></div>
+                            <span style="font-size:0.78rem; width:44px; text-align:right; font-weight:500;">${Number(p.pct).toFixed(1)}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+        }
+
         function loadDashboardData() {
             if (!isGAS) return; showLoader("กำลังโหลดภาพรวม...");
             google.script.run.withSuccessHandler(res => {
@@ -2065,9 +2173,9 @@
                     const typeBody = document.getElementById('typeTableBody'); typeBody.innerHTML = '';
                     if (!res.data.typeDetails || res.data.typeDetails.length === 0) { typeBody.innerHTML = '<tr><td colspan="4" class="text-muted text-center py-3">ยังไม่มีข้อมูล</td></tr>'; }
                     else { res.data.typeDetails.forEach(t => { typeBody.innerHTML += `<tr><td class="text-start">${t.name}</td><td style="color:var(--blue-600);font-weight:600;">${formatCurrency(t.received)}</td><td style="color:var(--red-500);font-weight:500;">${formatCurrency(t.used)}</td><td style="color:var(--emerald-600);font-weight:700;">${formatCurrency(t.remain)}</td></tr>`; }); }
-                    const projBody = document.getElementById('projectTableBody'); projBody.innerHTML = '';
-                    if (!res.data.projects || res.data.projects.length === 0) { projBody.innerHTML = '<tr><td colspan="6" class="text-muted text-center py-3">ยังไม่มีข้อมูลโครงการ</td></tr>'; }
-                    else { let index = 1; res.data.projects.forEach(p => { let stClass = p.status === 'อนุมัติแล้ว' ? 'badge-approved' : 'badge-pending'; projBody.innerHTML += `<tr><td>${index++}</td><td class="text-start" style="font-weight:500;">${p.name}</td><td><span class="badge-pill ${stClass}">${p.status}</span></td><td>${formatCurrency(p.budget)}</td><td style="color:${p.used > 0 ? 'var(--red-500)' : 'inherit'};font-weight:${p.used > 0 ? '600' : '400'};">${formatCurrency(p.used)}</td><td><div class="d-flex align-items-center justify-content-center gap-2"><div class="progress progress-slim"><div class="progress-bar" style="width: ${p.pct}%; background:var(--blue-500);"></div></div><span style="font-size:0.78rem; width:44px; text-align:right; font-weight:500;">${Number(p.pct).toFixed(1)}%</span></div></td></tr>`; }); }
+                    
+                    allDashboardProjects = res.data.projects || [];
+                    renderDashboardProjectsTable();
                     setTimeout(() => renderChart(res.data.typeDetails), 100);
                 }
             }).getDashboardData();
@@ -2580,45 +2688,177 @@
         }
 
         
-        
-        
+        // ==========================================
+        // 10. Proposals (การเสนอโครงการ)
+        // ==========================================
+        let allProposals = [];
+        let myProposalsOnly = false;
+
         function loadProposals() {
             if (!isGAS) return; showLoader("กำลังโหลดข้อเสนอโครงการ...");
             
             google.script.run.withSuccessHandler(deptRes => {
                 const deptSel = document.getElementById('propDepartment');
-                deptSel.innerHTML = '<option value="">-- เลือก --</option>';
-                if (deptRes.success) { deptRes.data.forEach(d => { deptSel.innerHTML += `<option value="${d.name}">${d.name}</option>`; }); }
+                if (deptSel) {
+                    deptSel.innerHTML = '<option value="">-- เลือกกลุ่มงาน/ฝ่าย --</option>';
+                    if (deptRes.success && deptRes.data) {
+                        deptRes.data.forEach(d => { deptSel.innerHTML += `<option value="${d.name}">${d.name}</option>`; });
+                    }
+                }
             }).getDepartments();
 
             google.script.run.withSuccessHandler(res => {
-                hideLoader(); const tbody = document.getElementById('proposalTableBody'); tbody.innerHTML = '';
-                if (res.success && res.data.length > 0) {
-                    let index = 1;
-                    res.data.forEach(p => {
-                        let currentStatus = (!p.status || p.status === 'undefined') ? 'รอพิจารณา' : p.status;
-                        let badgeClass = currentStatus === 'อนุมัติ' ? 'badge-status-approved' : (currentStatus === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
-                        let actionBtns = '';
-                        if (currentStatus === 'รอพิจารณา' && currentUser && currentUser.role === 'ADMIN') {
-                            actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="reviewProposal('${p.id}','อนุมัติ')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="reviewProposal('${p.id}','ไม่อนุมัติ')"><i class="fas fa-times"></i></button>`;
-                        } else { actionBtns = '<span class="text-muted">-</span>'; }
-                        tbody.innerHTML += `<tr><td class="text-center">${index++}</td><td class="fw-bold">${p.name}</td><td class="text-muted">${p.department || '-'}</td><td>${formatCurrency(p.budget)}</td><td><span class="badge ${badgeClass} px-2 py-1">${currentStatus}</span></td><td>${p.proposedBy}</td><td>${p.reviewedBy || '-'}</td><td class="text-center">${actionBtns}</td></tr>`;
-                    });
-                } else { tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-4">ยังไม่มีข้อเสนอโครงการ</td></tr>'; }
+                hideLoader();
+                if (res.success && res.data) {
+                    allProposals = res.data;
+                } else {
+                    allProposals = [];
+                }
+                renderProposalsTable();
             }).getProposals();
         }
 
+        function filterProposals() {
+            renderProposalsTable();
+        }
+
+        function filterMyProposals() {
+            const savedName = localStorage.getItem('budget_teacher_name') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : '');
+            if (!savedName && !myProposalsOnly) {
+                Swal.fire({
+                    title: 'ระบุชื่อของคุณ',
+                    input: 'text',
+                    inputPlaceholder: 'กรอกชื่อ-สกุล เพื่อค้นหาข้อเสนอของคุณ',
+                    showCancelButton: true,
+                    confirmButtonText: 'ค้นหา',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#0d9488'
+                }).then(result => {
+                    if (result.isConfirmed && result.value) {
+                        localStorage.setItem('budget_teacher_name', result.value.trim());
+                        myProposalsOnly = true;
+                        updateMyProposalsBtn();
+                        renderProposalsTable();
+                    }
+                });
+                return;
+            }
+            myProposalsOnly = !myProposalsOnly;
+            updateMyProposalsBtn();
+            renderProposalsTable();
+        }
+
+        function updateMyProposalsBtn() {
+            const btn = document.getElementById('btnMyProposals');
+            if (!btn) return;
+            if (myProposalsOnly) {
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-primary');
+                btn.innerHTML = '<i class="fas fa-check-circle me-1"></i> แสดงทั้งหมด';
+            } else {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+                btn.innerHTML = '<i class="fas fa-user-check me-1"></i> ข้อเสนอของฉัน';
+            }
+        }
+
+        function renderProposalsTable() {
+            const tbody = document.getElementById('proposalTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const query = (document.getElementById('proposalSearchInput')?.value || '').toLowerCase().trim();
+            const statusFilter = document.getElementById('proposalStatusFilter')?.value || '';
+            const myName = (localStorage.getItem('budget_teacher_name') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : '')).toLowerCase().trim();
+
+            const filtered = allProposals.filter(p => {
+                const name = (p.name || '').toLowerCase();
+                const proposer = (p.proposedBy || '').toLowerCase();
+                const dept = (p.department || '').toLowerCase();
+                const currentStatus = (!p.status || p.status === 'undefined') ? 'รอพิจารณา' : p.status;
+
+                if (statusFilter && currentStatus !== statusFilter) return false;
+                if (query && !name.includes(query) && !proposer.includes(query) && !dept.includes(query)) return false;
+                if (myProposalsOnly && myName) {
+                    if (!proposer.includes(myName)) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length > 0) {
+                let index = 1;
+                filtered.forEach(p => {
+                    let currentStatus = (!p.status || p.status === 'undefined') ? 'รอพิจารณา' : p.status;
+                    let badgeClass = currentStatus === 'อนุมัติ' ? 'badge-status-approved' : (currentStatus === 'ไม่อนุมัติ' ? 'badge-status-rejected' : 'badge-status-pending');
+                    let actionBtns = '';
+                    if (currentStatus === 'รอพิจารณา' && currentUser && currentUser.role === 'ADMIN') {
+                        actionBtns = `<button class="btn btn-sm btn-outline-success me-1" style="border-radius:8px;" onclick="reviewProposal('${p.id}','อนุมัติ')"><i class="fas fa-check"></i></button><button class="btn btn-sm btn-outline-danger" style="border-radius:8px;" onclick="reviewProposal('${p.id}','ไม่อนุมัติ')"><i class="fas fa-times"></i></button>`;
+                    } else { actionBtns = '<span class="text-muted">-</span>'; }
+                    tbody.innerHTML += `<tr>
+                        <td class="text-center">${index++}</td>
+                        <td class="fw-bold">${p.name}</td>
+                        <td class="text-muted">${p.department || '-'}</td>
+                        <td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(p.budget)}</td>
+                        <td><span class="badge ${badgeClass} px-2 py-1">${currentStatus}</span></td>
+                        <td>${p.proposedBy || '-'}</td>
+                        <td>${p.reviewedBy || '-'}</td>
+                        <td class="text-center">${actionBtns}</td>
+                    </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center py-4">ไม่พบข้อมูลข้อเสนอโครงการ</td></tr>';
+            }
+        }
+
         function openProposalModal() { 
-            if (!checkAdminPermission()) return;
             document.getElementById('proposalForm').reset(); 
+            const savedTeacher = localStorage.getItem('budget_teacher_name') || '';
+            const propByInput = document.getElementById('propProposedBy');
+            if (propByInput) {
+                if (currentUser && currentUser.name && currentUser.name !== 'ผู้เยี่ยมชม (Guest)') {
+                    propByInput.value = currentUser.name;
+                } else if (savedTeacher) {
+                    propByInput.value = savedTeacher;
+                }
+            }
             proposalModal.show(); 
         }
+
         function submitProposalForm(e) {
             e.preventDefault(); 
-            if (!checkAdminPermission()) return;
-            if (!isGAS) return; showLoader("กำลังส่งข้อเสนอ...");
-            const data = { name: document.getElementById('propName').value, objectives: document.getElementById('propObjectives').value, budget: document.getElementById('propBudget').value, department: document.getElementById('propDepartment').value, proposedBy: currentUser.name, status: 'รอพิจารณา' };
-            google.script.run.withSuccessHandler(res => { hideLoader(); if (res.success) { Swal.fire('สำเร็จ', res.message, 'success'); proposalModal.hide(); loadProposals(); loadNotifications(); } else { Swal.fire('ข้อผิดพลาด', res.error, 'error'); } }).saveProposal(data);
+            if (!isGAS) return;
+            const proposedBy = (document.getElementById('propProposedBy') ? document.getElementById('propProposedBy').value.trim() : '') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : 'ครูผู้เสนอโครงการ');
+            if (!proposedBy) {
+                Swal.fire('ข้อผิดพลาด', 'กรุณาระบุชื่อผู้เสนอโครงการ', 'warning');
+                return;
+            }
+            localStorage.setItem('budget_teacher_name', proposedBy);
+
+            showLoader("กำลังส่งข้อเสนอ...");
+            const data = { 
+                name: document.getElementById('propName').value.trim(), 
+                objectives: document.getElementById('propObjectives').value.trim(), 
+                budget: document.getElementById('propBudget').value, 
+                department: document.getElementById('propDepartment').value, 
+                proposedBy: proposedBy, 
+                status: 'รอพิจารณา' 
+            };
+            google.script.run.withSuccessHandler(res => { 
+                hideLoader(); 
+                if (res.success) { 
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ส่งข้อเสนอเรียบร้อย',
+                        text: 'ข้อเสนอโครงการของคุณถูกส่งเข้าสู่ระบบแล้ว รอการพิจารณาจากผู้บริหาร',
+                        confirmButtonColor: '#0d9488'
+                    }); 
+                    proposalModal.hide(); 
+                    loadProposals(); 
+                    loadNotifications(); 
+                } else { 
+                    Swal.fire('ข้อผิดพลาด', res.error, 'error'); 
+                } 
+            }).saveProposal(data);
         }
 
         function reviewProposal(id, status) {
@@ -2637,50 +2877,142 @@
         // ==========================================
         // 11. Project Reports (รายงานโครงการ) - ลิ้งก์ส่งโครงการ
         // ==========================================
+        let allTeacherReports = [];
+        let myReportsOnly = false;
+
         function loadTeacherReports() {
             if (!isGAS) return; showLoader("กำลังโหลดข้อมูล...");
             google.script.run.withSuccessHandler(res => {
                 hideLoader();
                 if (!res.success) { Swal.fire('ข้อผิดพลาด', res.error, 'error'); return; }
-                const tbody = document.getElementById('teacherReportsTableBody');
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                if (res.data && res.data.length > 0) {
-                    let index = 1;
-                    res.data.forEach(p => {
-                        const isSent = p.reportStatus === 'ส่งแล้ว';
-                        const badgeClass = isSent ? 'badge-approved' : 'badge-pending';
-                        const badgeText = isSent ? '<i class="fas fa-check-circle"></i> ส่งแล้ว' : '<i class="fas fa-clock"></i> ยังไม่ได้ส่ง';
-                        
-                        let actionBtns = (currentUser && currentUser.role === 'ADMIN')
-                            ? `<button class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:0.78rem;" onclick="openSubmitReportModal('${p.projectId}', '${p.projectName}', '${p.wordLink||''}', '${p.pdfLink||''}', '${p.reportNote||''}')"><i class="fas fa-paper-plane"></i> ส่งรายงาน</button>`
-                            : `<span class="text-muted" style="font-size:0.78rem;">-</span>`;
-
-                        tbody.innerHTML += `<tr>
-                            <td class="text-center">${index++}</td>
-                            <td class="fw-bold">${p.projectName}</td>
-                            <td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(p.budget)}</td>
-                            <td class="text-center"><span class="badge-pill ${badgeClass}">${badgeText}</span></td>
-                            <td class="text-center">${actionBtns}</td>
-                        </tr>`;
-                    });
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ยังไม่มีโครงการในระบบ</td></tr>';
-                }
+                allTeacherReports = res.data || [];
+                renderTeacherReportsTable();
             }).getReportSubmissions();
         }
 
+        function filterTeacherReports() {
+            renderTeacherReportsTable();
+        }
+
+        function filterMyReports() {
+            const savedName = localStorage.getItem('budget_teacher_name') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : '');
+            if (!savedName && !myReportsOnly) {
+                Swal.fire({
+                    title: 'ระบุชื่อของคุณ',
+                    input: 'text',
+                    inputPlaceholder: 'กรอกชื่อ-สกุล เพื่อค้นหาโครงการของคุณ',
+                    showCancelButton: true,
+                    confirmButtonText: 'ค้นหา',
+                    cancelButtonText: 'ยกเลิก',
+                    confirmButtonColor: '#0d9488'
+                }).then(result => {
+                    if (result.isConfirmed && result.value) {
+                        localStorage.setItem('budget_teacher_name', result.value.trim());
+                        myReportsOnly = true;
+                        updateMyReportsBtn();
+                        renderTeacherReportsTable();
+                    }
+                });
+                return;
+            }
+            myReportsOnly = !myReportsOnly;
+            updateMyReportsBtn();
+            renderTeacherReportsTable();
+        }
+
+        function updateMyReportsBtn() {
+            const btn = document.getElementById('btnMyReports');
+            if (!btn) return;
+            if (myReportsOnly) {
+                btn.classList.remove('btn-outline-primary');
+                btn.classList.add('btn-primary');
+                btn.innerHTML = '<i class="fas fa-check-circle me-1"></i> แสดงทั้งหมด';
+            } else {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+                btn.innerHTML = '<i class="fas fa-user-check me-1"></i> โครงการของฉัน';
+            }
+        }
+
+        function renderTeacherReportsTable() {
+            const tbody = document.getElementById('teacherReportsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            
+            const query = (document.getElementById('reportSearchInput')?.value || '').toLowerCase().trim();
+            const statusFilter = document.getElementById('reportStatusFilter')?.value || '';
+            const myName = (localStorage.getItem('budget_teacher_name') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : '')).toLowerCase().trim();
+
+            const filtered = allTeacherReports.filter(p => {
+                const name = (p.projectName || '').toLowerCase();
+                const proposer = (p.proposedBy || p.reportUpdatedBy || '').toLowerCase();
+                const isSent = p.reportStatus === 'ส่งแล้ว';
+                const st = isSent ? 'ส่งแล้ว' : 'ยังไม่ได้ส่ง';
+
+                if (statusFilter && st !== statusFilter) return false;
+                if (query && !name.includes(query) && !proposer.includes(query)) return false;
+                if (myReportsOnly && myName) {
+                    if (!proposer.includes(myName) && !name.includes(myName)) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length > 0) {
+                let index = 1;
+                filtered.forEach(p => {
+                    const isSent = p.reportStatus === 'ส่งแล้ว';
+                    const badgeClass = isSent ? 'badge-approved' : 'badge-pending';
+                    const badgeText = isSent ? '<i class="fas fa-check-circle"></i> ส่งแล้ว' : '<i class="fas fa-clock"></i> ยังไม่ได้ส่ง';
+                    
+                    const safeName = (p.projectName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    const safeNote = (p.reportNote || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    
+                    let fileBtns = '';
+                    if (p.wordLink) {
+                        fileBtns += `<a href="${p.wordLink}" target="_blank" class="btn btn-sm btn-outline-info ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ Word"><i class="fas fa-file-word"></i> Word</a>`;
+                    }
+                    if (p.pdfLink) {
+                        fileBtns += `<a href="${p.pdfLink}" target="_blank" class="btn btn-sm btn-outline-danger ms-1" style="border-radius:8px;font-size:0.78rem;" title="เปิดไฟล์ PDF"><i class="fas fa-file-pdf"></i> PDF</a>`;
+                    }
+
+                    let actionBtns = `<button type="button" class="btn btn-sm btn-outline-primary" style="border-radius:8px;font-size:0.78rem;" onclick="openSubmitReportModal('${p.projectId}', '${safeName}', '${p.wordLink||''}', '${p.pdfLink||''}', '${safeNote}')"><i class="fas fa-paper-plane me-1"></i> ${isSent ? 'แก้ไขรายงาน' : 'ส่งรายงาน'}</button>${fileBtns}`;
+
+                    tbody.innerHTML += `<tr>
+                        <td class="text-center">${index++}</td>
+                        <td>
+                            <div class="fw-bold">${p.projectName}</div>
+                            ${p.proposedBy ? `<div class="text-muted small"><i class="fas fa-user me-1"></i>${p.proposedBy}</div>` : ''}
+                        </td>
+                        <td class="fw-bold" style="color:var(--blue-600);">${formatCurrency(p.budget)}</td>
+                        <td class="text-center"><span class="badge-pill ${badgeClass}">${badgeText}</span></td>
+                        <td class="text-center">${actionBtns}</td>
+                    </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center py-4">ไม่พบข้อมูลโครงการ</td></tr>';
+            }
+        }
+
         function openSubmitReportModal(projectId, projectName, wordLink, pdfLink, note) {
-            if (!checkAdminPermission()) return;
             document.getElementById('submitReportProjectId').value = projectId;
             document.getElementById('submitReportProjectName').value = projectName;
             document.getElementById('submitReportWord').value = '';
             document.getElementById('submitReportPdf').value = '';
-            document.getElementById('submitReportNote').value = note;
+            document.getElementById('submitReportNote').value = note || '';
+
+            const senderInput = document.getElementById('submitReportSender');
+            if (senderInput) {
+                const savedTeacher = localStorage.getItem('budget_teacher_name') || '';
+                if (currentUser && currentUser.name && currentUser.name !== 'ผู้เยี่ยมชม (Guest)') {
+                    senderInput.value = currentUser.name;
+                } else if (savedTeacher) {
+                    senderInput.value = savedTeacher;
+                }
+            }
             
             // Store original links in dataset for fallback if no new file is uploaded
-            document.getElementById('submitReportWord').dataset.existing = wordLink;
-            document.getElementById('submitReportPdf').dataset.existing = pdfLink;
+            document.getElementById('submitReportWord').dataset.existing = wordLink || '';
+            document.getElementById('submitReportPdf').dataset.existing = pdfLink || '';
             new bootstrap.Modal(document.getElementById('submitReportModal')).show();
         }
 
@@ -2691,6 +3023,12 @@
             const wordInput = document.getElementById('submitReportWord');
             const pdfInput = document.getElementById('submitReportPdf');
             
+            const senderInput = document.getElementById('submitReportSender');
+            const senderName = (senderInput ? senderInput.value.trim() : '') || (currentUser && currentUser.name !== 'ผู้เยี่ยมชม (Guest)' ? currentUser.name : 'ครูผู้รับผิดชอบโครงการ');
+            if (senderName) {
+                localStorage.setItem('budget_teacher_name', senderName);
+            }
+
             showLoader("กำลังอ่านไฟล์และบันทึกข้อมูล...");
             
             const toBase64 = file => new Promise((resolve, reject) => {
@@ -2716,13 +3054,18 @@
                 google.script.run.withSuccessHandler(res => {
                     hideLoader();
                     if (res.success) {
-                        Swal.fire('สำเร็จ', res.message, 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'บันทึกรายงานสำเร็จ',
+                            text: 'ส่งรายงานโครงการเรียบร้อยแล้ว',
+                            confirmButtonColor: '#0d9488'
+                        });
                         bootstrap.Modal.getInstance(document.getElementById('submitReportModal')).hide();
                         loadTeacherReports();
                     } else {
                         Swal.fire('ข้อผิดพลาด', res.error, 'error');
                     }
-                }).updateReportStatus(projectId, 'ส่งแล้ว', note, currentUser.name, wordLink, pdfLink);
+                }).updateReportStatus(projectId, 'ส่งแล้ว', note, senderName, wordLink, pdfLink);
                 
             } catch (err) {
                 hideLoader();

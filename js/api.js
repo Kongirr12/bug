@@ -556,6 +556,8 @@ const MOCK_API = {
                     projectName: p.name,
                     budget: p.budget,
                     progress: p.progress || 0,
+                    proposedBy: p.proposedBy || '',
+                    budgetType: p.budgetType || '',
                     reportStatus: p.reportStatus || 'ยังไม่ได้ส่ง',
                     reportNote: p.reportNote || '',
                     reportUpdatedBy: p.reportUpdatedBy || '',
